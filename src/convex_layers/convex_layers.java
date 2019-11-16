@@ -1,7 +1,7 @@
 package convex_layers;
 
 /**
- * 
+ * Main project class.
  */
 public class convex_layers {
     
