@@ -11,7 +11,22 @@ public class Vertex {
         this.y = y;
     }
 
-    @Getter long id;
-    @Data double x;
-    @Data double y;
+    long id;
+    double x;
+    double y;
+    boolean hulled = false;
+    Vertex prev;
+    Vertex next;
+
+    public Vertex clone(Vertex v) {
+        return new Vertex(id, x, y);
+    }
+
+    public Vertex add(Vertex v) {
+        return new Vertex(-1, x + v.x, y + v.y);
+    }
+
+    public Vertex sub(Vertex v) {
+        return new Vertex(-1, x - v.x, y - v.y);
+    }
 }

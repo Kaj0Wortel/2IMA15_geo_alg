@@ -1,4 +1,3 @@
-@Data
 package convex_layers;
 
 public class Edge {

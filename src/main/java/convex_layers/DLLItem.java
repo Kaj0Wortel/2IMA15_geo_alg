@@ -1,4 +1,3 @@
-@Data
 package convex_layers;
 
 /**
@@ -6,6 +5,11 @@ package convex_layers;
  * @param <T> Generic type of the item.
  */
 public class DLLItem<T> {
+
+    public DLLItem(T item) {
+        this.item = item;
+    }
+
     T item;
     DLLItem<T> prev;
     DLLItem<T> next;
