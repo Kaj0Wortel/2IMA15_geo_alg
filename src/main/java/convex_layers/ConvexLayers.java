@@ -19,4 +19,39 @@ public class ConvexLayers {
     public static void main(String[] args) {
         System.out.println("Hello World!");
     }
+
+    /**
+     * Resposibility Pieter
+     */
+    void GiftWrapping(){
+
+    }
+
+    /**
+     * Responsibility Kaj
+     */
+    void UpdateHull(){
+
+    }
+
+    /**
+     * Responsibility, Rowin
+     */
+    void ReadInput(){
+
+    }
+
+    /**
+     * Responsibility, Stijn
+     */
+    void WriteOutput(){
+
+    }
+
+    /**
+     * Responsibility, Stijn, Pieter
+     */
+    void ComputeIntersection(){
+
+    }
 }
