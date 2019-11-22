@@ -15,6 +15,8 @@ public class ConvexLayers {
     DoublyLinkedList<Vertex> in;
     //Linked list of the outer convex hull
     DoublyLinkedList<Vertex> out;
-    
-    
+
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
 }
