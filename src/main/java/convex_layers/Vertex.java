@@ -1,9 +1,12 @@
 package convex_layers;
 
+import lombok.Data;
+import lombok.Getter;
+
 /**
  * class representing a point in the plain
  */
-
+@Data
 public class Vertex {
     public Vertex(long id, double x, double y){
         this.id = id;
@@ -11,7 +14,9 @@ public class Vertex {
         this.y = y;
     }
 
-    @Getter long id;
-    @Data double x;
-    @Data double y;
+    private final long id;
+    private double x;
+    private double y;
+    
+    
 }
