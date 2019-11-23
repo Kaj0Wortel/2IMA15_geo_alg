@@ -168,5 +168,9 @@ public class Edge
         return new Edge(v1.clone(), v2.clone());
     }
     
+    @Override
+    public String toString() {
+        return "{" + v1.toString() + "," + v2.toString() + "}";
+    }
     
 }
