@@ -14,7 +14,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,10 +50,10 @@ public class Visualizer {
     private final AtomicInteger running = new AtomicInteger(0);
     
     // Data variables.
-    private List<Collection<Vector>> points = List.of();
+    private List<Iterable<Vector>> points = List.of();
     private List<Paint> pointColors = ArrayTools.asList(null, new Color(255, 200, 0), new Color(0, 255, 255),
             new Color(255, 0, 255));
-    private List<Collection<Edge>> edges = List.of();
+    private List<Iterable<Edge>> edges = List.of();
     private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 255, 0),
             new Color(0, 0, 255));
     
@@ -120,14 +120,14 @@ public class Visualizer {
         frame.repaint();
     }
     
-    public Visualizer(List<Collection<Vector>> points, List<Collection<Edge>> edges) {
+    public Visualizer(List<Iterable<Vector>> points, List<Iterable<Edge>> edges) {
         this();
         this.points = points;
         this.edges = edges;
     }
     
-    public Visualizer(List<Collection<Vector>> points, List<Paint> pointColors,
-                      List<Collection<Edge>> edges, List<Paint> edgeColors) {
+    public Visualizer(List<Iterable<Vector>> points, List<Paint> pointColors,
+                      List<Iterable<Edge>> edges, List<Paint> edgeColors) {
         this(points, edges);
         this.pointColors = pointColors;
         this.edgeColors = edgeColors;
@@ -184,7 +184,7 @@ public class Visualizer {
         maxX = Integer.MIN_VALUE;
         minY = Integer.MAX_VALUE;
         maxY = Integer.MIN_VALUE;
-        for (Collection<Vector> col : points) {
+        for (Iterable<Vector> col : points) {
             for (Vector vec : col) {
                 minX = Math.min(minX, vec.x());
                 maxX = Math.max(maxX, vec.x());
@@ -297,7 +297,7 @@ public class Visualizer {
      * 
      * @param points The list of collection of points to be shown.
      */
-    public void setPoints(List<Collection<Vector>> points) {
+    public void setPoints(List<Iterable<Vector>> points) {
         this.points = points;
     }
     
@@ -320,7 +320,7 @@ public class Visualizer {
      *
      * @param edges The list of collection of edges to be shown.
      */
-    public void setEdges(List<Collection<Edge>> edges) {
+    public void setEdges(List<Iterable<Edge>> edges) {
         this.edges = edges;
     }
     
@@ -338,32 +338,101 @@ public class Visualizer {
     
     /**
      * Converts a collection of {@link InputVertex} to a collection of {@link Vector}. <br>
-     * Additionally clones the data.
+     * This function clones the data, which implies that the data <b>won't</b> be modified when the
+     * original collection is modified.
      * 
      * @param in The collection to be converted.
      * @return The underlying data of the input collection.
+     * 
+     * @see #toVec(Iterable) 
      */
-    public static Collection<Vector> toVec(Collection<InputVertex> in) {
-        List<Vector> out = new ArrayList<>(in.size());
+    public static Iterable<Vector> cloneToVec(Iterable<InputVertex> in) {
+        List<Vector> out = new ArrayList<>();
         for (InputVertex iv : in) {
             out.add(iv.getV().clone());
+        }
+        return out;
+    }
+
+    /**
+     * Converts a collection of {@link InputVertex} to a collection of {@link Vector}. <br>
+     * This function does not clone the data, which implies that the data <b>will</b> be updated
+     * when the original collection is modified.
+     *
+     * @param in The collection to be converted.
+     * @return The underlying data of the input collection.
+     *
+     * @see #cloneToVec(Iterable)
+     */
+    public static Iterable<Vector> toVec(final Iterable<InputVertex> in) {
+        return new Iterable<Vector>() {
+            @Override
+            public Iterator<Vector> iterator() {
+                return new Iterator<Vector>() {
+                    private final Iterator<InputVertex> it = in.iterator();
+                    
+                    @Override
+                    public boolean hasNext() {
+                        return it.hasNext();
+                    }
+
+                    @Override
+                    public Vector next() {
+                        return it.next().getV();
+                    }
+                };
+            }
+        };
+    }
+    
+    /**
+     * Converts a collection of {@link OutputEdge} to a collection of {@link Edge}. <br>
+     * This function clones the data, which implies that the data <b>won't</b> be modified when the
+     * original collection is modified.
+     *
+     * @param in The collection to be converted.
+     * @return The underlying data of the input collection.
+     * 
+     * @see #toEdge(Iterable)
+     */
+    public static Iterable<Edge> cloneToEdge(Iterable<OutputEdge> in) {
+        List<Edge> out = new ArrayList<>();
+        for (OutputEdge e : in) {
+            out.add(new Edge(e.getV1().getV().clone(), e.getV2().getV().clone()));
         }
         return out;
     }
     
     /**
      * Converts a collection of {@link OutputEdge} to a collection of {@link Edge}. <br>
-     * Additionally clones the data.
+     * This function does not clone the data, which implies that the data <b>will</b> be updated
+     * when the original collection is modified.
      *
      * @param in The collection to be converted.
      * @return The underlying data of the input collection.
+     * 
+     * @see #cloneToEdge(Iterable)
      */
-    public static Collection<Edge> toEdge(Collection<OutputEdge> in) {
-        List<Edge> out = new ArrayList<>(in.size());
-        for (OutputEdge e : in) {
-            out.add(new Edge(e.getV1().getV().clone(), e.getV2().getV().clone()));
-        }
-        return out;
+    public static Iterable<Edge> toEdge(final Iterable<OutputEdge> in) {
+        return new Iterable<Edge>() {
+            @Override
+            public Iterator<Edge> iterator() {
+                return new Iterator<Edge>() {
+                    private final Iterator<OutputEdge> it = in.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return it.hasNext();
+                    }
+
+                    @Override
+                    public Edge next() {
+                        OutputEdge e = it.next();
+                        return new Edge(e.getV1().getV(), e.getV2().getV());
+                    }
+                };
+            }
+        };
     }
     
     
@@ -384,7 +453,8 @@ public class Visualizer {
         for (int i = 0; i < amt - 1; i++) {
             edges1.add(new Edge(vecs1.get(i), vecs1.get(i + 1)));
             edges2.add(new Edge(vecs2.get(i), vecs2.get(i + 1)));
-            edges3.add(new Edge(vecs1.get(i), vecs2.get(i + 1)));
+            if (i % 2 == 0) edges3.add(new Edge(vecs1.get(i), vecs2.get(i + 1)));
+            else edges3.add(new Edge(vecs2.get(i), vecs1.get(i + 1)));
         }
         
         //System.out.println(vecs1.toString().replaceAll(", ", "," + Var.LS));
