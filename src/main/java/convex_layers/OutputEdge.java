@@ -2,7 +2,6 @@
 package convex_layers;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,12 +11,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Edge {
+public class OutputEdge {
     
     /** Vertex 1 of the edge. */
-    private final Vertex v1;
+    private final InputVertex v1;
     /** Vertex 2 of the edge. */
-    private final Vertex v2;
+    private final InputVertex v2;
     
     
 }
