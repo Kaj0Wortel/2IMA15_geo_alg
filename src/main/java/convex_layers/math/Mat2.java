@@ -1,9 +1,11 @@
 package convex_layers.math;
 
 import tools.MultiTool;
+import tools.PublicCloneable;
 import tools.Var;
 
-public class Mat2 {
+public class Mat2
+            implements PublicCloneable {
     
     private double [][] mat;
     
@@ -96,49 +98,99 @@ public class Mat2 {
     public static Mat2 i() {
         return new Mat2(1, 0, 0, 1);
     }
-    
+
+    /**
+     * @return The determinant of this matrix.
+     */
     public double det() {
         return m00()*m11() - m10()*m01();
     }
-    
+
+    /**
+     * Adds the given matrix to this matrix.
+     *
+     * @param m The matrix to add.
+     * @return The result of the subtraction, i.e. {@code this + m}.
+     */
     public Mat2 add(Mat2 m) {
         return new Mat2(
                 m00() + m.m00(), m01() + m.m01(),
                 m10() + m.m10(), m11() + m.m11()
         );
     }
-    
+
+    /**
+     * Subtracts the given matrix from this matrix.
+     * 
+     * @param m The matrix to subtract.
+     * @return The result of the subtraction, i.e. {@code this - m}.
+     */
     public Mat2 sub(Mat2 m) {
         return new Mat2(
                 m00() - m.m00(), m01() - m.m01(),
                 m10() - m.m10(), m11() - m.m11()
         );
     }
-    
+
+    /**
+     * Subtracts this matrix from the given matrix.
+     *
+     * @param m The mstrix to subtract from.
+     * @return The result of the subtraction, i.e. {@code m - this}.
+     */
     public Mat2 isub(Mat2 m) {
         return new Mat2(
                 m.m00() - m00(), m.m01() - m01(),
                 m.m10() - m10(), m.m11() - m11()
         );
     }
-    
+
+    /**
+     * @return The transpose of the given matrix, i.e. {@code this<sup>T</sup>}.
+     */
     public Mat2 transpose() {
         return new Mat2(m00(), m10(), m01(), m11());
     }
-    
+
+    /**
+     * Multiplies this matrix with the given matrix.
+     * 
+     * @param m The matrix to multiply with.
+     * @return The result of the matrix multiplication, i.e. {@code this * m}.
+     */
     public Mat2 mul(Mat2 m) {
         return new Mat2(
                 m00()*m.m00() + m01()*m.m10(), m00()*m.m01() + m01()*m.m11(),
                 m10()*m.m00() + m11()*m.m10(), m10()*m.m01() + m11()*m.m11()
         );
     }
-    
+
+    /**
+     * Multiplies this matrix with the given vector.
+     * 
+     * @param v The vector to multiply with.
+     * @return The result of the multiplication, i.e. {@code this * v}.
+     */
     public Vector mul(Vector v) {
         return new Vector(m00()*v.x() + m01()*v.y(), m10()*v.x()+ m11()*v.y());
     }
-    
+
+    /**
+     * Multiplies the transpose of the given vector with this matrix.
+     * 
+     * @param v The vector to multiply with.
+     * @return The result of the multiplication, i.e. {@code y<sup>T</sup> * this}.
+     */
     public Vector imul(Vector v) {
         return new Vector(v.x()*m00() + v.y()*m10(), v.x()*m01() + v.y()*m11());
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Mat2)) return false;
+        Mat2 m = (Mat2) obj;
+        return m00() == m.m00() && m01() == m.m01() &&
+                m10() == m.m10() && m11() == m.m11();
     }
     
     @Override
@@ -163,17 +215,9 @@ public class Mat2 {
         return MultiTool.calcHashCode(mat);
     }
     
-    public static void main(String[] args) {
-        Edge e = new Edge(new Vector(1, 1), new Vector(3, 1));
-        Vector v1 = new Vector(2, 2);
-        Vector v2 = new Vector(2, 0);
-        Vector v3 = new Vector(0, 0);
-        Vector v4 = new Vector(0, 2);
-        System.out.println(Math.toDegrees(e.angle(v1)));
-        System.out.println(Math.toDegrees(e.angle(v2)));
-        System.out.println(Math.toDegrees(e.angle(v3)));
-        System.out.println(Math.toDegrees(e.angle(v4)));
-        //System.out.println(Math.toDegrees(e.iangle(v)));
+    @Override
+    public Mat2 clone() {
+        return new Mat2(m00(), m01(), m10(), m00());
     }
     
     

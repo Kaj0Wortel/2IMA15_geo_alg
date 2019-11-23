@@ -21,9 +21,9 @@ public class InputVertex
     /** Whether the vertex is part of a hull. */
     private boolean hulled = false;
     /** The previous vertex on the hull. */
-    private InputVertex prev; // TODO: we certainly do NOT want this.
+    private InputVertex prev;
     /** The next vertex on the hull. */
-    private InputVertex next; // TODO: we certainly do NOT want this.
+    private InputVertex next;
 
     /**
      * Data constructor which creates a vertex for the underlying structure from the given x and y.
