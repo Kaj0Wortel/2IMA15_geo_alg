@@ -14,17 +14,17 @@ import tools.PublicCloneable;
 public class Vertex
         implements PublicCloneable {
     /** The ID of the vertex. */
-    protected final long id;
+    private final long id;
     /** The x-coordinate of the vertex. */
-    protected double x;
+    private double x;
     /** The x-coordinate of the vertex. */
-    protected double y;
+    private double y;
     /** Whether the vertex is part of a hull. */
-    protected boolean hulled = false;
+    private boolean hulled = false;
     /** The previous vertex on the hull. */
-    protected Vertex prev; // TODO: we certainly do NOT want this.
+    private Vertex prev; // TODO: we certainly do NOT want this.
     /** The next vertex on the hull. */
-    protected Vertex next; // TODO: we certainly do NOT want this.
+    private Vertex next; // TODO: we certainly do NOT want this.
 
     @Override
     public Vertex clone() {

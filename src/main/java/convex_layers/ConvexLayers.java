@@ -19,30 +19,36 @@ import java.util.Set;
  */
 public class ConvexLayers {
     /** The input file */
-    private final File input;
+    private File input;
     /** The output file. */
-    private final File output;
+    private File output;
     /** Set that keeps track of all variables that still need to be checked. */
     private Set<Vertex> remaining = new HashSet<Vertex>();
     /** Set containing the edges of the resulting convex partitioning. */
     private Set<Edge> sol = new HashSet<Edge>();
     
     /** Linked list of the inner convex hull. */
-    private DoublyLinkedList<Vertex> in;
+    //private DoublyLinkedList<Vertex> in;
+    private Vertex in;
     /** Linked list of the outer convex hull. */
-    private DoublyLinkedList<Vertex> out;
-
-    /**
-     * Creates a new convex layer class, which solves the convex decomposition problem
-     * for the given input and outputs the result to the given output file.
-     * 
-     * @param input The input file.
-     * @param output The output file.
-     */
-    public ConvexLayers(File input, File output) {
-        this.input = input;
-        this.output = output;
+    //private DoublyLinkedList<Vertex> out;
+    private Vertex out;
+    
+    public ConvexLayers() {
+        
     }
+    
+//    /**
+//     * Creates a new convex layer class, which solves the convex decomposition problem
+//     * for the given input and outputs the result to the given output file.
+//     * 
+//     * @param input The input file.
+//     * @param output The output file.
+//     */
+//    public ConvexLayers(File input, File output) {
+//        this.input = input;
+//        this.output = output;
+//    }
     
     /**
      * This function is used to compute the output file.
@@ -139,26 +145,26 @@ public class ConvexLayers {
      * @param set
      */
     public static void finishHull(Vertex v, Set<Vertex> set) {
-        if (v.prev == null) {
-            v.prev = new Vertex(-1, v.x + 10, v.y);
+        if (v.getPrev() == null) {
+            v.setPrev(new Vertex(-1, v.getX() + 10, v.getY(), false, null, null));
         }
         do {
-            v.hulled = true;
-            Vertex next = nextCH(v.prev, v, set);
+            v.setHulled(true);
+            Vertex next = nextCH(v.getPrev() , v, set);
 //            System.out.println("Next from " + v.id + " is " + next.id);
-            v.next = next;
-            next.prev = v;
+            v.setNext(next);
+            next.setPrev(v);
             v = next;
-        } while (!v.hulled);
+        } while (!v.isHulled());
     }
 
     public static void printHull(Vertex hull) {
         Vertex v = hull;
         do {
-            System.out.print(v.id + ">");
-            v = v.next;
+            System.out.print(v.getId() + ">");
+            v = v.getNext();
         } while (!v.equals(hull));
-        System.out.println(hull.id);
+        System.out.println(hull.getId());
     }
 
     /**
@@ -166,8 +172,8 @@ public class ConvexLayers {
      */
     public void solve(File inFile, File outFile) {
         Pair<Set<Vertex>, String> input = readInput(inFile);
-        remaining = input.fst;
-        String instanceName = input.snd;
+        remaining = input.getFirst();
+        String instanceName = input.getSecond();
 
         // Build complete outer convex hull
         System.err.println("Building initial outer hull");
@@ -180,7 +186,7 @@ public class ConvexLayers {
         System.err.println("Adding outer hull to solution");
         Vertex prev = out;
         do {
-            Vertex next = prev.next;
+            Vertex next = prev.getNext();
             sol.add(new Edge(prev, next));
             remaining.remove(prev);
             prev = next;
@@ -222,21 +228,21 @@ public class ConvexLayers {
             }
 
             Vertex inRight = in;
-            Vertex inLeft = in.next;
+            Vertex inLeft = in.getNext();
             Vertex[] intersect = hullLineIntersect(out, inRight, inLeft);
-            System.err.println(intersect[0].id + ", " + intersect[1].id + ", " + intersect[2].id + ", " + intersect[3].id);
+            System.err.println(intersect[0].getId() + ", " + intersect[1].getId() + ", " + intersect[2].getId() + ", " + intersect[3].getId());
             sol.add(new Edge(intersect[2], inRight));
             sol.add(new Edge(intersect[1], inLeft));
 
-            if (!inRight.prev.equals(inLeft)) {
-                while (angle(inRight.next, inRight, intersect[3]) > angle(inRight.next, inRight, inRight.prev)) {
+            if (!inRight.getPrev().equals(inLeft)) {
+                while (angle(inRight.getNext(), inRight, intersect[3]) > angle(inRight.getNext(), inRight, inRight.getPrev())) {
                     System.err.println("Walk right");
-                    inRight = inRight.prev;
+                    inRight = inRight.getPrev();
                     sol.add(new Edge(intersect[2], inRight));
                 }
-                while (angle(intersect[0], inLeft, inLeft.prev) > angle(inLeft.next, inLeft, inLeft.prev)) {
+                while (angle(intersect[0], inLeft, inLeft.getPrev()) > angle(inLeft.getNext(), inLeft, inLeft.getPrev())) {
                     System.err.println("Walk left");
-                    inLeft = inLeft.next;
+                    inLeft = inLeft.getNext();
                     sol.add(new Edge(intersect[1], inLeft));
                 }
             }
@@ -249,31 +255,31 @@ public class ConvexLayers {
             // Remove the inner part from todo while adding their edges to sol
             Vertex inRemove = inRight;
             while (!inRemove.equals(inLeft)) {
-                todo.remove(inRemove);
+                remaining.remove(inRemove);
                 if (!inRemove.equals(inLeft)) {
-                    sol.add(new Edge(inRemove, inRemove.next));
+                    sol.add(new Edge(inRemove, inRemove.getNext()));
                 }
-                inRemove = inRemove.next;
+                inRemove = inRemove.getNext();
             }
-            todo.remove(inLeft);
+            remaining.remove(inLeft);
 
             // Update the outer and inner, if still not done
-            in = inRight.prev;
+            in = inRight.getPrev();
             if (in.equals(inLeft)) {
                 done = true;
             } else {
-                inRight.prev.next = null;
-                inLeft.next.prev = null;
+                inRight.getPrev().setNext(null);
+                inLeft.getNext().setPrev(null);
 
-                intersect[0].prev = inLeft;
-                inLeft.next = intersect[0];
-                intersect[3].next = inRight;
-                inRight.prev = intersect[3];
+                intersect[0].setPrev(inLeft);
+                inLeft.setNext(intersect[0]);
+                intersect[3].setNext(inRight);
+                inRight.setPrev(intersect[3]);
                 out = intersect[3];
             }
 
             if (!done) {
-                finishHull(in, todo);
+                finishHull(in, remaining);
             }
         }
 
@@ -306,7 +312,7 @@ public class ConvexLayers {
             double x = point.getDouble("x");
             double y = point.getDouble("y");
             System.out.println("id: " + id + ", x: " + x + ", y : " + y);
-            set.add(new Vertex(id, x, y));
+            set.add(new Vertex(id, x, y, false, null, null));
         }
 
         return new Pair<>(set, instanceName);
@@ -327,8 +333,8 @@ public class ConvexLayers {
         JSONArray edges = new JSONArray();
         for (Edge edge : sol) {
             JSONObject e = new JSONObject();
-            e.put("i", edge.v1.id);
-            e.put("j", edge.v2.id);
+            e.put("i", edge.getV1().getId());
+            e.put("j", edge.getV2().getId());
             edges.put(e);
         }
         json.put("edgs", edges);
@@ -349,7 +355,7 @@ public class ConvexLayers {
      */
     private static void printSolution(Set<Edge> sol) {
         for (Edge e : sol) {
-            System.out.println(e.v1.id + " " + e.v2.id);
+            System.out.println(e.getV1().getId() + " " + e.getV2().getId());
         }
     }
 
@@ -372,7 +378,7 @@ public class ConvexLayers {
      * where the first edge is the one furthest in the direction the line points in
      */
     private static Vertex[] hullLineIntersect(Vertex hull, Vertex l1, Vertex l2) {
-        System.err.println("Intersecting hull " + hull.id + " with line " + l1.id + ", " + l2.id);
+        System.err.println("Intersecting hull " + hull.getId() + " with line " + l1.getId() + ", " + l2.getId());
 
         Vertex e1 = null;
         Vertex e2 = null;
@@ -382,7 +388,7 @@ public class ConvexLayers {
         int testCounter = 0;
         Vertex v = hull;
         do {
-            Vertex next = v.next;
+            Vertex next = v.getNext();
             if (intersects(v, next, l1, l2)) {
                 testCounter ++;
                 if (e1 == null & leftOfLine(v, l1, l2)) {
@@ -448,7 +454,7 @@ public class ConvexLayers {
     private Vertex rightMost(Set<Vertex> set) {
         Vertex maxX = set.iterator().next();
         for (Vertex v : set) {
-            if (v.x > maxX.x) {
+            if (v.getX() > maxX.getX()) {
                 maxX = v;
             }
         }
@@ -506,8 +512,7 @@ public class ConvexLayers {
      * @return
      */
     private static double angle(Vertex v) {
-        return Math.atan2(v.y, v.x);
->>>>>>> feature/dirty-but-working
+        return Math.atan2(v.getY(), v.getX());
     }
     
     
