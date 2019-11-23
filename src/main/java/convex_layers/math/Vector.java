@@ -60,12 +60,12 @@ public class Vector
     }
     
     public double dot(Vector v) {
-        return x*v.y + y*v.x;
+        return x*v.x + y*v.y;
     }
     
     @Override
     public String toString() {
-        return "(" + x + ", " + y + "]";
+        return "(" + x + ", " + y + ")";
     }
     
     @Override
