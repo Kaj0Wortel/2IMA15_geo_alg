@@ -1,22 +1,43 @@
 package convex_layers;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
+import tools.PublicCloneable;
 
 /**
- * class representing a point in the plain
+ * class representing a point in the plane.
  */
-@Data
-public class Vertex {
-    public Vertex(long id, double x, double y){
-        this.id = id;
-        this.x = x;
-        this.y = y;
+@Getter
+@Setter
+@AllArgsConstructor
+public class Vertex
+        implements PublicCloneable {
+    /** The ID of the vertex. */
+    protected final long id;
+    /** The x-coordinate of the vertex. */
+    protected double x;
+    /** The x-coordinate of the vertex. */
+    protected double y;
+    /** Whether the vertex is part of a hull. */
+    protected boolean hulled = false;
+    /** The previous vertex on the hull. */
+    protected Vertex prev; // TODO: we certainly do NOT want this.
+    /** The next vertex on the hull. */
+    protected Vertex next; // TODO: we certainly do NOT want this.
+
+    @Override
+    public Vertex clone() {
+        return new Vertex(id, x, y, hulled, prev, next);
     }
 
-    private final long id;
-    private double x;
-    private double y;
+    public Vertex add(Vertex v) {
+        return new Vertex(-1, x + v.x, y + v.y, false, null, null);
+    }
+
+    public Vertex sub(Vertex v) {
+        return new Vertex(-1, x - v.x, y - v.y, false, null, null);
+    }
     
     
 }
