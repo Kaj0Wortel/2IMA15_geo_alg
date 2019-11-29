@@ -32,80 +32,7 @@ public class ConvexLayers {
     /** Linked list of the outer convex hull. */
     //private DoublyLinkedList<Vertex> out;
     private InputVertex out;
-    
-    public ConvexLayers() {
-        
-    }
-    
-//    /**
-//     * Creates a new convex layer class, which solves the convex decomposition problem
-//     * for the given input and outputs the result to the given output file.
-//     * 
-//     * @param input The input file.
-//     * @param output The output file.
-//     */
-//    public ConvexLayers(File input, File output) {
-//        this.input = input;
-//        this.output = output;
-//    }
-    
-    /**
-     * This function is used to compute the output file.
-     */
-    public synchronized void compute() {
-        readInput();
-        // TODO: all;
-        writeOutput();
-    }
-    
-    /**
-     * Responsibility Pieter
-     */
-    private void giftWrapping() {
-        
-    }
-    
-    /**
-     * Responsibility Kaj
-     */
-    private void updateHull() {
-        
-    }
-    
-    /**
-     * Responsibility, Rowin
-     */
-    private void readInput() {
-        try (BufferedReader br = new BufferedReader(new FileReader(input))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // TODO: process line.
-            }
-        } catch  (IOException e) {
-            Logger.write(e);
-        }
-    }
-    
-    /**
-     * Responsibility, Stijn
-     */
-    private void writeOutput() {
-        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
-            while (true) { // TODO: condition
-                pw.println();// TODO: process line.
-            }
-        } catch  (IOException e) {
-            Logger.write(e);
-        }
-    }
-    
-    /**
-     * Responsibility, Stijn, Pieter
-     */
-    private void computeIntersection() {
-        
-    }
-    
+
     private static void initLogger() {
         try {
             Logger.setDefaultLogger(new FileLogger(Var.LOG_FILE));
@@ -123,10 +50,10 @@ public class ConvexLayers {
      */
     public static void main(String[] args) {
         initLogger();
-        if (args == null || args.length < 2) {
-            Logger.write("Expected 2 arguments.", Logger.Type.ERROR);
-            System.exit(1);
-        }
+//        if (args == null || args.length < 2) {
+//            Logger.write("Expected 2 arguments.", Logger.Type.ERROR);
+//            System.exit(1);
+//        }
         
         String folder = "challenge_1";
         String type = "uniform";
@@ -157,6 +84,10 @@ public class ConvexLayers {
         } while (!v.isHulled());
     }
 
+    /**
+     * Print a hull to the console for debugging purposes
+     * @param hull a vertex of the hull
+     */
     public static void printHull(InputVertex hull) {
         InputVertex v = hull;
         do {
