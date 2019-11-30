@@ -64,58 +64,15 @@ public class Visualizer {
     private double minY = Integer.MIN_VALUE;
     private double maxY = Integer.MAX_VALUE;
 
-    /**
-     * Panel used to draw the buffered image on.
-     * Also redraws the buffered image when resized.
-     */
-    private static class Canvas
-            extends JPanel {
-        private BufferedImage canvas = null;
-        Canvas() {
-            super(null);
-        }
-        
-        private void setCanvas(BufferedImage canvas) {
-            this.canvas = canvas;
-        }
-        
-        private BufferedImage getCanvas() {
-            return canvas;
-        }
-        
-        @Override
-        public void setBounds(int x, int y, int width, int height) {
-            boolean changed = MultiTool.boundsChanged(this, x, y, width, height);
-            super.setBounds(x, y, width, height);
-            if (changed) this.repaint();
-        }
-        
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
-            if (canvas != null) g2d.drawImage(canvas, 0, 0, getWidth(), getHeight(), null);
-        }
-        
-        
-    }
     
     public Visualizer() {
         frame = new JFrame("testing frame");
-        canvas = new Canvas();
+        canvas = new Canvas(frame);
         frame.add(canvas);
         canvas.setLocation(0, 0);
-        frame.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                Insets in = frame.getInsets();
-                canvas.setBounds(0, 0,
-                        frame.getWidth() - in.left - in.right,
-                        frame.getHeight() - in.top - in.bottom);
-            }
-        });
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+        
         frame.setSize(960, 540);
         frame.repaint();
     }
