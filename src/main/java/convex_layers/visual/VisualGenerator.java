@@ -20,14 +20,24 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+
+/**
+ * Generator used to easily generate point data sets. <br>
+ * Key bindings:
+ * <table border="1">
+ * <tr><th>Key</th><th>Function</th></tr>
+ * <tr><td>S+ctrl</td><td>Saves the current displayed dataset.</td></tr>
+ * <tr><td>Q+crtl</td><td>Erases all points on the screen.</td></tr>
+ * </table>
+ */
 public class VisualGenerator {
     private static final int WIDTH = 1920;
     private static final int HEIGHT = 1080;
     private static final int POINT_SIZE = 20;
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "gen_data" + Var.FS);
 
-    private static final Key SAVE_KEY = new Key(Key.S.getKey(), Key.CTRL_MASK, false, true);
-    private static final Key DEL_KEY = new Key(Key.Q.getKey(), Key.CTRL_MASK, false, true);
+    private static final Key SAVE_KEY = Key.S.newOnKeyRelease(false).setMask(Key.CTRL_MASK);
+    private static final Key DEL_KEY = Key.Q.newOnKeyRelease(false).setMask(Key.CTRL_MASK);
     
     static {
         DEFAULT_DIR.mkdirs();
@@ -54,7 +64,7 @@ public class VisualGenerator {
         canvas.addMouseListener(ma);
         
         KeyListener kl = new KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
+            public void keyReleased(KeyEvent e) {
                 Key eKey = new Key(e, false);
                 if (SAVE_KEY.equals(eKey)) {
                     save();
@@ -124,27 +134,22 @@ public class VisualGenerator {
     
     private void save(File file) {
         new Thread(() -> {
+            lock.lock();
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-                StringBuilder sb = new StringBuilder("{\"points\": [");
-                lock.lock();
-                try {
-                    int i = 0;
-                    boolean first = true;
-                    for (Vector v : points) {
-                        if (first) first = false;
-                        else sb.append(", ");
-                        sb.append(vectorToString(v, i++));
-                    }
-                    sb.append("], \"type\": \"Instance\", \"name\": \"user input\"}");
-
-                } finally {
-                    lock.unlock();
+                bw.write("{\"points\": [");
+                int i = 0;
+                boolean first = true;
+                for (Vector v : points) {
+                    if (first) first = false;
+                    else bw.write(", ");
+                    bw.write(vectorToString(v, i++));
                 }
-                
-                bw.write(sb.toString());
+                bw.write("], \"type\": \"Instance\", \"name\": \"user input\"}");
                 
             } catch (IOException e) {
                 System.err.println(e);
+            } finally {
+                lock.unlock();
             }
             
         }).start();
