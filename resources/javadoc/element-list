@@ -15,5 +15,6 @@ tools.iterable
 tools.iterators
 tools.log
 tools.matrix
+tools.matrix.tmp2
 tools.numbers
 tools.observer
