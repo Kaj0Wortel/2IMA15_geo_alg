@@ -33,7 +33,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class can visualize different sets of points and edges with different colors, auto-scaling and
- * auto adjusted grid.
+ * auto adjusted grid. <br>
+ * Function keys:
+ * <table>
+ *   <tr><th>Key</th><th>Function</th></tr>
+ *   <tr><td>RIGHT</td><td>Next image</td></tr>
+ *   <tr><td>CTRL+RIGHT</td><td>10 next images</td></tr>
+ *   <tr><td>LEFT</td><td>Previous image</td></tr>
+ *   <tr><td>CTRL+LEFT</td><td>10 previous images</td></tr>
+ *   <tr><td>HOME</td><td>First image</td></tr>
+ *   <tr><td>END</td><td>Last image</td></tr>
+ *   <tr><td>CTRL+S</td><td>Save images</td></tr>
+ * </table>
  */
 public class Visualizer {
     // Constants used to tweak the visuals.
@@ -49,12 +60,16 @@ public class Visualizer {
     private static final Stroke GRID_STROKE = new BasicStroke(3);
     private static final double EMPTY_RATIO = 0.05;
     
-    private static final Key NEXT_KEY = Key.RIGHT.newOnKeyRelease(false);
-    private static final Key PREV_KEY = Key.LEFT.newOnKeyRelease(false);
-    private static final Key FIRST_KEY = Key.HOME.newOnKeyRelease(false);
-    private static final Key LAST_KEY = Key.END.newOnKeyRelease(false);
-    private static final Key SAVE_KEY = Key.S.newOnKeyRelease(false).setMask(Key.CTRL_MASK);
+    // Function key constants.
+    private static final Key NEXT_KEY = Key.RIGHT;
+    private static final Key FAST_NEXT_KEY = Key.RIGHT.setMask(Key.CTRL_MASK);
+    private static final Key PREV_KEY = Key.LEFT;
+    private static final Key FAST_PREV_KEY = Key.LEFT.setMask(Key.CTRL_MASK);
+    private static final Key FIRST_KEY = Key.HOME;
+    private static final Key LAST_KEY = Key.END;
+    private static final Key SAVE_KEY = Key.S.setMask(Key.CTRL_MASK);
     
+    /** The default directory for saving images.. */
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "user_runs" + Var.FS);
     static {
         DEFAULT_DIR.mkdirs();
@@ -84,7 +99,10 @@ public class Visualizer {
     private List<BufferedImage> imgs = new ArrayList<>();
     private int imgsIndex = 0;
 
-    
+
+    /**
+     * Creates a new visualizer.
+     */
     public Visualizer() {
         frame = new JFrame("testing frame");
         canvas = new Canvas(frame);
@@ -100,9 +118,13 @@ public class Visualizer {
                 Key eKey = new Key(e);
                 if (NEXT_KEY.equals(eKey)) {
                     setImg(imgsIndex + 1);
-                } else if (PREV_KEY.equals(eKey)) {
+                } else if (FAST_NEXT_KEY.equals(eKey)) {
+                    setImg(imgsIndex + 10);
+                }else if (PREV_KEY.equals(eKey)) {
                     setImg(imgsIndex - 1);
-                } else if (FIRST_KEY.equals(eKey)) {
+                } else if (FAST_PREV_KEY.equals(eKey)) {
+                    setImg(imgsIndex - 10);
+                }  else if (FIRST_KEY.equals(eKey)) {
                     setImg(0);
                 } else if (LAST_KEY.equals(eKey)) {
                     setImg(Integer.MAX_VALUE);
@@ -356,7 +378,7 @@ public class Visualizer {
         lock.lock();
         try {
             imgs.add(rendering);
-            if (imgsIndex == imgs.size() - 2) setImg(imgs.size() - 1);
+            if (imgsIndex == imgs.size() - 2) setImg(Integer.MAX_VALUE);
             
         } finally {
             lock.unlock();

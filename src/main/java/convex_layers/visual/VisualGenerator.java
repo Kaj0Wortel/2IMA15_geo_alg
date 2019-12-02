@@ -25,9 +25,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * Generator used to easily generate point data sets. <br>
  * Key bindings:
  * <table border="1">
- * <tr><th>Key</th><th>Function</th></tr>
- * <tr><td>S+ctrl</td><td>Saves the current displayed dataset.</td></tr>
- * <tr><td>Q+crtl</td><td>Erases all points on the screen.</td></tr>
+ *   <tr><th>Key</th><th>Function</th></tr>
+ *   <tr><td>S+ctrl</td><td>Saves the current displayed dataset.</td></tr>
+ *   <tr><td>Q+crtl</td><td>Erases all points on the screen.</td></tr>
  * </table>
  */
 public class VisualGenerator {
@@ -36,8 +36,8 @@ public class VisualGenerator {
     private static final int POINT_SIZE = 20;
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "gen_data" + Var.FS);
 
-    private static final Key SAVE_KEY = Key.S.newOnKeyRelease(false).setMask(Key.CTRL_MASK);
-    private static final Key DEL_KEY = Key.Q.newOnKeyRelease(false).setMask(Key.CTRL_MASK);
+    private static final Key SAVE_KEY = Key.S.setMask(Key.CTRL_MASK);
+    private static final Key DEL_KEY = Key.Q.setMask(Key.CTRL_MASK);
     
     static {
         DEFAULT_DIR.mkdirs();
