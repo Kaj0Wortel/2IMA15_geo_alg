@@ -51,11 +51,6 @@ public class InputVertex
         return v.y();
     }
 
-    @Override
-    public InputVertex clone() {
-        return new InputVertex(id, v.clone(), hulled, prev, next);
-    }
-
     public InputVertex add(InputVertex iv) {
         return new InputVertex(-1, iv.v.add(v), false, null, null);
     }
@@ -63,6 +58,10 @@ public class InputVertex
     public InputVertex sub(InputVertex iv) {
         return new InputVertex(-1, v.sub(iv.v), false, null, null);
     }
-    
+
+    @Override
+    public InputVertex clone() {
+        return new InputVertex(id, v.clone(), hulled, prev, next);
+    }
     
 }
