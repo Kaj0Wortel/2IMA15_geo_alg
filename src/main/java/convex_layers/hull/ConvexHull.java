@@ -46,7 +46,10 @@ public class ConvexHull {
         Edge e = new Edge(v1, v2);
         VectorYNode vyn1 = null, vyn2 = null, vyn3 = null, vyn4 = null;
         
-        // TODO: edge cases near top/bottom.
+        // TODO: edge cases:
+        //  - edge goes between 3 top vertices.
+        //  - edge goes between 3 bottom vertices.
+        //  - edge goes through vertex.
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
         if (relOriTop * relOriBot < 0) {
@@ -57,7 +60,7 @@ public class ConvexHull {
             vyn4 = vyn3.prev();
             
         } else if (relOriTop == 0) {
-            // TODO: edge case: point goes through top.
+            // TODO: edge case: edge goes through top.
             
         } else {
             // Line lies on the left/right side.
