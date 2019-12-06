@@ -20,9 +20,9 @@ public class InputVertex
     private Vector v;
     /** Whether the vertex is part of a hull. */
     private boolean hulled = false;
-    /** The previous vertex on the hull. */
+    /** The previous vertex on the hull in clockwise order. */
     private InputVertex prev;
-    /** The next vertex on the hull. */
+    /** The next vertex on the hull in clockwise order. */
     private InputVertex next;
 
     /**
