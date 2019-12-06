@@ -223,6 +223,7 @@ public class Visualizer {
         chooser.setCurrentDirectory(DEFAULT_DIR);
         chooser.setSelectedFile(new File(dirName));
         chooser.setMultiSelectionEnabled(false);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         
         File selectedDir;
         do {
