@@ -44,5 +44,10 @@ public class VectorYNode
         return iv.getV().hashCode();
     }
     
+    @Override
+    public String toString() {
+        return iv.toString();
+    }
+    
     
 }

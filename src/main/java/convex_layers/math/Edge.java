@@ -32,6 +32,34 @@ public class Edge
     public Vector v2() {
         return v2;
     }
+    
+    /**
+     * @return The x-coordinate of the first point.
+     */
+    public double x1() {
+        return v1.x();
+    }
+    
+    /**
+     * @return The x-coordinate of the second point.
+     */
+    public double x2() {
+        return v2.x();
+    }
+    
+    /**
+     * @return The y-coordinate of the first point.
+     */
+    public double y1() {
+        return v1.y();
+    }
+    
+    /**
+     * @return The y-coordinate of the second point.
+     */
+    public double y2() {
+        return v2.y();
+    }
 
     /**
      * Sets the starting point of the edge.
@@ -90,8 +118,8 @@ public class Edge
      */
     public double relOri(Vector v3) {
         Mat2 m = new Mat2(
-                v2.x() - v1.x(), v3.x() - v1.x(),
-                v2.y() - v1.y(), v3.y() - v1.y()
+                v1.x() - v2.x(), v3.x() - v2.x(),
+                v1.y() - v2.y(), v3.y() - v2.y()
         );
         return m.det();
     }

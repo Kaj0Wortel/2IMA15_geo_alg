@@ -11,6 +11,7 @@ import tools.data.file.DirFileTree;
 import tools.data.file.FileTree;
 import tools.data.file.TreeFile;
 import tools.event.Key;
+import tools.font.FontLoader;
 import tools.log.Logger;
 import tools.log.StreamLogger;
 
@@ -47,6 +48,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * </table>
  */
 public class Visualizer {
+    /* ----------------------------------------------------------------------
+     * Constants.
+     * ----------------------------------------------------------------------
+     */
     // Constants used to tweak the visuals.
     private static final int WIDTH = 1920;
     private static final int HEIGHT = 1080;
@@ -55,11 +60,11 @@ public class Visualizer {
     private static final Paint GRID_COLOR = new Color(200, 200, 200);
     private static final Paint BIG_GRID_COLOR = new Color(100, 100, 100);
     private static final Paint BACKGROUND_COLOR = new Color(255, 255, 255, 255);
-    private static final int POINT_SIZE = 20;
+    private static final int POINT_SIZE = 40;
     private static final Stroke EDGE_STROKE = new BasicStroke(5);
     private static final Stroke GRID_STROKE = new BasicStroke(3);
     private static final double EMPTY_RATIO = 0.05;
-    
+    private static final Font DEFAULT_FONT = FontLoader.getFont("Cousine-Bold.ttf", 25);
     // Function key constants.
     private static final Key NEXT_KEY = Key.RIGHT;
     private static final Key FAST_NEXT_KEY = Key.RIGHT.setMask(Key.CTRL_MASK);
@@ -74,20 +79,33 @@ public class Visualizer {
     static {
         DEFAULT_DIR.mkdirs();
     }
+
     
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    // Swing GUI variables.
     private final JFrame frame;
     private final Canvas canvas;
     private final JLabel label;
     
+    // Concurrent variables.
     private final Lock lock = new ReentrantLock();
     
     // Data variables.
+    /** List storing the sets of points to draw. */
     private List<Iterable<Vector>> points = List.of();
-    private List<Paint> pointColors = ArrayTools.asList(null, new Color(255, 200, 0), new Color(0, 255, 255),
+    /** List storing the colors of the sets of points to draw. */
+    private List<Paint> pointColors = ArrayTools.asList(null, new Color(170, 158, 78), new Color(0, 255, 199),
             new Color(255, 0, 255));
+    /** List storing the sets of edges to draw. */
     private List<Iterable<Edge>> edges = List.of();
-    private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 255, 0),
+    /** List storing the colors of the sets of edges to draw. */
+    private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 168, 39),
             new Color(0, 0, 255));
+    /** List storing the labels of the points to draw. */
+    private List<Iterable<String>> labels = List.of();
     
     // State variables during redrawing. Reading/writing should only be done by the thread
     // currently redrawing the image.
@@ -97,9 +115,13 @@ public class Visualizer {
     private double maxY = Integer.MAX_VALUE;
     
     private List<BufferedImage> imgs = new ArrayList<>();
-    private int imgsIndex = 0;
-
-
+    private int imgsIndex = -1;
+    
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
     /**
      * Creates a new visualizer.
      */
@@ -112,8 +134,8 @@ public class Visualizer {
         label.setSize(100, 20);
         canvas.add(label);
         label.setLocation(0, 0);
-        
-        KeyListener kl = new KeyAdapter() {
+
+        KeyAdapter kl = new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 Key eKey = new Key(e);
                 if (NEXT_KEY.equals(eKey)) {
@@ -155,7 +177,12 @@ public class Visualizer {
         this.pointColors = pointColors;
         this.edgeColors = edgeColors;
     }
-
+    
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     /**
      * Sets the index of the images to show.
      * 
@@ -175,7 +202,7 @@ public class Visualizer {
         } finally {
             lock.unlock();
         }
-        canvas.repaint();
+        SwingUtilities.invokeLater(() -> canvas.repaint());
     }
 
     /**
@@ -276,7 +303,7 @@ public class Visualizer {
     /**
      * Redraws the image on the canvas.
      */
-    private void redraw() {
+    public synchronized void redraw() {
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
             Logger.write(new String[] {
                     "**************************************",
@@ -374,17 +401,63 @@ public class Visualizer {
             }
         }
         
+        // Draw labels.
+        g2d.setStroke(new BasicStroke(1));
+        g2d.setFont(DEFAULT_FONT);
+        {
+            //int height = g2d.getFontMetrics().getHeight();
+            FontMetrics fm = g2d.getFontMetrics();
+            int dh = fm.getDescent();//fm.getAscent() - fm.getHeight();
+            for (int i = 0; i < points.size() && i < labels.size(); i++) {
+                if (i < pointColors.size() && pointColors.get(i) != null) {
+                    Paint p = pointColors.get(i);
+                    if (p instanceof Color) {
+                        g2d.setPaint(invertColor((Color) p));
+                    } else {
+                        g2d.setPaint(p);
+                    }
+                    
+                } else g2d.setPaint(invertColor((Color) DEFAULT_POINT_COLOR));
+                //g2d.setPaint(Color.WHITE);
+                Iterator<String> lIt = labels.get(i).iterator();
+                Iterator<Vector> vIt = points.get(i).iterator();
+                while (lIt.hasNext() && vIt.hasNext()) {
+                    String label = lIt.next();
+                    Vector v = vIt.next();
+                    int width = fm.stringWidth(label);
+                    g2d.drawString(label, sci(v.x(), true) - width/2, sci(v.y(), false) + dh);
+                }
+            }
+        }
+        
         g2d.dispose();
         
         lock.lock();
         try {
             imgs.add(rendering);
-            if (imgsIndex == imgs.size() - 2) setImg(Integer.MAX_VALUE);
+            if (imgsIndex == imgs.size() - 2 || imgs.size() == 1) setImg(Integer.MAX_VALUE);
+            else if (imgsIndex < 0) setImg(0);
+            else setImg(imgsIndex);
             
         } finally {
             lock.unlock();
         }
         canvas.repaint();
+    }
+
+    /**
+     * Inverts the given color.
+     * 
+     * @param c The color to invert.
+     * 
+     * @return The inverted color.
+     */
+    private Color invertColor(Color c) {
+        return new Color(
+                255 - c.getRed(),
+                255 - c.getGreen(),
+                255 - c.getBlue(),
+                c.getAlpha());
     }
 
     /**
@@ -428,6 +501,19 @@ public class Visualizer {
     public void setPoints(List<Iterable<Vector>> points) {
         this.points = points;
     }
+
+    /**
+     * Adds the given point list to the editor.
+     *
+     * @param pointList The extra point list to display.
+     */
+    public void addPoint(Iterable<Vector> pointList) {
+        if (!(points instanceof ArrayList)) {
+            if (points == null) points = new ArrayList<>();
+            else points = new ArrayList<>(points);
+        }
+        points.add(pointList);
+    }
     
     /**
      * Sets the colors of the point collections. <br>
@@ -453,6 +539,19 @@ public class Visualizer {
     }
     
     /**
+     * Adds the given edge list to the editor.
+     * 
+     * @param edgeList The extra edge list to display.
+     */
+    public void addEdge(Iterable<Edge> edgeList) {
+        if (!(edges instanceof ArrayList)) {
+            if (edges == null) edges = new ArrayList<>();
+            else edges = new ArrayList<>(edges);
+        }
+        edges.add(edgeList);
+    }
+    
+    /**
      * Sets the colors of the edge collections. <br>
      * The n'th element in the list corresponds to the color of the n'th collection of edges.
      * The amount of colors doesn't have to match the total number of collections of edges.
@@ -462,6 +561,28 @@ public class Visualizer {
      */
     public void setEdgeColors(List<Paint> edgeColors) {
         this.edgeColors = edgeColors;
+    }
+
+    /**
+     * Sets the labels to be shown.
+     *
+     * @param labelList The list of collection of labels to be shown.
+     */
+    public void setLabels(List<Iterable<String>> labelList) {
+        labels = labelList;
+    }
+    
+    /**
+     * Adds the given label list to the editor.
+     *
+     * @param edgeList The extra edge list to display.
+     */
+    public void addLabel(Iterable<String> labelList) {
+        if (!(labels instanceof ArrayList)) {
+            if (labels == null) labels = new ArrayList<>();
+            else labels = new ArrayList<>(labels);
+        }
+        labels.add(labelList);
     }
     
     /**
@@ -488,6 +609,7 @@ public class Visualizer {
      * when the original collection is modified.
      *
      * @param in The collection to be converted.
+     * 
      * @return The underlying data of the input collection.
      *
      * @see #cloneToVec(Iterable)
@@ -504,6 +626,31 @@ public class Visualizer {
             @Override
             public Vector next() {
                 return it.next().getV();
+            }
+        };
+    }
+
+    /**
+     * Converts a collection of {@link InputVertex} to a collection of labels. <br>
+     * This function does not clone the data, which implies that the data <b>will</b> be updated
+     * when the original collection is modified.
+     *
+     * @param in The collection to be converted.
+     * 
+     * @return The labels matching the given input vertices.
+     */
+    public static Iterable<String> toLabel(final Iterable<InputVertex> in) {
+        return () -> new Iterator<String>() {
+            private final Iterator<InputVertex> it = in.iterator();
+            
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+            
+            @Override
+            public String next() {
+                return Long.toString(it.next().getId());
             }
         };
     }

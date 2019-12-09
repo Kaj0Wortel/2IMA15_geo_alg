@@ -4,6 +4,7 @@ import convex_layers.math.Vector;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import tools.MultiTool;
 import tools.PublicCloneable;
 
 /**
@@ -17,13 +18,17 @@ public class InputVertex
     /** The ID of the vertex. */
     private final long id;
     /** The x-coordinate of the vertex. */
-    private Vector v;
+    private final Vector v;
     /** Whether the vertex is part of a hull. */
     private boolean hulled = false;
     /** The previous vertex on the hull in clockwise order. */
     private InputVertex prev;
     /** The next vertex on the hull in clockwise order. */
     private InputVertex next;
+    
+    public InputVertex(long id, double x, double y) {
+        this(id, x, y, false, null, null);
+    }
 
     /**
      * Data constructor which creates a vertex for the underlying structure from the given x and y.
@@ -63,5 +68,23 @@ public class InputVertex
     public InputVertex clone() {
         return new InputVertex(id, v.clone(), hulled, prev, next);
     }
+    
+    @Override
+    public int hashCode() {
+        return MultiTool.calcHashCode(new Object[] {id, v.hashCode()});
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof InputVertex)) return false;
+        InputVertex iv = (InputVertex) obj;
+        return id == iv.id;
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getCanonicalName() + "[ID: " + id + ", vec: " + v.toString() + "]";
+    }
+    
     
 }
