@@ -14,13 +14,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class represents the convex hull data structure.
+ * This data structure should be used for search queries on the hull.
+ */
 public class ConvexHull {
+    /** The search tree for the left part of the hull. */
     private final LinkedRBTree<VectorYNode> left;
+    /** The search tree for the right part of the hull. */
     private final LinkedRBTree<VectorYNode> right;
+    /** The element with the maximum y-coordinate. */
     private VectorYNode top;
+    /** The element with the lowest y-coordinate. */
     private VectorYNode bottom;
-    
-    
+
+
+    /**
+     * Creates a new convex hull data structure from the given left and right hald-hulls. <br>
+     * The initialisation takes {@code O(n log n)} time if the collections are unsorted, or
+     * {@code O(n)} time if the collections are (nearly) sorted from low y-index to high y-index.
+     * 
+     * @param lCol The left side of the convex hull.
+     * @param rCol The right side of the convex hull.
+     */
     public ConvexHull(Collection<InputVertex> lCol, Collection<InputVertex> rCol) {
         List<VectorYNode> lList = new ArrayList<>(lCol.size());
         List<VectorYNode> rList = new ArrayList<>(rCol.size());
@@ -45,9 +61,7 @@ public class ConvexHull {
         VectorYNode vyn1 = null, vyn2 = null, vyn3 = null, vyn4 = null;
         
         // TODO: edge cases:
-        //  - edge goes between 3 top vertices.
-        //  - edge goes between 3 bottom vertices.
-        //  - edge goes through vertex.
+        //  - edge goes through vertex (done?).
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
         if (relOriTop == 0) {
@@ -69,71 +83,73 @@ public class ConvexHull {
             if (e.x1() > e.x2()) {
                 e = new Edge(e.v2(), e.v1());
             }
-            System.out.println(left.getRoot());
-            Logger.write("left side;");
             Pair<VectorYNode, VectorYNode> pair = getNodeAboveBothSides(left, e);
             vyn1 = pair.getFirst();
             vyn2 = pair.getSecond();
-            Logger.write("right side:");
             pair = getNodeAboveBothSides(right, e);
             vyn3 = pair.getFirst();
             vyn4 = pair.getSecond();
             
         } else if (relOriTop > 0) {
+            Logger.write("left side only");
             // Line lies on the left side.
             // Set direction of e to upwards, if needed.
             if (e.y1() > e.y2()) {
                 e = new Edge(e.v2(), e.v1());
             }
-            Logger.write("left side;");
             Pair<VectorYNode, VectorYNode> pair = getNodeAboveOneSide(left, e, true);
             vyn1 = pair.getFirst();
             vyn2 = pair.getSecond();
-            Logger.write("right side:");
             pair = getNodeAboveOneSide(left, e, false);
-            vyn3 = pair.getFirst();
-            vyn4 = pair.getSecond();
+            vyn4 = pair.getFirst();
+            vyn3 = pair.getSecond();
             
         } else {
+            Logger.write("right side only");
             // Line lies on the right side.
             // Set direction of e to downwards, if needed.
             if (e.y1() < e.y2()) {
                 e = new Edge(e.v2(), e.v1());
             }
-            Logger.write("right side");
             Pair<VectorYNode, VectorYNode> pair = getNodeAboveOneSide(right, e, true);
             vyn1 = pair.getFirst();
             vyn2 = pair.getSecond();
             pair = getNodeAboveOneSide(right, e, false);
-            vyn3 = pair.getFirst();
-            vyn4 = pair.getSecond();
+            vyn4 = pair.getFirst();
+            vyn3 = pair.getSecond();
         }
         
         return new NearIntersection(vyn1, vyn2, vyn3, vyn4);
     }
 
     /**
-     * TODO
-     * @param tree
-     * @param e
-     * @return
+     * Determines the two points on the hull which are the closest to the given line. <br>
+     * The following is here assumed:
+     * <ul>
+     *     <li>The line goes through both the left and the right side.</li>
+     *     <li>The line is directed towards the right.</li>
+     * </ul>
+     * 
+     * @param tree The tree to determine the intersections with.
+     * @param e    The line to calculate the intersections for.
+     * 
+     * @return The two points near the intersection, where the first point has the largest y-coordinate.
      */
     private Pair<VectorYNode, VectorYNode> getNodeAboveBothSides(LinkedRBTree<VectorYNode> tree, Edge e) {
         VectorYNode node = tree.getRoot();
         while (true) {
             double ori = e.relOri(node.getVec());
-            Logger.write(ori);
             if (ori < 0) {
-                VectorYNode next = next(node, tree == left);
-                if (!node.hasRight()) return new Pair<>(next, node);
-                if (e.relOri(next.getVec()) <= 0) return new Pair<>(next, node);
-                if (node.hasRight()) node = node.right();
-                
-            } else if (ori > 0) {
                 VectorYNode prev = prev(node, tree == left);
                 if (!node.hasLeft()) return new Pair<>(node, prev);
                 if (e.relOri(prev.getVec()) >= 0) return new Pair<>(node, prev);
                 node = node.left();
+                
+            } else if (ori > 0) {
+                VectorYNode next = next(node, tree == left);
+                if (!node.hasRight()) return new Pair<>(next, node);
+                if (e.relOri(next.getVec()) <= 0) return new Pair<>(next, node);
+                if (node.hasRight()) node = node.right();
                 
             } else {
                 return new Pair<>(next(node, tree == left), node);
@@ -142,7 +158,7 @@ public class ConvexHull {
     }
 
     /**
-     * Determines the two points on the hull which are the closest to the given line.
+     * Determines the two points on the hull which are the closest to the given line. <br>
      * The following is here assumed:
      * <ul>
      *     <li>The line goes through either the left of the right side, but not both.</li>
@@ -155,7 +171,7 @@ public class ConvexHull {
      * @param tree The tree to determine the intersections with.
      * @param e    The line to calculate the intersections for.
      * @param up   Whether the upper or lower intersection should be calculated.
-     * 
+     *
      * @return The two points near the intersection, where the first point has the largest y-coordinate.
      */
     private Pair<VectorYNode, VectorYNode> getNodeAboveOneSide(LinkedRBTree<VectorYNode> tree, Edge e, boolean up) {
@@ -180,13 +196,13 @@ public class ConvexHull {
             if ((up && ori < 0) || (!up && ori > 0)) {
                 VectorYNode next = next(node, tree == left);
                 if (!node.hasRight()) return new Pair<>(next, node);
-                if (e.relOri(next.getVec()) <= 0) return new Pair<>(next, node);
+                if (e.relOri(next.getVec()) * ori < 0) return new Pair<>(next, node);
                 if (node.hasRight()) node = node.right();
 
             } else if ((up && ori > 0) || (!up && ori < 0)) {
                 VectorYNode prev = prev(node, tree == left);
                 if (!node.hasLeft()) return new Pair<>(node, prev);
-                if (e.relOri(prev.getVec()) >= 0) return new Pair<>(node, prev);
+                if (e.relOri(prev.getVec()) * ori <= 0) return new Pair<>(node, prev);
                 node = node.left();
                 
             } else {
@@ -225,8 +241,12 @@ public class ConvexHull {
         if (fromLeft) return right.getMin();
         else return left.getMin();
     }
-    
-    
+
+    /**
+     * Testing purposes
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         Logger.setDefaultLogger(new StreamLogger(System.out));
         List<InputVertex> left = new ArrayList<>();
@@ -254,7 +274,7 @@ public class ConvexHull {
         viz.setLabels(List.of(Visualizer.toLabel(left), Visualizer.toLabel(right)));
         viz.redraw();
         
-        Edge e = new Edge(new Vector(-5, 5.5), new Vector(5, 5.5));
+        Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
         viz.addPoint(List.of(e.v1(), e.v2()));
         viz.addEdge(List.of(e));
         viz.redraw();

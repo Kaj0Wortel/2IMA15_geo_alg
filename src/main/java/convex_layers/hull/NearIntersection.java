@@ -21,9 +21,9 @@ public class NearIntersection {
     @Override
     public String toString() {
         return getClass().getCanonicalName() + "[" + Var.LS +
-                "    v1: " + (v1 == null ? "null" : v1.toString()) + Var.LS +
-                "    v2: " + (v2 == null ? "null" : v2.toString()) + Var.LS +
-                "    v3: " + (v3 == null ? "null" : v3.toString()) + Var.LS +
+                "    v1: " + (v1 == null ? "null" : v1.toString()) + "," + Var.LS +
+                "    v2: " + (v2 == null ? "null" : v2.toString()) + "," + Var.LS +
+                "    v3: " + (v3 == null ? "null" : v3.toString()) + "," + Var.LS +
                 "    v4: " + (v4 == null ? "null" : v4.toString()) + Var.LS +
                 "]";
     }
