@@ -243,6 +243,123 @@ public class ConvexHull {
     }
 
     /**
+     * Adds a vertex to the hull.
+     * 
+     * @param iv The vertex to add.
+     * 
+     * @return {@code true} if the vertex was added. {@code false} otherwise.
+     */
+    public boolean add(InputVertex iv) {
+        VectorYNode vyn = new VectorYNode(iv);
+        if (size() == 0) {
+            left.add(top = bottom = vyn);
+        }
+        
+        boolean newBound = false;
+        if (iv.getY() > top.getVec().y()) {
+            newBound = true;
+            top = vyn;
+        }
+        if (iv.getY() < bottom.getVec().y()) {
+            newBound = true;
+            bottom = vyn;
+        }
+        
+        if (newBound) {
+            if (left.size() > right.size()) return right.add(vyn);
+            else return left.add(vyn);
+            
+        } else {
+            Edge e = new Edge(bottom.getVec(), top.getVec());
+            if (e.relOri(iv.getV()) < 0) return left.add(vyn);
+            else return right.add(vyn);
+        }
+    }
+    
+    /**
+     * Adds all vertices from the list.
+     * 
+     * @param ivs The vertices to add.
+     * 
+     * @return {@code true} if the data structure was modified. {@code false} otherwise.
+     */
+    public boolean addAll(Iterable<InputVertex> ivs) {
+        boolean mod = false;
+        for (InputVertex iv : ivs) {
+            if (add(iv)) mod = true;
+        }
+        return mod;
+    }
+    
+    /**
+     * Removes the given vertex.
+     * 
+     * @param iv The vertex to be removed.
+     * @return {@code true} if the vertex was removed. {@code false} otherwise.
+     */
+    public boolean remove(InputVertex iv) {
+        return remove(new VectorYNode(iv));
+    }
+
+    /**
+     * Removes the given node.
+     *
+     * @param byn The node to be removed.
+     * @return {@code true} if the vertex was removed. {@code false} otherwise.
+     */
+    public boolean remove(VectorYNode vyn) {
+        Edge e = new Edge(bottom.getVec(), top.getVec());
+        double ori = e.relOri(vyn.getVec());
+        if (ori < 0) return left.remove(vyn);
+        else if (ori > 0) return right.remove(vyn);
+        else {
+            boolean l = left.remove(vyn);
+            boolean r = (l? false : right.remove(vyn));
+            if (!l && !r) return false;
+            if (vyn.equals(top)) top = prev(top, l);
+            if (vyn.equals(bottom)) bottom = next(bottom, r);
+            return true;
+        }
+    }
+
+    /**
+     * Removes all vertices from the list.
+     *
+     * @param ivs The vertices to remove.
+     *
+     * @return {@code true} if the data structure was modified. {@code false} otherwise.
+     */
+    public boolean removeAll(Iterable<InputVertex> ivs) {
+        boolean mod = false;
+        for (InputVertex iv : ivs) {
+            if (remove(iv)) mod = true;
+        }
+        return mod;
+    }
+
+    /**
+     * Removes all nodes from the list.
+     *
+     * @param vyns The nodes to remove.
+     *
+     * @return {@code true} if the data structure was modified. {@code false} otherwise.
+     */
+    public boolean removeAllNodes(Iterable<VectorYNode> vyns) {
+        boolean mod = false;
+        for (VectorYNode vyn : vyns) {
+            if (remove(vyn)) mod = true;
+        }
+        return mod;
+    }
+
+    /**
+     * @return The size of the hull.
+     */
+    public int size() {
+        return left.size() + right.size();
+    }
+
+    /**
      * Testing purposes
      * 
      * @param args
