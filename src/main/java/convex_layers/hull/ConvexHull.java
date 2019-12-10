@@ -74,20 +74,19 @@ public class ConvexHull {
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
         if (relOriTop == 0) {
-            Logger.write("through top");
+            Logger.write("through top", Logger.Type.ERROR);
             // TODO: edge case: edge goes through top.
             // Note: should not occur since no 3 points on one line.
             throw new RuntimeException();
             
         } else if (relOriBot == 0) {
-            Logger.write("through bottom");
+            Logger.write("through bottom", Logger.Type.ERROR);
             // TODO: edge case: edge goes through bottom.
             // Note: should not occur since no 3 points on one line.
             throw new RuntimeException();
 
         } else if (relOriTop * relOriBot < 0) {
             // Line goes through both the left and right side.
-            Logger.write("both sides");
             // Set direction of e to the right, if needed.
             if (e.x1() > e.x2()) {
                 e = new Edge(e.v2(), e.v1());
@@ -104,7 +103,6 @@ public class ConvexHull {
             t4 = NearIntersection.Tree.RIGHT;
             
         } else if (relOriTop > 0) {
-            Logger.write("left side only");
             // Line lies on the left side.
             // Set direction of e to upwards, if needed.
             if (e.y1() > e.y2()) {
@@ -122,7 +120,6 @@ public class ConvexHull {
             t4 = NearIntersection.Tree.LEFT;
             
         } else {
-            Logger.write("right side only");
             // Line lies on the right side.
             // Set direction of e to downwards, if needed.
             if (e.y1() < e.y2()) {
