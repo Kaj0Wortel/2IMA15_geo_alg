@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+
 /**
  * This class represents the convex hull data structure.
  * This data structure should be used for search queries on the hull.
@@ -57,8 +58,16 @@ public class ConvexHull {
     }
     
     
+    /**
+     * Determines the four points near the intersection of the extended edge with the hull.
+     * 
+     * @param e The edge to get the intersection of.
+     * 
+     * @return A {@link NearIntersection} with the points.
+     */
     public NearIntersection getPointsNearLine(Edge e) {
         VectorYNode vyn1 = null, vyn2 = null, vyn3 = null, vyn4 = null;
+        NearIntersection.Tree t1 = null, t2 = null, t3 = null, t4 = null;
         
         // TODO: edge cases:
         //  - edge goes through vertex (done?).
@@ -89,6 +98,10 @@ public class ConvexHull {
             pair = getNodeAboveBothSides(right, e);
             vyn3 = pair.getFirst();
             vyn4 = pair.getSecond();
+            t1 = NearIntersection.Tree.LEFT;
+            t2 = NearIntersection.Tree.LEFT;
+            t3 = NearIntersection.Tree.RIGHT;
+            t4 = NearIntersection.Tree.RIGHT;
             
         } else if (relOriTop > 0) {
             Logger.write("left side only");
@@ -103,6 +116,10 @@ public class ConvexHull {
             pair = getNodeAboveOneSide(left, e, false);
             vyn4 = pair.getFirst();
             vyn3 = pair.getSecond();
+            t1 = NearIntersection.Tree.LEFT;
+            t2 = NearIntersection.Tree.LEFT;
+            t3 = NearIntersection.Tree.LEFT;
+            t4 = NearIntersection.Tree.LEFT;
             
         } else {
             Logger.write("right side only");
@@ -117,9 +134,13 @@ public class ConvexHull {
             pair = getNodeAboveOneSide(right, e, false);
             vyn4 = pair.getFirst();
             vyn3 = pair.getSecond();
+            t1 = NearIntersection.Tree.RIGHT;
+            t2 = NearIntersection.Tree.RIGHT;
+            t3 = NearIntersection.Tree.RIGHT;
+            t4 = NearIntersection.Tree.RIGHT;
         }
         
-        return new NearIntersection(vyn1, vyn2, vyn3, vyn4);
+        return new NearIntersection(vyn1, vyn2, vyn3, vyn4, t1, t2, t3, t4, top, bottom);
     }
 
     /**
@@ -140,19 +161,19 @@ public class ConvexHull {
         while (true) {
             double ori = e.relOri(node.getVec());
             if (ori < 0) {
-                VectorYNode prev = prev(node, tree == left);
+                VectorYNode prev = prev(node);
                 if (!node.hasLeft()) return new Pair<>(node, prev);
                 if (e.relOri(prev.getVec()) >= 0) return new Pair<>(node, prev);
                 node = node.left();
                 
             } else if (ori > 0) {
-                VectorYNode next = next(node, tree == left);
+                VectorYNode next = next(node);
                 if (!node.hasRight()) return new Pair<>(next, node);
                 if (e.relOri(next.getVec()) <= 0) return new Pair<>(next, node);
                 if (node.hasRight()) node = node.right();
                 
             } else {
-                return new Pair<>(next(node, tree == left), node);
+                return new Pair<>(next(node), node);
             }
         }
     }
@@ -183,31 +204,31 @@ public class ConvexHull {
             if (up) {
                 if (node.getVec().y() < target) {
                     if (node.hasRight()) node = node.right();
-                    else return new Pair<>(next(node, tree == left), node);
+                    else return new Pair<>(next(node), node);
                 }
             } else {
                 if (node.getVec().y() > target) {
                     if (node.hasLeft()) node = node.left();
-                    else return new Pair<>(node, prev(node, tree == left));
+                    else return new Pair<>(node, prev(node));
                 }
             }
             
             double ori = e.relOri(node.getVec());
             if ((up && ori < 0) || (!up && ori > 0)) {
-                VectorYNode next = next(node, tree == left);
+                VectorYNode next = next(node);
                 if (!node.hasRight()) return new Pair<>(next, node);
                 if (e.relOri(next.getVec()) * ori < 0) return new Pair<>(next, node);
                 if (node.hasRight()) node = node.right();
 
             } else if ((up && ori > 0) || (!up && ori < 0)) {
-                VectorYNode prev = prev(node, tree == left);
+                VectorYNode prev = prev(node);
                 if (!node.hasLeft()) return new Pair<>(node, prev);
                 if (e.relOri(prev.getVec()) * ori <= 0) return new Pair<>(node, prev);
                 node = node.left();
                 
             } else {
-                if (up) return new Pair<>(next(node, tree == left), node);
-                else return new Pair<>(node, prev(node, tree == left));
+                if (up) return new Pair<>(next(node), node);
+                else return new Pair<>(node, prev(node));
             }
         }
     }
@@ -217,13 +238,12 @@ public class ConvexHull {
      * other chain.
      * 
      * @param node     The node to get the next node of.
-     * @param fromLeft Whether the given node is from the left or the right tree.
      * 
      * @return The next node in the chain.
      */
-    public VectorYNode next(VectorYNode node, boolean fromLeft) {
+    public VectorYNode next(VectorYNode node) {
         if (node.next() != null) return node.next();
-        if (fromLeft) return right.getMax();
+        if (left.getMax() == node) return right.getMax();
         else return left.getMax();
     }
 
@@ -232,13 +252,12 @@ public class ConvexHull {
      * takes the minimum node of the other chain.
      *
      * @param node     The node to get the previous node of.
-     * @param fromLeft Whether the given node is from the left or the right tree.
      *
      * @return The previous node in the chain.
      */
-    public VectorYNode prev(VectorYNode node, boolean fromLeft) {
+    public VectorYNode prev(VectorYNode node) {
         if (node.prev() != null) return node.prev();
-        if (fromLeft) return right.getMin();
+        if (left.getMin() == node) return right.getMin();
         else return left.getMin();
     }
 
@@ -313,15 +332,13 @@ public class ConvexHull {
         if (ori < 0) return left.remove(vyn);
         else if (ori > 0) return right.remove(vyn);
         else {
-            boolean l = left.remove(vyn);
-            boolean r = (l? false : right.remove(vyn));
-            if (!l && !r) return false;
-            if (vyn.equals(top)) top = prev(top, l);
-            if (vyn.equals(bottom)) bottom = next(bottom, r);
-            return true;
+            if (vyn.equals(top)) top = prev(top);
+            if (vyn.equals(bottom)) bottom = next(bottom);
+            if (left.remove(vyn)) return true;
+            return right.remove(vyn);
         }
     }
-
+    
     /**
      * Removes all vertices from the list.
      *
@@ -336,7 +353,7 @@ public class ConvexHull {
         }
         return mod;
     }
-
+    
     /**
      * Removes all nodes from the list.
      *
@@ -351,14 +368,14 @@ public class ConvexHull {
         }
         return mod;
     }
-
+    
     /**
      * @return The size of the hull.
      */
     public int size() {
         return left.size() + right.size();
     }
-
+    
     /**
      * Testing purposes
      * 
