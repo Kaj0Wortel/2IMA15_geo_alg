@@ -679,6 +679,7 @@ public class Visualizer {
      * when the original collection is modified.
      *
      * @param in The collection to be converted.
+     * 
      * @return The underlying data of the input collection.
      * 
      * @see #cloneToEdge(Iterable)
@@ -696,6 +697,33 @@ public class Visualizer {
             public Edge next() {
                 OutputEdge e = it.next();
                 return new Edge(e.getV1().getV(), e.getV2().getV());
+            }
+        };
+    }
+
+    /**
+     * Connects the vectors given in the input in the order they are given.
+     * 
+     * @param in The vectors to connect.
+     * 
+     * @return An iterable over the connections between the vectors.
+     */
+    public static Iterable<Edge> connectEdges(final Iterable<Vector> in) {
+        return () -> new Iterator<>() {
+            private final Iterator<Vector> it = in.iterator();
+            private Vector prev = (it.hasNext() ? it.next() : null);
+
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public Edge next() {
+                Vector cur = it.next();
+                Edge e = new Edge(prev, cur);
+                prev = cur;
+                return e;
             }
         };
     }

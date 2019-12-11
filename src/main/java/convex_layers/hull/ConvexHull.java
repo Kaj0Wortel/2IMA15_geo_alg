@@ -4,22 +4,27 @@ import convex_layers.InputVertex;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import convex_layers.visual.Visualizer;
-import tools.MultiTool;
 import tools.Pair;
 import tools.data.collection.rb_tree.LinkedRBTree;
+import tools.iterators.InverseListIterator;
+import tools.iterators.MultiIterator;
 import tools.log.Logger;
 import tools.log.StreamLogger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 
 /**
  * This class represents the convex hull data structure.
  * This data structure should be used for search queries on the hull.
  */
-public class ConvexHull {
+public class ConvexHull
+            implements Collection<InputVertex> {
+    
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
     /** The search tree for the left part of the hull. */
     private final LinkedRBTree<VectorYNode> left;
     /** The search tree for the right part of the hull. */
@@ -28,8 +33,12 @@ public class ConvexHull {
     private VectorYNode top;
     /** The element with the lowest y-coordinate. */
     private VectorYNode bottom;
-
-
+    
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
     /**
      * Creates a new convex hull data structure from the given left and right hald-hulls. <br>
      * The initialisation takes {@code O(n log n)} time if the collections are unsorted, or
@@ -58,6 +67,73 @@ public class ConvexHull {
     }
     
     
+    /* ----------------------------------------------------------------------
+     * Static initializers.
+     * ----------------------------------------------------------------------
+     */
+    public static ConvexHull createConvexHull(Collection<InputVertex> col) {
+        InputVertex[] data = col.toArray(new InputVertex[col.size()]);
+        Arrays.sort(data, (iv1, iv2) -> {
+            double diff = iv1.getV().y() - iv2.getV().y();
+            if (diff == 0) return 0;
+            else if (diff < 0) return Math.min(-1, (int) diff);
+            else if (diff > 0) return Math.max(1, (int) diff);
+            else throw new IllegalArgumentException(
+                    "Expected non-special type double, but found: " + diff);
+        });
+        InputVertex min = data[0];
+        InputVertex max = data[data.length - 1];
+        List<InputVertex> left = new LinkedList<>();
+        List<InputVertex> right = new LinkedList<>();
+        Edge e = new Edge(min.getV(), max.getV());
+        for (InputVertex iv : data) {
+            if (e.relOri(iv.getV()) < 0) left.add(iv);
+            else right.add(iv);
+        }
+        
+        return new ConvexHull(computeHalfRightHull(left, true), computeHalfRightHull(right, false));
+    }
+
+    /**
+     * Computes the right half convex hull of the given points. Assume that the points are sorted
+     * on y-coordinate, or computes the lower half convex hull if sorted on x-coordinate. <br>
+     * To obtain the other half call with {@code inverse == true.}
+     * 
+     * @param in      The input vertices.
+     * @param inverse Whether the other side of the hull should be computed.
+     * 
+     * @return The vertices on the convex hull.
+     */
+    private static List<InputVertex> computeHalfRightHull(List<InputVertex> in, boolean inverse) {
+        Stack<InputVertex> out = new Stack<>();
+        for (InputVertex iv : in) {
+            if (out.size() < 2) {
+                out.add(iv);
+                continue;
+            }
+
+            InputVertex last;
+            double ori;
+            do {
+                last = out.pop();
+                InputVertex secLast = out.peek();
+                Edge e = (inverse
+                        ? new Edge(last.v(), secLast.v())
+                        : new Edge(secLast.v(), last.v()));
+                ori = e.relOri(iv.v());
+
+            } while (ori > 0 && out.size() >= 2);
+            if (ori <= 0) out.add(last);
+            out.add(iv);
+        }
+        return out;
+    }
+    
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     /**
      * Determines the four points near the intersection of the extended edge with the hull.
      * 
@@ -291,7 +367,37 @@ public class ConvexHull {
             else return right.add(vyn);
         }
     }
-    
+
+    @Override
+    public boolean remove(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends InputVertex> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> collection) {
+        return false;
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
     /**
      * Adds all vertices from the list.
      * 
@@ -320,7 +426,7 @@ public class ConvexHull {
     /**
      * Removes the given node.
      *
-     * @param byn The node to be removed.
+     * @param vyn The node to be removed.
      * @return {@code true} if the vertex was removed. {@code false} otherwise.
      */
     public boolean remove(VectorYNode vyn) {
@@ -358,9 +464,9 @@ public class ConvexHull {
      *
      * @return {@code true} if the data structure was modified. {@code false} otherwise.
      */
-    public boolean removeAllNodes(Iterable<VectorYNode> vyns) {
+    public boolean removeAllNodes(Iterable<InputVertex> vyns) {
         boolean mod = false;
-        for (VectorYNode vyn : vyns) {
+        for (InputVertex vyn : vyns) {
             if (remove(vyn)) mod = true;
         }
         return mod;
@@ -371,6 +477,93 @@ public class ConvexHull {
      */
     public int size() {
         return left.size() + right.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
+    public boolean contains(Object obj) {
+        return left.contains(obj) || right.contains(obj); // TODO improve running time by first checking the side.
+    }
+    
+    /**
+     * Converts the given {@link VectorYNode} Iterator to an {@link InputVertex} iterator.
+     * 
+     * @param it The iterator to convert.
+     * 
+     * @return A converted iterator using the given iterator as underlying stream.
+     */
+    public static Iterator<InputVertex> convert(Iterator<VectorYNode> it) {
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public InputVertex next() {
+                return it.next().getIV();
+            }
+        };
+    }
+
+    /**
+     * @return An iterator over all nodes in the hull. The nodes are returned in order. 
+     */
+    @SuppressWarnings("unchecked")
+    public Iterator<VectorYNode> nodeIterator() {
+        return new MultiIterator<>(
+                left.iterator(),
+                new InverseListIterator<>(right.listIterator(false))
+        );
+    }
+
+    @Override
+    public Iterator<InputVertex> iterator() {
+        return convert(nodeIterator());
+    }
+    
+    public Iterator<InputVertex> leftIterator() {
+        return convert(left.iterator());
+    }
+    
+    public Iterator<InputVertex> rightIterator() {
+        return convert(right.iterator());
+    }
+    
+    public Iterable<VectorYNode> getLeft() {
+        return left;
+    }
+    
+    public Iterable<VectorYNode> getRight() {
+        return right;
+    }
+    
+    public Iterable<InputVertex> getLeftInput() {
+        return () -> convert(left.iterator());
+    }
+    
+    public Iterable<InputVertex> getRightInput() {
+        return () -> convert(right.iterator());
+    }
+
+    @Override
+    public Object[] toArray() {
+        return toArray(new InputVertex[size()]);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] arr) {
+        int i = 0;
+        for (InputVertex iv : this) {
+            //if (i >= arr.length) break;
+            arr[i++] = (T) iv;
+        }
+        return arr;
     }
     
     /**
@@ -399,18 +592,29 @@ public class ConvexHull {
         for (int i = 0; i < right.size() - 1; i++) {
             rEdges.add(new Edge(right.get(i).getV(), right.get(i+1).getV()));
         }
+        left.add(new InputVertex(999, 30, 10));
+        //ConvexHull ch = new ConvexHull(left, right);
+        List<InputVertex> combi = new ArrayList<>(left);
+        combi.addAll(right);
+        ConvexHull ch = ConvexHull.createConvexHull(combi);
         Visualizer viz = new Visualizer();
+        /*
         viz.setPoints(List.of(Visualizer.toVec(left), Visualizer.toVec(right)));
         viz.setEdges(List.of(lEdges, rEdges));
         viz.setLabels(List.of(Visualizer.toLabel(left), Visualizer.toLabel(right)));
+         */
+        viz.setPoints(List.of(Visualizer.toVec(ch)));
+        viz.setEdges(List.of(
+                Visualizer.connectEdges(Visualizer.toVec(ch.getLeftInput())),
+                Visualizer.connectEdges(Visualizer.toVec(ch.getRightInput()))
+        ));
         viz.redraw();
-        
+        /*
         Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
         viz.addPoint(List.of(e.v1(), e.v2()));
         viz.addEdge(List.of(e));
         viz.redraw();
         
-        ConvexHull ch = new ConvexHull(left, right);
         NearIntersection ni = ch.getPointsNearLine(e);
         Logger.write(ni);
         viz.addEdge(List.of(
@@ -419,7 +623,7 @@ public class ConvexHull {
                 new Edge(ni.v4.getVec(), ni.v3.getVec()),
                 new Edge(ni.v3.getVec(), ni.v1.getVec())
         ));
-        viz.redraw();
+        viz.redraw();*/
     }
     
     

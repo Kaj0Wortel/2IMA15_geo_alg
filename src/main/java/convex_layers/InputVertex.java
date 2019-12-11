@@ -15,6 +15,11 @@ import tools.PublicCloneable;
 @AllArgsConstructor
 public class InputVertex
         implements PublicCloneable {
+    
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
     /** The ID of the vertex. */
     private final long id;
     /** The x-coordinate of the vertex. */
@@ -25,7 +30,20 @@ public class InputVertex
     private InputVertex prev;
     /** The next vertex on the hull in clockwise order. */
     private InputVertex next;
-    
+
+
+    /* ----------------------------------------------------------------------
+     * Constructor.
+     * ----------------------------------------------------------------------
+     */
+
+    /**
+     * Creates a new non-linked input vertex.
+     * 
+     * @param id The id of the input vertex.
+     * @param x  The x-coordinate of the input vertex.
+     * @param y  The y-coordinate of the input vertex.
+     */
     public InputVertex(long id, double x, double y) {
         this(id, x, y, false, null, null);
     }
@@ -47,23 +65,63 @@ public class InputVertex
         this.prev = prev;
         this.next = next;
     }
+
+
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * @return The ID of the input vertex.
+     */
+    public long id() {
+        return id;
+    }
     
+    /**
+     * @return The vector of the input vertex.
+     */
+    public Vector v() {
+        return v;
+    }
+
+    /**
+     * @return The x-coordinate of the vertex.
+     */
     public double getX() {
         return v.x();
     }
-    
+
+    /**
+     * @return The y-coordinate of the vertex.
+     */
     public double getY() {
         return v.y();
     }
-
+    
+    /**
+     * Adds two vertices and creates a new input vertex.
+     * 
+     * @param iv The vertex to add.
+     * 
+     * @return A new input vertex with id {@code -1} and the sum of both vectors.
+     */
+    @Deprecated
     public InputVertex add(InputVertex iv) {
         return new InputVertex(-1, iv.v.add(v), false, null, null);
     }
-
+    
+    /**
+     * Subtracts the given vertex from this vertex.
+     *
+     * @param iv The vertex to subtract.
+     *
+     * @return A new input vertex with id {@code -1} and the subtraction of the two vectors.
+     */
     public InputVertex sub(InputVertex iv) {
         return new InputVertex(-1, v.sub(iv.v), false, null, null);
     }
-
+    
     @Override
     public InputVertex clone() {
         return new InputVertex(id, v.clone(), hulled, prev, next);
@@ -78,7 +136,7 @@ public class InputVertex
     public boolean equals(Object obj) {
         if (!(obj instanceof InputVertex)) return false;
         InputVertex iv = (InputVertex) obj;
-        return id == iv.id;
+        return id == iv.id && v.equals(iv.v);
     }
     
     @Override

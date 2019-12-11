@@ -107,6 +107,24 @@ public class Edge
                 Math.min(v1.y(), v2.y()) <= Math.max(e.v1.y(), e.v2.y()) &&
                 Math.max(v1.y(), v2.y()) >= Math.min(e.v1.y(), e.v2.y());
     }
+
+    /**
+     * The euclidean distance from the line to a point.
+     * 
+     * @param p The point to calculate the distance from.
+     * 
+     * @return The euclidean distance from this line to the given point.
+     */
+    public double distance(Vector p) {
+        return Math.abs(normal().dot(p) + x2()*y1() - y2()*x1()) / length();
+    }
+
+    /**
+     * @return The normal vector associated with this edge.
+     */
+    public Vector normal() {
+        return new Vector(y2() - y1(), x2() - x1());
+    }
     
     /**
      * Calculates the relative orientation of the given point. It is assume that the line is directed from
