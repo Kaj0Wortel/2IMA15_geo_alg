@@ -72,6 +72,12 @@ public class ConvexHull
      * ----------------------------------------------------------------------
      */
     public static ConvexHull createConvexHull(Collection<InputVertex> col) {
+        if (col.isEmpty()) return new ConvexHull(List.of(), List.of());
+        if (col.size() == 1) return new ConvexHull(col, List.of());
+        if (col.size() == 2) {
+            Iterator<InputVertex> it = col.iterator();
+            return new ConvexHull(List.of(it.next()), List.of(it.next()));
+        }
         InputVertex[] data = col.toArray(new InputVertex[col.size()]);
         Arrays.sort(data, (iv1, iv2) -> {
             double diff = iv1.getV().y() - iv2.getV().y();
@@ -86,12 +92,25 @@ public class ConvexHull
         List<InputVertex> left = new LinkedList<>();
         List<InputVertex> right = new LinkedList<>();
         Edge e = new Edge(min.getV(), max.getV());
-        for (InputVertex iv : data) {
-            if (e.relOri(iv.getV()) < 0) left.add(iv);
-            else right.add(iv);
+        left.add(min);
+        right.add(min);
+        for (int i = 1; i < data.length - 1; i++) {
+            if (e.relOri(data[i].getV()) < 0) left.add(data[i]);
+            else right.add(data[i]);
+        }
+        left.add(max);
+        right.add(max);
+        
+        left = computeHalfRightHull(left, true);
+        right = computeHalfRightHull(right, false);
+        
+        {
+            List<InputVertex> big = (left.size() > right.size() ? left : right);
+            big.remove(0);
+            big.remove(big.size() - 1);
         }
         
-        return new ConvexHull(computeHalfRightHull(left, true), computeHalfRightHull(right, false));
+        return new ConvexHull(left, right);
     }
 
     /**
@@ -611,7 +630,8 @@ public class ConvexHull
         for (int i = 0; i < right.size() - 1; i++) {
             rEdges.add(new Edge(right.get(i).getV(), right.get(i+1).getV()));
         }
-        left.add(new InputVertex(99, 30, 10));
+        left.add(new InputVertex(98, -5, 45));
+        right.add(new InputVertex(99, 20, 10));
         
         //ConvexHull ch = new ConvexHull(left, right);
         List<InputVertex> combi = new ArrayList<>(left);
@@ -619,12 +639,15 @@ public class ConvexHull
         ConvexHull ch = ConvexHull.createConvexHull(combi);
         Visualizer viz = new Visualizer();
         
-        viz.setData(List.of(ch.getLeftInput(), ch.getRightInput()));
-        //viz.setData(List.of(left, right));
+        viz.setData(List.of(left, right));
+        viz.redraw();
+        viz.addData(List.of(ch));
+        viz.redraw();
+        viz.addData(List.of(ch.getLeftInput(), ch.getRightInput()));
+        viz.redraw();
         Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
         viz.addPoint(List.of(e.v1(), e.v2()));
         viz.addEdge(List.of(e));
-        viz.redraw();
         
         NearIntersection ni = ch.getPointsNearLine(e);
         Logger.write(ni);

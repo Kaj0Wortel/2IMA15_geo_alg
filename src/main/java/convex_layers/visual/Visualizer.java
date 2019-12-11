@@ -56,7 +56,7 @@ public class Visualizer {
     private static final int WIDTH = 1920;
     private static final int HEIGHT = 1080;
     private static final Paint DEFAULT_POINT_COLOR = new Color(0, 0, 0);
-    private static final Paint DEFAULT_EDGE_COLOR = new Color(0, 154, 255);
+    private static final Paint DEFAULT_EDGE_COLOR = new Color(0, 182, 255);
     private static final Paint GRID_COLOR = new Color(200, 200, 200);
     private static final Paint BIG_GRID_COLOR = new Color(100, 100, 100);
     private static final Paint BACKGROUND_COLOR = new Color(255, 255, 255, 255);
@@ -98,12 +98,12 @@ public class Visualizer {
     private List<Iterable<Vector>> points = List.of();
     /** List storing the colors of the sets of points to draw. */
     private List<Paint> pointColors = ArrayTools.asList(null, new Color(170, 158, 78), new Color(0, 255, 199),
-            new Color(255, 0, 255));
+            new Color(201, 7, 255), new Color(255, 123, 118));
     /** List storing the sets of edges to draw. */
     private List<Iterable<Edge>> edges = List.of();
     /** List storing the colors of the sets of edges to draw. */
-    private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 168, 39),
-            new Color(0, 0, 255));
+    private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 152, 35),
+            new Color(86, 5, 255), new Color(100, 255, 0));
     /** List storing the labels of the points to draw. */
     private List<Iterable<String>> labels = List.of();
     
