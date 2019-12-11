@@ -612,19 +612,15 @@ public class ConvexHull
             rEdges.add(new Edge(right.get(i).getV(), right.get(i+1).getV()));
         }
         left.add(new InputVertex(99, 30, 10));
+        
         //ConvexHull ch = new ConvexHull(left, right);
         List<InputVertex> combi = new ArrayList<>(left);
         combi.addAll(right);
         ConvexHull ch = ConvexHull.createConvexHull(combi);
         Visualizer viz = new Visualizer();
-        /*
-        viz.setPoints(List.of(Visualizer.toVec(left), Visualizer.toVec(right)));
-        viz.setEdges(List.of(lEdges, rEdges));
-        viz.setLabels(List.of(Visualizer.toLabel(left), Visualizer.toLabel(right)));
-         */
+        
         viz.setData(List.of(ch.getLeftInput(), ch.getRightInput()));
-        viz.redraw();
-        /*
+        //viz.setData(List.of(left, right));
         Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
         viz.addPoint(List.of(e.v1(), e.v2()));
         viz.addEdge(List.of(e));
@@ -638,7 +634,7 @@ public class ConvexHull
                 new Edge(ni.v4.getVec(), ni.v3.getVec()),
                 new Edge(ni.v3.getVec(), ni.v1.getVec())
         ));
-        viz.redraw();*/
+        viz.redraw();
     }
     
     
