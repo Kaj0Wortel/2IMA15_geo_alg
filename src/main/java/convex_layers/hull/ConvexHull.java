@@ -394,7 +394,7 @@ public class ConvexHull
         if (obj instanceof VectorYNode) return remove((VectorYNode) obj);
         return false;
     }
-
+    
     @Override
     public boolean containsAll(Collection<?> col) {
         for (Object obj : col) {
@@ -402,13 +402,13 @@ public class ConvexHull
         }
         return true;
     }
-
+    
     @Override
     @SuppressWarnings("unchecked")
     public boolean addAll(Collection<? extends InputVertex> col) {
         return addAll((Iterable<InputVertex>) col);
     }
-
+    
     @Override
     public boolean removeAll(Collection<?> col) {
         boolean mod = false;
@@ -417,12 +417,34 @@ public class ConvexHull
         }
         return mod;
     }
-
+    
     @Override
     public boolean retainAll(Collection<?> col) {
-        throw new UnsupportedOperationException();
+        boolean mod = left.retainAll(col);
+        if (right.retainAll(col)) mod = true;
+        if (!mod) return false;
+        
+        if (left.isEmpty()) {
+            top = right.getMax();
+            bottom = right.getMin();
+            
+        } else if (right.isEmpty()) {
+            top = right.getMax();
+            bottom = right.getMin();
+            
+        } else {
+            top = (left.getMax().getVec().y() < right.getMax().getVec().y()
+                    ? right.getMax()
+                    : left.getMax()
+            );
+            bottom = (left.getMin().getVec().y() > right.getMin().getVec().y()
+                    ? right.getMin()
+                    : left.getMin()
+            );
+        }
+        return true;
     }
-
+    
     @Override
     public void clear() {
         left.clear();
@@ -430,7 +452,7 @@ public class ConvexHull
         top = null;
         bottom = null;
     }
-
+    
     /**
      * Adds all vertices from the list.
      * 
