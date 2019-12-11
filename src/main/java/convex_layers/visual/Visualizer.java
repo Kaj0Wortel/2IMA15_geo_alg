@@ -405,10 +405,9 @@ public class Visualizer {
         g2d.setStroke(new BasicStroke(1));
         g2d.setFont(DEFAULT_FONT);
         {
-            //int height = g2d.getFontMetrics().getHeight();
             FontMetrics fm = g2d.getFontMetrics();
             int dh = fm.getDescent();//fm.getAscent() - fm.getHeight();
-            for (int i = 0; i < points.size() && i < labels.size(); i++) {
+            for (int i = 0; i < points.size(); i++) {
                 if (i < pointColors.size() && pointColors.get(i) != null) {
                     Paint p = pointColors.get(i);
                     if (p instanceof Color) {
@@ -418,8 +417,8 @@ public class Visualizer {
                     }
                     
                 } else g2d.setPaint(invertColor((Color) DEFAULT_POINT_COLOR));
-                //g2d.setPaint(Color.WHITE);
-                Iterator<String> lIt = labels.get(i).iterator();
+                
+                Iterator<String> lIt = (i < labels.size() ? labels.get(i).iterator() : labelGenerator());
                 Iterator<Vector> vIt = points.get(i).iterator();
                 while (lIt.hasNext() && vIt.hasNext()) {
                     String label = lIt.next();
@@ -443,6 +442,24 @@ public class Visualizer {
             lock.unlock();
         }
         canvas.repaint();
+    }
+
+    /**
+     * @return A generator which generates labels.
+     */
+    private Iterator<String> labelGenerator() {
+        return new Iterator<>() {
+            private long i = 0;
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+            
+            @Override
+            public String next() {
+                return Long.toString(i++);
+            }
+        };
     }
 
     /**
@@ -584,7 +601,32 @@ public class Visualizer {
         }
         labels.add(labelList);
     }
+
+    /**
+     * Clears all current data and sets the new data.
+     * 
+     * @param data The data to be set for the visualizer.
+     */
+    public void setData(List<Iterable<InputVertex>> data) {
+        clear();
+        addData(data);
+    }
+
+    /**
+     * Adds the given data to the current data.
+     * 
+     * @param data The data to be added.
+     */
+    public void addData(List<Iterable<InputVertex>> data) {
+        for (Iterable<InputVertex> d : data) {
+            Iterable<Vector> vecIt = toVec(d);
+            addPoint(vecIt);
+            addEdge(connectEdges(vecIt));
+            addLabel(toLabel(d));
+        }
+    }
     
+
     /**
      * Converts a collection of {@link InputVertex} to a collection of {@link Vector}. <br>
      * This function clones the data, which implies that the data <b>won't</b> be modified when the
@@ -726,6 +768,15 @@ public class Visualizer {
                 return e;
             }
         };
+    }
+
+    /**
+     * Clears all point, edge and label data, but leave the colors.
+     */
+    public void clear() {
+        points = List.of();
+        edges = List.of();
+        labels = List.of();
     }
     
     

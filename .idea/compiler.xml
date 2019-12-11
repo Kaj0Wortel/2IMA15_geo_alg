@@ -6,8 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="convex_layers" />
         <module name="2IMA15_geo_alg" />
+        <module name="convex_layers" />
       </profile>
     </annotationProcessing>
   </component>

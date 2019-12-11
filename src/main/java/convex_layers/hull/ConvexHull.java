@@ -341,6 +341,7 @@ public class ConvexHull
      * 
      * @return {@code true} if the vertex was added. {@code false} otherwise.
      */
+    @Override
     public boolean add(InputVertex iv) {
         VectorYNode vyn = new VectorYNode(iv);
         if (size() == 0) {
@@ -369,33 +370,46 @@ public class ConvexHull
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(Object obj) {
+        if (obj instanceof InputVertex) return remove((InputVertex) obj);
+        if (obj instanceof VectorYNode) return remove((VectorYNode) obj);
         return false;
     }
 
     @Override
-    public boolean containsAll(Collection<?> collection) {
-        return false;
+    public boolean containsAll(Collection<?> col) {
+        for (Object obj : col) {
+            if (!contains(obj)) return false;
+        }
+        return true;
     }
 
     @Override
-    public boolean addAll(Collection<? extends InputVertex> collection) {
-        return false;
+    @SuppressWarnings("unchecked")
+    public boolean addAll(Collection<? extends InputVertex> col) {
+        return addAll((Iterable<InputVertex>) col);
     }
 
     @Override
-    public boolean removeAll(Collection<?> collection) {
-        return false;
+    public boolean removeAll(Collection<?> col) {
+        boolean mod = false;
+        for (Object obj : col) {
+            if (remove(obj)) mod = true;
+        }
+        return mod;
     }
 
     @Override
-    public boolean retainAll(Collection<?> collection) {
-        return false;
+    public boolean retainAll(Collection<?> col) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void clear() {
-
+        left.clear();
+        right.clear();
+        top = null;
+        bottom = null;
     }
 
     /**
@@ -464,17 +478,15 @@ public class ConvexHull
      *
      * @return {@code true} if the data structure was modified. {@code false} otherwise.
      */
-    public boolean removeAllNodes(Iterable<InputVertex> vyns) {
+    public boolean removeAllNodes(Iterable<VectorYNode> vyns) {
         boolean mod = false;
-        for (InputVertex vyn : vyns) {
+        for (VectorYNode vyn : vyns) {
             if (remove(vyn)) mod = true;
         }
         return mod;
     }
     
-    /**
-     * @return The size of the hull.
-     */
+    @Override
     public int size() {
         return left.size() + right.size();
     }
@@ -486,7 +498,14 @@ public class ConvexHull
 
     @Override
     public boolean contains(Object obj) {
-        return left.contains(obj) || right.contains(obj); // TODO improve running time by first checking the side.
+        VectorYNode node;
+        if (obj instanceof InputVertex) node = new VectorYNode((InputVertex) obj);
+        else if (obj instanceof VectorYNode) node = (VectorYNode) obj;
+        else return false;
+        if (isEmpty()) return false;
+        Edge e = new Edge(bottom.getVec(), top.getVec());
+        if (e.relOri(node.getVec()) < 0) return left.contains(node);
+        else return right.contains(node);
     }
     
     /**
@@ -592,7 +611,7 @@ public class ConvexHull
         for (int i = 0; i < right.size() - 1; i++) {
             rEdges.add(new Edge(right.get(i).getV(), right.get(i+1).getV()));
         }
-        left.add(new InputVertex(999, 30, 10));
+        left.add(new InputVertex(99, 30, 10));
         //ConvexHull ch = new ConvexHull(left, right);
         List<InputVertex> combi = new ArrayList<>(left);
         combi.addAll(right);
@@ -603,11 +622,7 @@ public class ConvexHull
         viz.setEdges(List.of(lEdges, rEdges));
         viz.setLabels(List.of(Visualizer.toLabel(left), Visualizer.toLabel(right)));
          */
-        viz.setPoints(List.of(Visualizer.toVec(ch)));
-        viz.setEdges(List.of(
-                Visualizer.connectEdges(Visualizer.toVec(ch.getLeftInput())),
-                Visualizer.connectEdges(Visualizer.toVec(ch.getRightInput()))
-        ));
+        viz.setData(List.of(ch.getLeftInput(), ch.getRightInput()));
         viz.redraw();
         /*
         Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
