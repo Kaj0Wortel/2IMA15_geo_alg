@@ -2,27 +2,38 @@ package convex_layers.hull;
 
 import convex_layers.InputVertex;
 import convex_layers.math.Vector;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import tools.data.collection.rb_tree.LinkedRBKey;
 
 /**
- * 
+ * Linked red black tree key node class for sorting vertices on y-coordinate.
  */
+@Getter
+@Setter
+@AllArgsConstructor
 public class VectorYNode
         extends LinkedRBKey<VectorYNode> {
     
-    private InputVertex iv;
-    
-    
-    public VectorYNode(InputVertex iv) {
-        this.iv = iv;
-    }
-    
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    /** The underlying input vertex. */
+    private final InputVertex iv;
+
+
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
+
+    /**
+     * @return The vector from the input vertex.
+     */
     public Vector getVec() {
         return iv.getV();
-    }
-    
-    public InputVertex getIV() {
-        return iv;
     }
     
     @Override

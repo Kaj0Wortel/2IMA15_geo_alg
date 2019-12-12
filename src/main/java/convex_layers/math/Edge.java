@@ -1,5 +1,6 @@
 package convex_layers.math;
 
+import convex_layers.InputVertex;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,12 +14,37 @@ import java.util.Objects;
 @AllArgsConstructor
 public class Edge
             implements PublicCloneable {
+    
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
     /** The source of the edge. */
     private Vector v1;
     /** The destination of the edge. */
     private Vector v2;
-
-
+    
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * Constructor for input vertices.
+     * 
+     * @param iv1 The first input vertex.
+     * @param iv2 The second input vertex.
+     */
+    public Edge(InputVertex iv1, InputVertex iv2) {
+        this.v1 = iv1.getV();
+        this.v2 = iv2.getV();
+    }
+    
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     /**
      * @return The starting point of the edge.
      */

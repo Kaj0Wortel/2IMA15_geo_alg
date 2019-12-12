@@ -137,8 +137,8 @@ public class ConvexHull
                 last = out.pop();
                 InputVertex secLast = out.peek();
                 Edge e = (inverse
-                        ? new Edge(last.v(), secLast.v())
-                        : new Edge(secLast.v(), last.v()));
+                        ? new Edge(last, secLast)
+                        : new Edge(secLast, last));
                 ori = e.relOri(iv.v());
 
             } while (ori > 0 && out.size() >= 2);
@@ -161,8 +161,8 @@ public class ConvexHull
      * @return A {@link NearIntersection} with the points.
      */
     public NearIntersection getPointsNearLine(Edge e) {
-        VectorYNode vyn1 = null, vyn2 = null, vyn3 = null, vyn4 = null;
-        NearIntersection.Tree t1 = null, t2 = null, t3 = null, t4 = null;
+        VectorYNode vyn1, vyn2, vyn3, vyn4;
+        NearIntersection.Tree t1, t2, t3, t4;
         
         // TODO: edge cases:
         //  - edge goes through vertex (done?).
@@ -329,7 +329,7 @@ public class ConvexHull
      * Gets the next node of the chain. If no next node exists, takes the maximum node of the
      * other chain.
      * 
-     * @param node     The node to get the next node of.
+     * @param node The node to get the next node of.
      * 
      * @return The next node in the chain.
      */
@@ -362,17 +362,131 @@ public class ConvexHull
      */
     @Override
     public boolean add(InputVertex iv) {
+        return add(new VectorYNode(iv));
+    }
+
+    /**
+     * Adds an input vertex and updates the hull accordingly by removing vertices from the hull. <br>
+     * If the just added point was inside the hull, then it will be removed directly and returned in
+     * the returned list. This is the only way for the given vertex to be removed. <br>
+     * Moreover, if the given vertex is removed, then no other vertices will be removed.
+     * 
+     * @param iv The input vertex to add.
+     * 
+     * @return A list containing all removed vertices.
+     */
+    public List<InputVertex> addAndUpdate(InputVertex iv) {
         VectorYNode vyn = new VectorYNode(iv);
-        if (size() == 0) {
-            left.add(top = bottom = vyn);
+        List<InputVertex> rem = new ArrayList<>();
+        if (!add(vyn) || size() <= 3) return rem;
+        
+        boolean leftList = (new Edge(bottom.getVec(), top.getVec()).relOri(vyn.getVec()) < 0);
+        
+        // Check if the added vertex lies on the hull. If not, remove it.
+        if (vyn != top && vyn != bottom) {
+            double ori = new Edge(prev(vyn).getVec(), next(vyn).getVec()).relOri(vyn.getVec());
+            if ((leftList && ori > 0) || (!leftList && ori < 0)) {
+                remove(vyn);
+                rem.add(vyn.getIv());
+                return rem;
+            }
         }
         
+        // Either fix the hull or resolve to a case where {@code vyn == top}.
+        LinkedRBTree<VectorYNode> otherTree = (leftList ? right : left);
+        if (vyn != top) {
+            VectorYNode node = null;
+            double ori;
+            do {
+                if (node != null) {
+                    rem.add(node.getIv());
+                    remove(node);
+                }
+                node = next(vyn);
+                VectorYNode nextNode = (node == otherTree.getMax() ? prev(node) : next(node));
+                ori = new Edge(vyn.getVec(), node.getVec()).relOri(nextNode.getVec());
+            } while ((leftList && ori < 0 || (!leftList && ori > 0)) && vyn != top);
+        }
+        
+        // Either fix the hull or resolve to a case where {@code vyn == bottom}.
+        if (vyn != bottom) {
+            VectorYNode node = null;
+            double ori;
+            do {
+                if (node != null) {
+                    rem.add(node.getIv());
+                    remove(node);
+                }
+                node = prev(vyn);
+                VectorYNode prevNode = (node == otherTree.getMin() ? next(node) : prev(node));
+                ori = new Edge(node.getVec(), vyn.getVec()).relOri(prevNode.getVec());
+            } while ((leftList && ori < 0 || (!leftList && ori > 0)) && vyn != bottom);
+        }
+        
+        if ((vyn == top || vyn == bottom) && size() > 3) {
+            // Remove invalid nodes on the left side.
+            while (size() > 3) {
+                VectorYNode l1 = (left.getMax() == vyn || right.getMin() == vyn
+                        ? prev(vyn)
+                        : next(vyn)
+                );
+                VectorYNode l2 = (vyn == top
+                        ? prev(l1)
+                        : next(l1)
+                );
+                
+                Edge el = (vyn == top
+                        ? new Edge(l2.getVec(), vyn.getVec())
+                        : new Edge(vyn.getVec(), l2.getVec())
+                );
+                
+                if (el.relOri(l1.getVec()) <= 0) break;
+                rem.add(l1.getIv());
+                remove(l1);
+            }
+            
+            // Remove invalid nodes on the right side.
+            while (size() > 3) {
+                VectorYNode r1 = (left.getMax() == vyn || right.getMin() == vyn
+                        ? next(vyn)
+                        : prev(vyn)
+                );
+                VectorYNode r2 = (vyn == top
+                        ? prev(r1)
+                        : next(r1)
+                );
+                
+                Edge er = (vyn == top
+                        ? new Edge(r2.getVec(), vyn.getVec())
+                        : new Edge(vyn.getVec(), r2.getVec())
+                );
+                if (er.relOri(r1.getVec()) >= 0) break;
+                rem.add(r1.getIv());
+                remove(r1);
+            }
+        }
+        
+        return rem;
+    }
+
+    /**
+     * Inserts a node in the chain.
+     * 
+     * @param vyn The node to add.
+     * 
+     * @return {@code true} if the node was added. {@code false} otherwise.
+     */
+    private boolean add(VectorYNode vyn) {
         boolean newBound = false;
-        if (iv.getY() > top.getVec().y()) {
+        if (size() == 0) {
+            return left.add(top = bottom = vyn);
+        }
+        
+        if (vyn.getVec().y() > top.getVec().y()) {
             newBound = true;
             top = vyn;
-        }
-        if (iv.getY() < bottom.getVec().y()) {
+            
+        } else if (vyn.getVec().y() < bottom.getVec().y()) {
             newBound = true;
             bottom = vyn;
         }
@@ -380,14 +494,14 @@ public class ConvexHull
         if (newBound) {
             if (left.size() > right.size()) return right.add(vyn);
             else return left.add(vyn);
-            
+
         } else {
             Edge e = new Edge(bottom.getVec(), top.getVec());
-            if (e.relOri(iv.getV()) < 0) return left.add(vyn);
+            if (e.relOri(vyn.getVec()) < 0) return left.add(vyn);
             else return right.add(vyn);
         }
     }
-
+    
     @Override
     public boolean remove(Object obj) {
         if (obj instanceof InputVertex) return remove((InputVertex) obj);
@@ -531,12 +645,12 @@ public class ConvexHull
     public int size() {
         return left.size() + right.size();
     }
-
+    
     @Override
     public boolean isEmpty() {
         return size() == 0;
     }
-
+    
     @Override
     public boolean contains(Object obj) {
         VectorYNode node;
@@ -565,11 +679,11 @@ public class ConvexHull
 
             @Override
             public InputVertex next() {
-                return it.next().getIV();
+                return it.next().getIv();
             }
         };
     }
-
+    
     /**
      * @return An iterator over all nodes in the hull. The nodes are returned in order. 
      */
@@ -580,47 +694,73 @@ public class ConvexHull
                 new InverseListIterator<>(right.listIterator(false))
         );
     }
-
+    
     @Override
     public Iterator<InputVertex> iterator() {
         return convert(nodeIterator());
     }
     
+    /**
+     * @return An iterator over the left list.
+     */
     public Iterator<InputVertex> leftIterator() {
         return convert(left.iterator());
     }
     
+    /**
+     * @return An iterator over the left list.
+     */
     public Iterator<InputVertex> rightIterator() {
         return convert(right.iterator());
     }
     
+    /**
+     * Returns the right list. <br>
+     * <b>WARNING</b> <br>
+     * Modifying this list <b>will</b> modify the underlying data structure.
+     * 
+     * @return The right list.
+     */
     public Iterable<VectorYNode> getLeft() {
         return left;
     }
     
+    /**
+     * Returns the left list. <br>
+     * <b>WARNING</b> <br>
+     * Modifying this list <b>will</b> modify the underlying data structure.
+     *
+     * @return The left list.
+     */
     public Iterable<VectorYNode> getRight() {
         return right;
     }
     
+    /**
+     * @return An iterable of the input vertices of the left list.
+     */
     public Iterable<InputVertex> getLeftInput() {
         return () -> convert(left.iterator());
     }
     
+    /**
+     * @return An iterable of the input vertices of the right list.
+     */
     public Iterable<InputVertex> getRightInput() {
         return () -> convert(right.iterator());
     }
-
+    
     @Override
     public Object[] toArray() {
         return toArray(new InputVertex[size()]);
     }
-
+    
     @Override
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] arr) {
         int i = 0;
         for (InputVertex iv : this) {
-            //if (i >= arr.length) break;
+            if (i >= arr.length) break;
             arr[i++] = (T) iv;
         }
         return arr;
@@ -644,18 +784,11 @@ public class ConvexHull
             right.add(new InputVertex(i + amt - 1, x, 2*i));
         }
         right.add(new InputVertex(2*amt - 1, 0, 2*amt));
-        List<Edge> lEdges = new ArrayList<>();
-        for (int i = 0; i < left.size() - 1; i++) {
-            lEdges.add(new Edge(left.get(i).getV(), left.get(i+1).getV()));
-        }
-        List<Edge> rEdges = new ArrayList<>();
-        for (int i = 0; i < right.size() - 1; i++) {
-            rEdges.add(new Edge(right.get(i).getV(), right.get(i+1).getV()));
-        }
+        
+        
         left.add(new InputVertex(98, -5, 45));
         right.add(new InputVertex(99, 20, 10));
         
-        //ConvexHull ch = new ConvexHull(left, right);
         List<InputVertex> combi = new ArrayList<>(left);
         combi.addAll(right);
         ConvexHull ch = ConvexHull.createConvexHull(combi);
@@ -679,6 +812,15 @@ public class ConvexHull
                 new Edge(ni.v4.getVec(), ni.v3.getVec()),
                 new Edge(ni.v3.getVec(), ni.v1.getVec())
         ));
+        viz.redraw();
+        
+        viz.setData(List.of(ch));
+        viz.redraw();
+        viz.addData(List.of(ch.getLeftInput(), ch.getRightInput()));
+        viz.redraw();
+        Logger.write(ch.addAndUpdate(new InputVertex(50, -21, 60)));
+        viz.redraw();
+        viz.addData(List.of(ch));
         viz.redraw();
     }
     

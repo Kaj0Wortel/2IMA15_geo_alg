@@ -1,5 +1,6 @@
 package convex_layers;
 
+import convex_layers.math.Edge;
 import tools.Var;
 import tools.log.FileLogger;
 import tools.log.Logger;
@@ -297,24 +298,29 @@ public class ConvexLayers {
 
     /**
      * Whether the vertex v is left of the line l1->l2, otherwise right
-     * Assumes no three collinear
+     * Assumes no three collinear.
+     * 
      * @param v
      * @param l1
      * @param l2
+     * 
      * @return
      */
     private static boolean leftOfLine(InputVertex v, InputVertex l1, InputVertex l2) {
-        return angle(l1, l2, v) > Math.PI;
+        return new Edge(l1, l2).relOri(v.getV()) < 0;
+        //return angle(l1, l2, v) > Math.PI;
     }
 
     /**
-     * Find a vertex with maximal x in the set
-     * @param set
-     * @return
+     * Find a vertex with maximal x-coordinate in the given data.
+     * 
+     * @param data The data to search in.
+     * 
+     * @return The vertex with the maximal x-coordinate.
      */
-    private InputVertex rightMost(Set<InputVertex> set) {
-        InputVertex maxX = set.iterator().next();
-        for (InputVertex v : set) {
+    private InputVertex rightMost(Iterable<InputVertex> data) {
+        InputVertex maxX = null;
+        for (InputVertex v : data) {
             if (v.getX() > maxX.getX()) {
                 maxX = v;
             }
@@ -353,27 +359,28 @@ public class ConvexLayers {
      * @return
      */
     private static double angle(InputVertex v1, InputVertex v2, InputVertex v3) {
-        return angle(v1.sub(v2), v3.sub(v2));
+        //return angle(v1.sub(v2), v3.sub(v2));
+        return new Edge(v2, v1).angle(v3.getV());
     }
-
-    /**
-     * Angle from first point to 2nd point [0, 2*PI]
-     * @param v1
-     * @param v2
-     * @return
-     */
-    private static double angle(InputVertex v1, InputVertex v2) {
-        return (angle(v2) - angle(v1) + 2 * Math.PI) % (2 * Math.PI);
-    }
-
-    /**
-     * Angle w.r.t. origin of a vertex interpreted as a line from source to the point [-PI, PI]
-     * @param v
-     * @return
-     */
-    private static double angle(InputVertex v) {
-        return Math.atan2(v.getY(), v.getX());
-    }
+    
+//    /**
+//     * Angle from first point to 2nd point [0, 2*PI]
+//     * @param v1
+//     * @param v2
+//     * @return
+//     */
+//    private static double angle(InputVertex v1, InputVertex v2) {
+//        return (angle(v2) - angle(v1) + 2 * Math.PI) % (2 * Math.PI);
+//    }
+//
+//    /**
+//     * Angle w.r.t. origin of a vertex interpreted as a line from source to the point [-PI, PI]
+//     * @param v
+//     * @return
+//     */
+//    private static double angle(InputVertex v) {
+//        return Math.atan2(v.getY(), v.getX());
+//    }
     
     
 }

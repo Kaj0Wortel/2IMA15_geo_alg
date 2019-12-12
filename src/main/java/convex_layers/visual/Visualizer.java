@@ -771,12 +771,20 @@ public class Visualizer {
     }
 
     /**
-     * Clears all point, edge and label data, but leave the colors.
+     * Clears all point, edge and label data, but leaves the colors and images untouched.
      */
     public void clear() {
         points = List.of();
         edges = List.of();
         labels = List.of();
+    }
+
+    /**
+     * Clears all data except for the images.
+     */
+    public void clearAll() {
+        clear();
+        imgs.clear();
     }
     
     
