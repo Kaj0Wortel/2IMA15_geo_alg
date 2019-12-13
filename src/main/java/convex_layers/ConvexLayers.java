@@ -21,25 +21,25 @@ public class ConvexLayers {
     private static void initLogger() {
         try {
             Logger.setDefaultLogger(new FileLogger(Var.LOG_FILE));
-            
+
         } catch (IOException e) {
             System.err.println(e);
             System.exit(1);
         }
     }
-    
+
     /**
      * The main function used to initialize the program.
-     * 
+     *
      * @param args The runtime arguments.
      */
     public static void main(String[] args) {
         initLogger();
-        
+
         String folder = "challenge_1";
         String type = "uniform";
         String name = "uniform-0000015-1";
-        String path = "data/"+ folder + "/" + type + "/" + name ;
+        String path = "data/" + folder + "/" + type + "/" + name;
         File inFile = new File(path + ".instance.json");
         File outFile = new File(path + ".solution.json");
         new ConvexLayers().solve(inFile, outFile);
@@ -48,7 +48,8 @@ public class ConvexLayers {
 
     /**
      * Finish hulling on set from a point v in clockwise direction
-     * @param v Assume that v is the vertex with the rightmost x coordinate in the set
+     *
+     * @param v   Assume that v is the vertex with the rightmost x coordinate in the set
      * @param set
      */
     public static void finishHull(InputVertex v, Set<InputVertex> set) {
@@ -59,7 +60,7 @@ public class ConvexLayers {
         // Do loop until the hull is complete
         do {
             v.setHulled(true);
-            InputVertex next = nextCH(v.getPrev() , v, set);
+            InputVertex next = nextCH(v.getPrev(), v, set);
             v.setNext(next);
             next.setPrev(v);
             v = next;
@@ -68,6 +69,7 @@ public class ConvexLayers {
 
     /**
      * Print a hull to the console for debugging purposes
+     *
      * @param hull a vertex of the hull
      */
     public static void printHull(InputVertex hull) {
@@ -190,6 +192,7 @@ public class ConvexLayers {
 
     /**
      * Read input file
+     *
      * @param file The input file
      * @return The problem statement in its own class
      */
@@ -249,9 +252,10 @@ public class ConvexLayers {
 
     /**
      * Find the 4 vertices of a hull that intersect a line line1->line2 though two points
+     *
      * @param hull A vertex forming hull by next/prev
-     * @param l1 First point denoting line
-     * @param l2 Second point denoting line
+     * @param l1   First point denoting line
+     * @param l2   Second point denoting line
      * @return [(right of line), (left of line), (left of line), (right of line)]
      * where the first edge is the one furthest in the direction the line points in
      */
@@ -283,6 +287,7 @@ public class ConvexLayers {
 
     /**
      * Whether line segment [e1, e2] intersects the line through points l1 and l2
+     *
      * @param e1
      * @param e2
      * @param l1
@@ -299,11 +304,10 @@ public class ConvexLayers {
     /**
      * Whether the vertex v is left of the line l1->l2, otherwise right
      * Assumes no three collinear.
-     * 
+     *
      * @param v
      * @param l1
      * @param l2
-     * 
      * @return
      */
     private static boolean leftOfLine(InputVertex v, InputVertex l1, InputVertex l2) {
@@ -313,9 +317,8 @@ public class ConvexLayers {
 
     /**
      * Find a vertex with maximal x-coordinate in the given data.
-     * 
+     *
      * @param data The data to search in.
-     * 
      * @return The vertex with the maximal x-coordinate.
      */
     private InputVertex rightMost(Iterable<InputVertex> data) {
@@ -328,9 +331,11 @@ public class ConvexLayers {
         return maxX;
     }
 
-    /** Method based on giftWrapping.
+    /**
+     * Method based on giftWrapping.
      * Finds the next point on the convex hull assuming checking in clockwise order in range [-PI,PI]
-     * @param v Last point on the already found hull in clockwise order
+     *
+     * @param v   Last point on the already found hull in clockwise order
      * @param set Set to find the next point from
      * @return
      */
@@ -353,6 +358,7 @@ public class ConvexLayers {
     /**
      * Angle of a point inbetween two lines [0, 2*PI]
      * Taking line v1 -> v2 -> v3, the given angle is the angle the right side of this line
+     *
      * @param v1
      * @param v2
      * @param v3
@@ -362,7 +368,7 @@ public class ConvexLayers {
         //return angle(v1.sub(v2), v3.sub(v2));
         return new Edge(v2, v1).angle(v3.getV());
     }
-    
+
 //    /**
 //     * Angle from first point to 2nd point [0, 2*PI]
 //     * @param v1
@@ -381,6 +387,6 @@ public class ConvexLayers {
 //    private static double angle(InputVertex v) {
 //        return Math.atan2(v.getY(), v.getX());
 //    }
-    
-    
+
+
 }
