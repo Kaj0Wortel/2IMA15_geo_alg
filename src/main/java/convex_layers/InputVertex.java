@@ -7,6 +7,8 @@ import lombok.Setter;
 import tools.MultiTool;
 import tools.PublicCloneable;
 
+import java.util.Objects;
+
 /**
  * class representing a point in the plane.
  */
@@ -136,7 +138,7 @@ public class InputVertex
     public boolean equals(Object obj) {
         if (!(obj instanceof InputVertex)) return false;
         InputVertex iv = (InputVertex) obj;
-        return id == iv.id && v.equals(iv.v);
+        return id == iv.id && Objects.equals(v, iv.v);
     }
     
     @Override

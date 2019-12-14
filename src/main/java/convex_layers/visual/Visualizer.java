@@ -304,6 +304,7 @@ public class Visualizer {
      * Redraws the image on the canvas.
      */
     public synchronized void redraw() {
+        Logger.write("Draw image " + (imgs.size() + 1));
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
             Logger.write(new String[] {
                     "**************************************",

@@ -144,12 +144,12 @@ public class Edge
     public double distance(Vector p) {
         return Math.abs(normal().dot(p) + x2()*y1() - y2()*x1()) / length();
     }
-
+    
     /**
      * @return The normal vector associated with this edge.
      */
     public Vector normal() {
-        return new Vector(y2() - y1(), x2() - x1());
+        return new Vector(y1() - y2(), x2() - x1());
     }
     
     /**

@@ -6,10 +6,17 @@ import lombok.Setter;
 
 import java.util.Set;
 
+/**
+ * Class for storing the data representing the problem.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 public class Problem {
-    String name;
-    Set<InputVertex> vertices;
+    /** The name of the problem. */
+    private String name;
+    /** The set of vertices representing the problem. */
+    private Set<InputVertex> vertices;
+    
+    
 }
