@@ -36,6 +36,17 @@ public class ConvexHull
     /** The element with the lowest y-coordinate. */
     private VectorYNode bottom;
     
+    private VectorYNode minX;
+    private VectorYNode maxX;
+    
+    VectorYNode getMinX() {
+        return minX;
+    }
+    
+    VectorYNode getMaxX() {
+        return maxX;
+    }
+    
     
     /* ----------------------------------------------------------------------
      * Constructors.
@@ -53,10 +64,10 @@ public class ConvexHull
         List<VectorYNode> lList = new ArrayList<>(lCol.size());
         List<VectorYNode> rList = new ArrayList<>(rCol.size());
         for (InputVertex iv : lCol) {
-            lList.add(new VectorYNode(iv));
+            lList.add(new VectorYNode(iv, this, true));
         }
         for (InputVertex iv : rCol) {
-            rList.add(new VectorYNode(iv));
+            rList.add(new VectorYNode(iv, this, false));
         }
         left = new LinkedRBTree<>(lList);
         right = new LinkedRBTree<>(rList);
@@ -66,6 +77,7 @@ public class ConvexHull
         bottom = (left.getMin().compareTo(right.getMin()) > 0
                 ? right.getMin()
                 : left.getMin());
+        updateMinMaxX();
     }
     
     
@@ -73,14 +85,108 @@ public class ConvexHull
      * Static initializers.
      * ----------------------------------------------------------------------
      */
+    /**
+     * Creates a new convex hull fom the given data set.
+     * 
+     * @param col The collection to create the hull from.
+     * 
+     * @return A convex hull from the collection.
+     */
     public static ConvexHull createConvexHull(Collection<InputVertex> col) {
+        // Filter out edge cases.
         if (col.isEmpty()) return new ConvexHull(List.of(), List.of());
         if (col.size() == 1) return new ConvexHull(col, List.of());
         if (col.size() == 2) {
             Iterator<InputVertex> it = col.iterator();
             return new ConvexHull(List.of(it.next()), List.of(it.next()));
         }
-        InputVertex[] data = col.toArray(new InputVertex[col.size()]);
+        
+        // Determine the min and max x and y elements.
+        InputVertex minX = null;
+        InputVertex maxX = null;
+        InputVertex minY = null;
+        InputVertex maxY = null;
+        for (InputVertex iv : col) {
+            if (minX == null) {
+                minX = maxX = minY = maxY = iv;
+                continue;
+            }
+            if (iv.getX() < minX.getX()) minX = iv;
+            if (iv.getX() > maxX.getX()) maxX = iv;
+            if (iv.getY() < minY.getY()) minY = iv;
+            if (iv.getY() > maxY.getY()) maxY = iv;
+        }
+        
+        Logger.write(new Object[] {
+                "MIN/MAX X/Y:",
+                minX, maxX,
+                minY, maxY
+        });
+        
+        // Split the dataset into left and right.
+        List<InputVertex> left = new LinkedList<>();
+        List<InputVertex> right = new LinkedList<>();
+        Edge e = new Edge(minY.getV(), maxY.getV());
+        for (InputVertex iv : col) {
+            double ori = e.relOri(iv.getV());
+            if (ori < 0) left.add(iv);
+            else if (ori > 0) right.add(iv);
+            else {
+                left.add(iv);
+                right.add(iv);
+            }
+        }
+        
+        // Sort the datasets.
+        left.sort(createCmp(minX, true));
+        right.sort(createCmp(maxX, false));
+        
+        // Compute the hull of both sides.
+        left = computeHalfRightHull(left, true);
+        right = computeHalfRightHull(right, false);
+        
+        // Remove the minY and maxY values from the biggest list.
+        {
+            List<InputVertex> big = (left.size() > right.size() ? left : right);
+            List<InputVertex> small = (left.size() <= right.size() ? left : right);
+            if (big.contains(minY) && small.contains(minY)) big.remove(minY);
+            if (big.contains(maxY) && small.contains(maxY)) big.remove(maxY);
+        }
+        
+        // Initialize and return the convex hull.
+        return new ConvexHull(left, right);
+    }
+    
+    /**
+     * Creates a comparator with the given split vertex, and whether it is meant for the
+     * left of the right tree.
+     * 
+     * @param split The split vertex.
+     * @param left  Whether it is intended for the left of the right tree.
+     * 
+     * @return A comparator to sort the left/right sub tree.
+     */
+    private static Comparator<InputVertex> createCmp(final InputVertex split, final boolean left) {
+        return (iv1, iv2) -> {
+            double yDiff = iv1.getY() - iv2.getY();
+            if (yDiff < 0) return Math.min(-1, (int) yDiff);
+            else if (yDiff > 0) return Math.max(1, (int) yDiff);
+            else if (yDiff == 0) {
+                double xDiff = iv1.getX() - iv2.getX();
+                if (iv1.getX() < split.getX() == left) {
+                    if (xDiff < 0) return Math.max(1, (int) xDiff);
+                    else if (xDiff > 0) return Math.min(-1, (int) xDiff);
+                    
+                } else if (iv1.getX() > split.getX() == left) {
+                    if (xDiff < 0) return Math.min(-1, (int) xDiff);
+                    else if (xDiff > 0) return Math.max(1, (int) xDiff);
+                }
+            }
+            return 0;
+        };
+    }
+        /*
+        // OLD
         Arrays.sort(data, (iv1, iv2) -> {
             double diff = iv1.getV().y() - iv2.getV().y();
             if (diff == 0) return 0;
@@ -89,19 +195,19 @@ public class ConvexHull
             else throw new IllegalArgumentException(
                     "Expected non-special type double, but found: " + diff);
         });
-        InputVertex min = data[0];
-        InputVertex max = data[data.length - 1];
+        InputVertex minY = data[0];
+        InputVertex maxY = data[data.length - 1];
         List<InputVertex> left = new LinkedList<>();
         List<InputVertex> right = new LinkedList<>();
-        Edge e = new Edge(min.getV(), max.getV());
-        left.add(min);
-        right.add(min);
+        Edge e = new Edge(minY.getV(), maxY.getV());
+        left.add(minY);
+        right.add(minY);
         for (int i = 1; i < data.length - 1; i++) {
             if (e.relOri(data[i].getV()) < 0) left.add(data[i]);
             else right.add(data[i]);
         }
-        left.add(max);
-        right.add(max);
+        left.add(maxY);
+        right.add(maxY);
         
         left = computeHalfRightHull(left, true);
         right = computeHalfRightHull(right, false);
@@ -113,7 +219,7 @@ public class ConvexHull
         }
         
         return new ConvexHull(left, right);
-    }
+    }*/
 
     /**
      * Computes the right half convex hull of the given points. Assume that the points are sorted
@@ -343,8 +449,62 @@ public class ConvexHull
     }
     
     /**
+     * Initialises the {@link #minX} and {@link #maxX} fields.
+     */
+    private void updateMinMaxX() {
+        minX = maxX = null;
+        if (isEmpty()) return;
+        
+        // Update minX.
+        if (top.getVec().x() < bottom.getVec().x()) minX = top;
+        else minX = bottom;
+        if (!left.isEmpty()) {
+            VectorYNode node = left.getRoot();
+            VectorYNode last;
+            do {
+                last = node;
+                VectorYNode next = next(node);
+                VectorYNode prev = prev(node);
+                double dNext = node.getVec().x() - next.getVec().x();
+                double dPrev = node.getVec().x() - prev.getVec().x();
+                if ((dNext < 0 && dPrev < 0) || (dNext == 0 || dPrev == 0)) break;
+                else if (dNext < 0) node = node.left();
+                else if (dPrev < 0) node = node.right();
+                else throw new IllegalStateException();
+            } while (node != null);
+            minX = (minX.getVec().x() < last.getVec().x()
+                    ? minX
+                    : last
+            );
+        }
+
+        // Update maxX.
+        if (top.getVec().x() > bottom.getVec().x()) maxX = top;
+        else maxX = bottom;
+        if (!right.isEmpty()) {
+            VectorYNode node = right.getRoot();
+            VectorYNode last;
+            do {
+                last = node;
+                VectorYNode next = next(node);
+                VectorYNode prev = prev(node);
+                double dNext = node.getVec().x() - next.getVec().x();
+                double dPrev = node.getVec().x() - prev.getVec().x();
+                if ((dNext > 0 && dPrev > 0) || (dNext == 0 || dPrev == 0)) break;
+                else if (dNext > 0) node = node.left();
+                else if (dPrev > 0) node = node.right();
+                else throw new IllegalStateException();
+            } while (node != null);
+            maxX = (maxX.getVec().x() > last.getVec().x()
+                    ? maxX
+                    : last
+            );
+        }
+    }
+    
+    /**
      * Gets the next node of the chain. If no next node exists, takes the maximum node of the
-     * other chain.
+     * other chain. If this node also doesn't exist, then the same node is returned.
      * 
      * @apiNote This function runs in {@code O(1)}.
      * 
@@ -354,13 +514,19 @@ public class ConvexHull
      */
     public VectorYNode next(VectorYNode node) {
         if (node.next() != null) return node.next();
-        if (left.getMax() == node) return right.getMax();
-        else return left.getMax();
+        else if (left.getMax() == node) {
+            if (right.isEmpty()) return node;
+            else return right.getMax();
+            
+        } else{
+            if (left.isEmpty()) return node;
+            else return left.getMax();
+        }
     }
     
     /**
-     * Gets the prevsiou node of the chain. If no previous node exists,
-     * takes the minimum node of the other chain.
+     * Gets the previous node of the chain. If no previous node exists, takes the minimum node
+     * of the other chain. If this node also doesn't exist, then the same node is returned.
      *
      * @apiNote This function runs in {@code O(1)}.
      * 
@@ -370,8 +536,14 @@ public class ConvexHull
      */
     public VectorYNode prev(VectorYNode node) {
         if (node.prev() != null) return node.prev();
-        if (left.getMin() == node) return right.getMin();
-        else return left.getMin();
+        else if (left.getMin() == node) {
+            if (right.isEmpty()) return node;
+            else return right.getMin();
+            
+        } else {
+            if (left.isEmpty()) return node;
+            else return left.getMin();
+        }
     }
 
     /**
@@ -526,7 +698,7 @@ public class ConvexHull
      */
     @Override
     public boolean add(InputVertex iv) {
-        return add(new VectorYNode(iv));
+        return add(new VectorYNode(iv, this, true));
     }
     
     /**
@@ -542,7 +714,7 @@ public class ConvexHull
      * @return A list containing all removed vertices.
      */
     public List<InputVertex> addAndUpdate(InputVertex iv) {
-        VectorYNode vyn = new VectorYNode(iv);
+        VectorYNode vyn = new VectorYNode(iv, this, true);
         List<InputVertex> rem = new ArrayList<>();
         if (!add(vyn) || size() <= 3) return rem;
         {
@@ -587,98 +759,6 @@ public class ConvexHull
         }
         
         return rem;
-        /*
-        
-        
-        
-        boolean leftList = (new Edge(bottom.getVec(), top.getVec()).relOri(vyn.getVec()) < 0);
-        
-        // Check if the added vertex lies on the hull. If not, remove it.
-        if (vyn != top && vyn != bottom) {
-            double ori = new Edge(prev(vyn).getVec(), next(vyn).getVec()).relOri(vyn.getVec());
-            if ((leftList && ori > 0) || (!leftList && ori < 0)) {
-                remove(vyn);
-                rem.add(vyn.getIv());
-                return rem;
-            }
-        }
-        
-        // Either fix the hull or resolve to a case where {@code vyn == top}.
-        while (vyn != top && size() > 3) {
-            Logger.write("LOOPING 1");
-            VectorYNode nextNode;
-            VectorYNode node = vyn.next();
-            if (node == null) break;
-            nextNode = next(node);
-            double ori = new Edge(vyn.getVec(), node.getVec()).relOri(nextNode.getVec());
-            if (vyn == top) break;
-            if ((leftList && ori < 0) || (!leftList && ori > 0)) {
-                rem.add(node.getIv());
-                remove(node);
-            }
-        }
-        
-        // Either fix the hull or resolve to a case where {@code vyn == bottom}.
-        while (vyn != bottom && size() > 3) {
-            Logger.write("LOOPING 2");
-            VectorYNode prevNode;
-            VectorYNode node = vyn.prev();
-            if (node == null) break;
-            prevNode = prev(node);
-            double ori = new Edge(node.getVec(), vyn.getVec()).relOri(prevNode.getVec());
-            if (vyn == bottom) break;
-            if ((leftList && ori < 0) || (!leftList && ori > 0)) {
-                rem.add(node.getIv());
-                remove(node);
-            }
-        }
-        
-        if ((vyn == top || vyn == bottom) && size() > 3) {
-            // Remove invalid nodes on the left side.
-            while (size() > 3) {
-                Logger.write("LOOPING 3");
-                VectorYNode l1 = (left.getMax() == vyn || right.getMin() == vyn
-                        ? prev(vyn)
-                        : next(vyn)
-                );
-                VectorYNode l2 = (vyn == top
-                        ? prev(l1)
-                        : next(l1)
-                );
-                
-                Edge el = (vyn == top
-                        ? new Edge(l2.getVec(), vyn.getVec())
-                        : new Edge(vyn.getVec(), l2.getVec())
-                );
-                
-                if (el.relOri(l1.getVec()) <= 0) break;
-                rem.add(l1.getIv());
-                remove(l1);
-            }
-            
-            // Remove invalid nodes on the right side.
-            while (size() > 3) {
-                Logger.write("LOOPING 4");
-                VectorYNode r1 = (left.getMax() == vyn || right.getMin() == vyn
-                        ? next(vyn)
-                        : prev(vyn)
-                );
-                VectorYNode r2 = (vyn == top
-                        ? prev(r1)
-                        : next(r1)
-                );
-                
-                Edge er = (vyn == top
-                        ? new Edge(r2.getVec(), vyn.getVec())
-                        : new Edge(vyn.getVec(), r2.getVec())
-                );
-                if (er.relOri(r1.getVec()) >= 0) break;
-                rem.add(r1.getIv());
-                remove(r1);
-            }
-        }
-        
-        return rem;*/
     }
     
     /**
@@ -689,27 +769,49 @@ public class ConvexHull
      * @return {@code true} if the node was added. {@code false} otherwise.
      */
     private boolean add(VectorYNode vyn) {
+        vyn.setHull(this);
         if (size() == 0) {
-            return left.add(top = bottom = vyn);
+            vyn.setLeft(true);
+            return left.add(top = bottom = maxX = minX = vyn);
         }
-        boolean newBound = false;
+
+        if (vyn.getVec().x() > maxX.getVec().x()) {
+            maxX = vyn;
+
+        } else if (vyn.getVec().x() < minX.getVec().x()) {
+            minX = vyn;
+        }
+        
+        boolean newVerticalBound = false;
         if (vyn.getVec().y() > top.getVec().y()) {
-            newBound = true;
+            newVerticalBound = true;
             top = vyn;
             
         } else if (vyn.getVec().y() < bottom.getVec().y()) {
-            newBound = true;
+            newVerticalBound = true;
             bottom = vyn;
         }
         
-        if (newBound) {
-            if (left.size() > right.size()) return right.add(vyn);
-            else return left.add(vyn);
-
+        if (newVerticalBound) {
+            if (left.size() > right.size()) {
+                vyn.setLeft(false);
+                return right.add(vyn);
+                
+            } else {
+                vyn.setLeft(true);
+                return left.add(vyn);
+            }
+            
         } else {
             Edge e = new Edge(bottom.getVec(), top.getVec());
-            if (e.relOri(vyn.getVec()) < 0) return left.add(vyn);
-            else return right.add(vyn);
+            if (e.relOri(vyn.getVec()) < 0) {
+                vyn.setLeft(true);
+                return left.add(vyn);
+                
+            }else {
+                vyn.setLeft(false);
+                return right.add(vyn);
+            }
         }
     }
     
@@ -769,9 +871,15 @@ public class ConvexHull
         if (right.retainAll(col)) mod = true;
         if (!mod) return false;
         
+        // Edge case.
+        if (left.isEmpty() && right.isEmpty()) {
+            top = bottom = minX = maxX = null;
+        }
+        
+        // Update top/bottom.
         if (left.isEmpty()) {
             top = right.getMax();
-            bottom = right.getMin();
+            bottom = right.getMin(); 
             
         } else if (right.isEmpty()) {
             top = right.getMax();
@@ -787,6 +895,25 @@ public class ConvexHull
                     : left.getMin()
             );
         }
+        
+        // Update min/max x.
+        // For a small size, simply iterate over all elements in the hull to avoid special cases.
+        if (size() < 10) {
+            minX = maxX = null;
+            for (VectorYNode vyn : left) {
+                if (minX == null) minX = maxX = vyn;
+                else if (vyn.getVec().x() < minX.getVec().x()) minX = vyn;
+                else if (vyn.getVec().x() > maxX.getVec().x()) maxX = vyn;
+            }
+            for (VectorYNode vyn : right) {
+                if (minX == null) minX = maxX = vyn;
+                else if (vyn.getVec().x() < minX.getVec().x()) minX = vyn;
+                else if (vyn.getVec().x() > maxX.getVec().x()) maxX = vyn;
+            }
+            return true;
+        }
+        updateMinMaxX();
+        
         return true;
     }
     
@@ -820,7 +947,7 @@ public class ConvexHull
      * @return {@code true} if the vertex was removed. {@code false} otherwise.
      */
     public boolean remove(InputVertex iv) {
-        return remove(new VectorYNode(iv));
+        return remove(new VectorYNode(iv, this, true));
     }
 
     /**
@@ -833,12 +960,20 @@ public class ConvexHull
         if (isEmpty()) return false;
         Edge e = new Edge(bottom.getVec(), top.getVec());
         double ori = e.relOri(vyn.getVec());
-        if (ori < 0) return left.remove(vyn);
-        else if (ori > 0) return right.remove(vyn);
-        else {
+        
+        if (ori < 0) {
+            if (!left.remove(vyn)) return false;
+            
+        } else if (ori > 0) {
+            if (!right.remove(vyn)) return false;
+            
+        } else {
             if (!left.remove(vyn) && !right.remove(vyn)) return false;
+            // Update top and bottom.
             if (isEmpty()) {
-                top = bottom = null;
+                // All nodes were removed, so safe to set all to {@code null} and exit.
+                top = bottom = minX = maxX = null;
+                return true;
                 
             } else if (left.isEmpty()) {
                 top = right.getMax();
@@ -858,8 +993,26 @@ public class ConvexHull
                         : right.getMin()
                 );
             }
-            return true;
         }
+        
+        // Update minX and maxX
+        if (vyn == minX) {
+            VectorYNode next = next(vyn);
+            VectorYNode prev = prev(vyn);
+            minX = (next.getVec().x() < prev.getVec().x()
+                    ? next
+                    : prev
+            );
+        }
+        if (vyn == maxX) {
+            VectorYNode next = next(vyn);
+            VectorYNode prev = prev(vyn);
+            maxX = (next.getVec().x() > prev.getVec().x()
+                    ? next
+                    : prev
+            );
+        }
+        return true;
     }
     
     /**
@@ -909,14 +1062,26 @@ public class ConvexHull
      */
     @Override
     public boolean contains(Object obj) {
-        VectorYNode node;
-        if (obj instanceof InputVertex) node = new VectorYNode((InputVertex) obj);
-        else if (obj instanceof VectorYNode) node = (VectorYNode) obj;
-        else return false;
         if (isEmpty()) return false;
+        VectorYNode node;
+        boolean created = false;
+        if (obj instanceof InputVertex) {
+            node = new VectorYNode((InputVertex) obj, this, true);
+            created = true;
+        } else if (obj instanceof VectorYNode) node = (VectorYNode) obj;
+        else return false;
+        
         Edge e = new Edge(bottom.getVec(), top.getVec());
-        if (e.relOri(node.getVec()) < 0) return left.contains(node);
-        else return right.contains(node);
+        double ori = e.relOri(node.getVec());
+        if (ori <= 0) {
+            if (created) node.setLeft(true);
+            if (left.contains(node)) return true;
+        }
+        if (ori >= 0){
+            if (created) node.setLeft(false);
+            return right.contains(node);
+        }
+        return false;
     }
     
     /**
