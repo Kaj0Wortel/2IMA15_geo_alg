@@ -69,7 +69,7 @@ public class VectorYNode
         else if (yDiff > 0) return Math.max(1, (int) yDiff);
         else if (yDiff == 0) {
             if (hull.getMinX() == null || hull.getMaxX() == null) return 0;
-            Vector split = (isLeft ? hull.getMinX() : hull.getMaxX()).getVec();
+            Vector split = (isLeft ? hull.getMinX() : hull.getMaxX()).getV();
             double xDiff = getVec().x() - vyn.getVec().x();
             if (getVec().x() < split.x() == isLeft) {
                 if (xDiff < 0) return Math.max(1, (int) xDiff);

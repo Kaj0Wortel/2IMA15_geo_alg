@@ -39,14 +39,6 @@ public class ConvexHull
     private VectorYNode minX;
     private VectorYNode maxX;
     
-    VectorYNode getMinX() {
-        return minX;
-    }
-    
-    VectorYNode getMaxX() {
-        return maxX;
-    }
-    
     
     /* ----------------------------------------------------------------------
      * Constructors.
@@ -295,7 +287,7 @@ public class ConvexHull
             Logger.write("BOTH");
             // Line goes through both the left and right side.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
-            Edge bt = new Edge(bottom.getVec(), top.getVec());
+            Edge bt =getBottomTopEdge();
             if (bt.relOriRounded(e.v1()) * bt.distance(e.v1()) > bt.relOriRounded(e.v2()) * bt.distance(e.v2())) {
                 e = new Edge(e.v2(), e.v1());
                 hasLeft = !hasLeft;
@@ -317,7 +309,7 @@ public class ConvexHull
             // The edge goes twice though either the left side or the right side.
             // Therefore must the two points defining the edge lie on the same side
             // of the line.
-            Edge bottomTopEdge = new Edge(bottom.getVec(), top.getVec());
+            Edge bottomTopEdge = getBottomTopEdge();
             if (bottomTopEdge.relOri(e.v1()) < 0) {
                 Logger.write("LEFT");
                 // Edge goes through on the left side.
@@ -569,7 +561,7 @@ public class ConvexHull
      */
     public VectorYNode clockwise(VectorYNode node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
-        Edge e = new Edge(bottom.getVec(), top.getVec());
+        Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
         if (ori < 0) return next(node);
         else if (ori > 0) return prev(node);
@@ -611,7 +603,7 @@ public class ConvexHull
      */
     public VectorYNode counterClockwise(VectorYNode node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
-        Edge e = new Edge(bottom.getVec(), top.getVec());
+        Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
         if (ori < 0) return prev(node);
         else if (ori > 0) return next(node);
@@ -803,7 +795,7 @@ public class ConvexHull
             }
             
         } else {
-            Edge e = new Edge(bottom.getVec(), top.getVec());
+            Edge e = getBottomTopEdge();
             if (e.relOri(vyn.getVec()) < 0) {
                 vyn.setLeft(true);
                 return left.add(vyn);
@@ -958,7 +950,7 @@ public class ConvexHull
      */
     public boolean remove(VectorYNode vyn) {
         if (isEmpty()) return false;
-        Edge e = new Edge(bottom.getVec(), top.getVec());
+        Edge e = getBottomTopEdge();
         double ori = e.relOri(vyn.getVec());
         
         if (ori < 0) {
@@ -1071,7 +1063,7 @@ public class ConvexHull
         } else if (obj instanceof VectorYNode) node = (VectorYNode) obj;
         else return false;
         
-        Edge e = new Edge(bottom.getVec(), top.getVec());
+        Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
         if (ori <= 0) {
             if (created) node.setLeft(true);
@@ -1191,20 +1183,35 @@ public class ConvexHull
      * @return The top element, or {@code null} if the hull is empty.
      */
     public InputVertex getTop() {
-        return (size() == 0
-                ? null
-                : top.getIv()
-        );
+        return (top == null ? null : top.getIv());
     }
 
     /**
      * @return The bottom element, or {@code null} if the hull is empty.
      */
     public InputVertex getBottom() {
-        return (size() == 0
-                ? null
-                : bottom.getIv()
-        );
+        return (bottom == null ? null : bottom.getIv());
+    }
+    
+    /**
+     * @return The left most element, {@code null} if the hull is empty.
+     */
+    public InputVertex getMinX() {
+        return (minX == null ? null : minX.getIv());
+    }
+    
+    /**
+     * @return The right most element, {@code null} if the hull is empty.
+     */
+    public InputVertex getMaxX() {
+        return (maxX == null ? null : maxX.getIv());
+    }
+
+    /**
+     * @return An edge from the bottom to the top of the convex hull.
+     */
+    public Edge getBottomTopEdge() {
+        return new Edge(bottom.getVec(), top.getVec());
     }
     
     /**
