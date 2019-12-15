@@ -223,7 +223,7 @@ public class ConvexLayers2 {
         // Read the problem.
         Problem2 p = readInput(source);
         //TODO pre-process data set s.t. no two nodes have equal y-coords.
-        p.getVertices().remove(new InputVertex(5, 488.0, 200.0)); // TODO: remove this line.
+        //p.getVertices().remove(new InputVertex(5, 488.0, 200.0)); // TODO: remove this line.
         // Initialize the solution set and inner/outer hulls.
         Set<OutputEdge> sol = new HashSet<>();
         Collection<InputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: use other data structure.
