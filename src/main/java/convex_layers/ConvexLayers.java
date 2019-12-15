@@ -177,50 +177,19 @@ public class ConvexLayers {
             InputVertex inRight = innerVertex;
             InputVertex inLeft = innerVertex.getNext();
 
-            // Draw the outer hull, inner hull, selected edge of inner hull
-            if (visualize) {
-                // Set to all points
-                vis.setData(List.of(allVertices));
+            visualize(remaining, innerVertex, outerVertex, inLeft, inRight);
 
-                // Different color on remaining points
-                vis.addData(List.of(remaining));
-
-                // Color the inner and outer hull differently
-                List<InputVertex> inHullVertices = printHull(innerVertex, false);
-                List<InputVertex> outHullVertices = printHull(outerVertex, false);
-                vis.addData(List.of(inHullVertices));
-                vis.addData(List.of(outHullVertices));
-
-                // Color inLeft and inRight differently
-                HashSet<InputVertex> leftRight = new HashSet<>();
-                leftRight.add(inLeft);
-                leftRight.add(inRight);
-                vis.addData(List.of(leftRight));
-
-                // Do not draw all those auto-implied edges, only solution edges
-                Set<Edge> solEdges = new HashSet<>();
-                for (OutputEdge e : solution) {
-                    solEdges.add(new Edge(e.getV1(), e.getV2()));
+            if (remaining.size() == 1) {
+                // One remaining, finish up by connecting three
+                solution.add(new OutputEdge(innerVertex, outerVertex));
+                InputVertex outIntersect = outerVertex.getNext();
+                while (angle(outerVertex, innerVertex, outIntersect) > Math.PI) {
+                    outIntersect = outIntersect.getNext();
                 }
-                vis.setEdges(List.of(solEdges));
+                solution.add(new OutputEdge(innerVertex, outIntersect.getPrev()));
+                solution.add(new OutputEdge(innerVertex, outIntersect));
 
-                // And the edges of the inner hull in different color
-                Set<Edge> inHullEdges = new HashSet<>();
-                for (int i = 0; i < inHullVertices.size(); i++) {
-                    inHullEdges.add(new Edge(
-                            inHullVertices.get(i),
-                            inHullVertices.get((i + 1) % inHullVertices.size())
-                    ));
-                }
-                vis.addEdge(inHullEdges);
-
-                // Separate color for the selected edge of inner hull
-                Set<Edge> selectedEdge = new HashSet<>();
-                selectedEdge.add(new Edge(inLeft, inRight));
-                vis.addEdge(selectedEdge);
-
-                // Draw
-                vis.redraw();
+                break;
             }
 
             // Find all vertices on the outer hull that intersect with the line
@@ -302,8 +271,62 @@ public class ConvexLayers {
             finishHull(innerVertex, remaining);
         }
 
+        visualize(remaining, null, null, null, null);
+
         Logger.write("Writing output to file");
         saveToFile(solution, outFile, instanceName);
+    }
+
+    private void visualize(Set<InputVertex> remaining, InputVertex innerVertex, InputVertex outerVertex, InputVertex inLeft, InputVertex inRight) {
+        // Draw the outer hull, inner hull, selected edge of inner hull
+        if (visualize) {
+            // Set to all points
+            vis.setData(List.of(allVertices));
+
+            // Different color on remaining points
+            vis.addData(List.of(remaining));
+
+            // Do not draw all those auto-implied edges, only solution edges
+            Set<Edge> solEdges = new HashSet<>();
+            for (OutputEdge e : solution) {
+                solEdges.add(new Edge(e.getV1(), e.getV2()));
+            }
+            vis.setEdges(List.of(solEdges));
+
+            if (innerVertex != null && outerVertex != null) {
+                // Color the inner and outer hull differently
+                List<InputVertex> inHullVertices = printHull(innerVertex, false);
+                List<InputVertex> outHullVertices = printHull(outerVertex, false);
+                vis.addData(List.of(inHullVertices));
+                vis.addData(List.of(outHullVertices));
+
+                // And the edges of the inner hull in different color
+                Set<Edge> inHullEdges = new HashSet<>();
+                for (int i = 0; i < inHullVertices.size(); i++) {
+                    inHullEdges.add(new Edge(
+                            inHullVertices.get(i),
+                            inHullVertices.get((i + 1) % inHullVertices.size())
+                    ));
+                }
+                vis.addEdge(inHullEdges);
+            }
+
+            // Color inLeft and inRight differently
+            if (inLeft != null && inRight != null) {
+                HashSet<InputVertex> leftRight = new HashSet<>();
+                leftRight.add(inLeft);
+                leftRight.add(inRight);
+                vis.addData(List.of(leftRight));
+
+                // Separate color for the selected edge of inner hull
+                Set<Edge> selectedEdge = new HashSet<>();
+                selectedEdge.add(new Edge(inLeft, inRight));
+                vis.addEdge(selectedEdge);
+            }
+
+            // Draw
+            vis.redraw();
+        }
     }
 
     /**
