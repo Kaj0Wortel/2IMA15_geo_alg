@@ -1,15 +1,20 @@
 package convex_layers;
 
 import convex_layers.math.Edge;
+import convex_layers.visual.Visualizer;
 import tools.Var;
+import tools.data.array.ArrayTools;
 import tools.log.FileLogger;
 import tools.log.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,6 +22,14 @@ import java.util.Set;
  * This class delegates the work for solving the problem.
  */
 public class ConvexLayers {
+
+    private final Visualizer vis = new Visualizer(
+            new ArrayList<>(),
+            new ArrayList<>()
+    );
+    private final boolean visualize = true;
+    Set<InputVertex> allVertices = new HashSet<>();
+    Set<OutputEdge> solution = new HashSet<>();
 
     private static void initLogger() {
         try {
@@ -49,8 +62,9 @@ public class ConvexLayers {
     /**
      * Finish hulling on set from a point v in clockwise direction
      *
-     * @param v   Assume that v is the vertex with the rightmost x coordinate in the set
-     * @param set
+     * @param v   A vertex of the to-be-created hull. If the hull is currently only of size 1, this vertex has to be
+     *            the rightmost vertex of the resulting set
+     * @param set The set from which to sample points for hulling, including all vertices already in the hull.
      */
     public static void finishHull(InputVertex v, Set<InputVertex> set) {
         if (v.getPrev() == null) {
@@ -70,31 +84,46 @@ public class ConvexLayers {
     /**
      * Print a hull to the console for debugging purposes
      *
-     * @param hull a vertex of the hull
+     * @param hull A vertex of the hull
      */
     public static void printHull(InputVertex hull) {
+        printHull(hull, true);
+    }
+
+    /**
+     * Go over the hull to return all points. Optionally also print to console.
+     *
+     * @param hull a vertex of the hull
+     */
+    public static List<InputVertex> printHull(InputVertex hull, boolean print) {
+        HashSet<InputVertex> seen = new HashSet<>();
+        List<InputVertex> hullOrder = new ArrayList<>();
         InputVertex v = hull;
         do {
             System.out.print(v.getId() + ">");
+            if (seen.contains(v)) {
+                System.out.print("Stopped because the hull loops but not onto the starting point. _□. Started at: ");
+                break;
+            }
+            seen.add(v);
+            hullOrder.add(v);
             v = v.getNext();
         } while (!v.equals(hull));
         System.out.println(hull.getId());
+        return hullOrder;
     }
 
     /**
      * Solve the problem of a given input file and write it to the given output file
      */
     public void solve(File inFile, File outFile) {
-        /** Set containing the edges of the resulting convex partitioning. */
-        Set<OutputEdge> solution = new HashSet<>();
-
-        /** Vertex of the inner convex hull. */
+        // One vertex of the inner convex hull
         InputVertex innerVertex = null;
 
-        /** Vertex of the outer convex hull. */
+        // One vertex of the outer convex hull
         InputVertex outerVertex = null;
 
-        /** Set that keeps track of all variables that still need to be checked. */
+        // Set that keeps track of all vertices that are part of or inside the inner hull
         Set<InputVertex> remaining;
 
         // Read input file for relevant data
@@ -102,10 +131,21 @@ public class ConvexLayers {
         remaining = problem.getVertices();
         String instanceName = problem.getName();
 
+        allVertices.addAll(problem.getVertices());
+
+        // Draw the input
+        if (visualize) {
+            vis.setPoints(List.of(Visualizer.toVec(remaining)));
+            vis.addLabel(Visualizer.toLabel(remaining));
+            vis.redraw();
+        }
+
+
         // Build complete outer convex hull
         Logger.write("Building initial outer hull");
         outerVertex = rightMost(remaining);
         finishHull(outerVertex, remaining);
+        printHull(outerVertex);
 
         // Add edges of outer CH to solution and delete these vertices from remaining
         Logger.write("Adding outer hull to solution");
@@ -117,49 +157,113 @@ public class ConvexLayers {
             prev = next;
         } while (!prev.equals(outerVertex));
 
-        // Also check case where outer convex hull contains all points of problem, else build inner hull
+        // Check for case where outer convex hull contains all points of problem, else build inner hull
         if (!remaining.isEmpty()) {
             // Build complete inner convex hull
             Logger.write("Building initial inner hull");
             innerVertex = rightMost(remaining);
             finishHull(innerVertex, remaining);
             printHull(innerVertex);
+        } else {
+            Logger.write("Initial outer hull contains all points of problem");
         }
+
 
         // Loop until the convex partition is finished
         while (!remaining.isEmpty()) {
 
-            // Note inLeft is further than inRight in the clockwise direction!
+            // Pick one edge (two neighbouring vertices) on the inner hull
+            // NB: inLeft is further than inRight in the clockwise direction!
             InputVertex inRight = innerVertex;
             InputVertex inLeft = innerVertex.getNext();
 
+            // Draw the outer hull, inner hull, selected edge of inner hull
+            if (visualize) {
+                // Set to all points
+                vis.setData(List.of(allVertices));
+
+                // Different color on remaining points
+                vis.addData(List.of(remaining));
+
+                // Color the inner and outer hull differently
+                List<InputVertex> inHullVertices = printHull(innerVertex, false);
+                List<InputVertex> outHullVertices = printHull(outerVertex, false);
+                vis.addData(List.of(inHullVertices));
+                vis.addData(List.of(outHullVertices));
+
+                // Color inLeft and inRight differently
+                HashSet<InputVertex> leftRight = new HashSet<>();
+                leftRight.add(inLeft);
+                leftRight.add(inRight);
+                vis.addData(List.of(leftRight));
+
+                // Do not draw all those auto-implied edges, only solution edges
+                Set<Edge> solEdges = new HashSet<>();
+                for (OutputEdge e : solution) {
+                    solEdges.add(new Edge(e.getV1(), e.getV2()));
+                }
+                vis.setEdges(List.of(solEdges));
+
+                // And the edges of the inner hull in different color
+                Set<Edge> inHullEdges = new HashSet<>();
+                for (int i = 0; i < inHullVertices.size(); i++) {
+                    inHullEdges.add(new Edge(
+                            inHullVertices.get(i),
+                            inHullVertices.get((i + 1) % inHullVertices.size())
+                    ));
+                }
+                vis.addEdge(inHullEdges);
+
+                // Separate color for the selected edge of inner hull
+                Set<Edge> selectedEdge = new HashSet<>();
+                selectedEdge.add(new Edge(inLeft, inRight));
+                vis.addEdge(selectedEdge);
+
+                // Draw
+                vis.redraw();
+            }
+
             // Find all vertices on the outer hull that intersect with the line
             InputVertex[] intersect = hullLineIntersect(outerVertex, inRight, inLeft);
+            System.out.println(intersect[0].getId());
+            System.out.println(intersect[1].getId());
+            System.out.println(intersect[2].getId());
+            System.out.println(intersect[3].getId());
             Logger.write(intersect[0].getId() + ", " + intersect[1].getId() + ", " + intersect[2].getId() + ", " + intersect[3].getId());
 
-            // Trivially by the algorithm, these edges can be added
+            // Add the edges from the middle two points on the outer hull
+            // to the two points of the edge of the inner hull
             solution.add(new OutputEdge(intersect[2], inRight));
             solution.add(new OutputEdge(intersect[1], inLeft));
 
-            // Find the next edges we can add to the outer hull according to the algorithm, unless we have a line
-            if (!inRight.getPrev().equals(inLeft)) {
-                while (angle(inRight.getNext(), inRight, intersect[3]) > angle(inRight.getNext(), inRight, inRight.getPrev())) {
+            // We want to also add edges from the outer two reported outer-hull points to some points on the inner hull
+            // closest to the edge of the inner hull. Thus, walk left/right from this edge until we can add an edge
+            // to the inner hull without intersecting other edges.
+            if (!inRight.getPrev().equals(inLeft)) { // We haven't gone full circle
+                System.out.println("Walking LR");
+                // TODO Replace with left-right test
+                // While the edge from inRight to the outerHull-point intersects the hull, move along while adding edges
+                System.out.println("Next:");
+                System.out.println(inRight.getNext());
+                while (angle(inRight.getNext(), inRight, intersect[3]) >
+                        angle(inRight.getNext(), inRight, inRight.getPrev())) {
                     Logger.write("Walk counterclockwise");
                     inRight = inRight.getPrev();
                     solution.add(new OutputEdge(intersect[2], inRight));
                 }
-                while (angle(intersect[0], inLeft, inLeft.getPrev()) > angle(inLeft.getNext(), inLeft, inLeft.getPrev())) {
+                while (angle(intersect[0], inLeft, inLeft.getPrev()) >
+                        angle(inLeft.getNext(), inLeft, inLeft.getPrev())) {
                     Logger.write("Walk clockwise");
                     inLeft = inLeft.getNext();
                     solution.add(new OutputEdge(intersect[1], inLeft));
                 }
             }
 
-            // By above loop we know we have to add these edges
+            // We can now 'see' inLeft and inRight from the outer edges on the outer hull, so add these edges.
             solution.add(new OutputEdge(intersect[0], inLeft));
             solution.add(new OutputEdge(intersect[3], inRight));
 
-            // Remove the inner part from remaining while adding their edges to the solution
+            // Remove the inner part between inLeft and inRight from remaining while adding their edges to the solution
             InputVertex inRemove = inRight;
             while (!inRemove.equals(inLeft)) {
                 remaining.remove(inRemove);
@@ -168,14 +272,25 @@ public class ConvexLayers {
             }
             remaining.remove(inLeft);
 
-            // Update the outer and inner, if still not done
+            // Remove the part between inLeft and inRight from the inner hull
             innerVertex = inRight.getPrev();
             if (innerVertex.equals(inLeft)) {
-                break;
+                // From inRight going ccw brings us to inLeft, so we are removing the entire hull.
+                if (remaining.isEmpty()) {
+                    // There are no other points after this hull, done
+                    break;
+                } else {
+                    // There are more points inside the just-removed hull, find a new point in there
+                    innerVertex = rightMost(remaining);
+                }
             } else {
+                // The case where at least one node of the inner hull is not removed (namely innerVertex)
+
+                // Detach this segment from the inner hull
                 inRight.getPrev().setNext(null);
                 inLeft.getNext().setPrev(null);
 
+                // Add this segment to the outer hull
                 intersect[0].setPrev(inLeft);
                 inLeft.setNext(intersect[0]);
                 intersect[3].setNext(inRight);
@@ -183,6 +298,7 @@ public class ConvexLayers {
                 outerVertex = intersect[3];
             }
 
+            // Finish/fill the inner hull again
             finishHull(innerVertex, remaining);
         }
 
@@ -262,6 +378,16 @@ public class ConvexLayers {
     private static InputVertex[] hullLineIntersect(InputVertex hull, InputVertex l1, InputVertex l2) {
         Logger.write("Intersecting hull " + hull.getId() + " with line " + l1.getId() + ", " + l2.getId());
 
+        if (hull == null) {
+            throw new IllegalArgumentException("Hull is null");
+        }
+        if (l1 == null || l2 == null) {
+            throw new IllegalArgumentException("An input vertex is null");
+        }
+
+        System.out.println("Intersecting ["+ l1 + ", " + l2 + "] with hull:");
+        printHull(hull);
+
         InputVertex e1 = null;
         InputVertex e2 = null;
         InputVertex e3 = null;
@@ -277,12 +403,17 @@ public class ConvexLayers {
                     e3 = next;
                     e4 = v;
                 }
-
             }
             v = next;
         } while (!v.equals(hull));
 
-        return new InputVertex[]{e1, e2, e3, e4};
+        InputVertex[] out = new InputVertex[]{e1, e2, e3, e4};
+        for (InputVertex e : out) {
+            if (e == null) {
+                throw new IllegalStateException("Did not find a proper intersection");
+            }
+        }
+        return out;
     }
 
     /**
@@ -322,7 +453,10 @@ public class ConvexLayers {
      * @return The vertex with the maximal x-coordinate.
      */
     private InputVertex rightMost(Iterable<InputVertex> data) {
-        InputVertex maxX = null;
+        if (!data.iterator().hasNext()) {
+            throw new IllegalArgumentException("Cannot get right most vertex of empty set");
+        }
+        InputVertex maxX = data.iterator().next();
         for (InputVertex v : data) {
             if (v.getX() > maxX.getX()) {
                 maxX = v;
@@ -344,6 +478,7 @@ public class ConvexLayers {
         InputVertex bestVertex = v;
         for (InputVertex candidate : set) {
             // to avoid adding vertex itself
+            // TODO Make it a line side (LR) check
             if (!candidate.equals(v)) {
                 double angle = angle(prev, v, candidate);
                 if (angle > maxAngle) {
@@ -356,7 +491,7 @@ public class ConvexLayers {
     }
 
     /**
-     * Angle of a point inbetween two lines [0, 2*PI]
+     * Angle of a point in between two lines [0, 2*PI]
      * Taking line v1 -> v2 -> v3, the given angle is the angle the right side of this line
      *
      * @param v1
@@ -365,28 +500,29 @@ public class ConvexLayers {
      * @return
      */
     private static double angle(InputVertex v1, InputVertex v2, InputVertex v3) {
-        //return angle(v1.sub(v2), v3.sub(v2));
-        return new Edge(v2, v1).angle(v3.getV());
+        return angle(v1.sub(v2), v3.sub(v2));
+//        return Math.PI - new Edge(v2, v1).angle(v3.getV());
+        // TODO Use Kaj's angle. Currently breaks the code if used like above
     }
 
-//    /**
-//     * Angle from first point to 2nd point [0, 2*PI]
-//     * @param v1
-//     * @param v2
-//     * @return
-//     */
-//    private static double angle(InputVertex v1, InputVertex v2) {
-//        return (angle(v2) - angle(v1) + 2 * Math.PI) % (2 * Math.PI);
-//    }
-//
-//    /**
-//     * Angle w.r.t. origin of a vertex interpreted as a line from source to the point [-PI, PI]
-//     * @param v
-//     * @return
-//     */
-//    private static double angle(InputVertex v) {
-//        return Math.atan2(v.getY(), v.getX());
-//    }
+    /**
+     * Angle from first point to 2nd point [0, 2*PI]
+     * @param v1
+     * @param v2
+     * @return
+     */
+    private static double angle(InputVertex v1, InputVertex v2) {
+        return (angle(v2) - angle(v1) + 2 * Math.PI) % (2 * Math.PI);
+    }
+
+    /**
+     * Angle w.r.t. origin of a vertex interpreted as a line from source to the point [-PI, PI]
+     * @param v
+     * @return
+     */
+    private static double angle(InputVertex v) {
+        return Math.atan2(v.getY(), v.getX());
+    }
 
 
 }
