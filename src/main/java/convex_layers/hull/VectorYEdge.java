@@ -1,4 +1,4 @@
-package convex_layers;
+package convex_layers.hull;
 
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;

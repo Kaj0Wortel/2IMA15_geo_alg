@@ -1,7 +1,6 @@
 package convex_layers.hull;
 
 import convex_layers.OutputEdge;
-import convex_layers.VectorYEdge;
 import convex_layers.InputVertex;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;

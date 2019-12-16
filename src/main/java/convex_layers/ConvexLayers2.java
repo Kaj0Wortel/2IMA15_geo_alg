@@ -2,6 +2,7 @@ package convex_layers;
 
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;
+import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
 import convex_layers.visual.Visualizer;
