@@ -1,6 +1,7 @@
 package convex_layers;
 
 import convex_layers.math.Vector;
+import convex_layers.prior_tree.PriorTreeNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 public class InputVertex
-        implements PublicCloneable {
+        implements PublicCloneable, PriorTreeNode<InputVertex> {
     
     /* ----------------------------------------------------------------------
      * Variables.
@@ -144,6 +145,23 @@ public class InputVertex
     @Override
     public String toString() {
         return getClass().getCanonicalName() + "[ID: " + id + ", vec: " + v.toString() + "]";
+    }
+
+
+    @Override
+    public int compareToX(InputVertex node) {
+        double diff = getX() - node.getX();
+        if (diff == 0) return 0;
+        else if (diff < 0) return Math.min(-1, (int) diff);
+        else return Math.max(1, (int) diff);
+    }
+
+    @Override
+    public int compareToY(InputVertex node) {
+        double diff = getY() - node.getY();
+        if (diff == 0) return 0;
+        else if (diff < 0) return Math.min(-1, (int) diff);
+        else return Math.max(1, (int) diff);
     }
     
     
