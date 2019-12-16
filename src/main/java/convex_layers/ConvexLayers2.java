@@ -248,24 +248,23 @@ public class ConvexLayers2 {
             
             // Compute intersection.
             VectorYEdge vye = innerHull.getRandomEdge(); // TODO: place back when done.
-//            VectorYEdge vye;
-//            // 3/4
-//            // -1/1
-//            // 1/2
+            // -1/0
+            // -1/0
+            // 0/1
 //            int x;
 //            int y;
 //            if (i == 0) {
-//                x = 3;
-//                y = 4;
+//                x = innerHull.size() - 1;
+//                y = 0;
 //            } else if (i == 1) {
 //                x = innerHull.size() - 1;
 //                y = 0;
 //            } else {
-//                x = 1;
-//                y = 2;
+//                x = 0;
+//                y = 1;
 //            }
 //            i++;
-//            vye = new VectorYEdge(innerHull.getNode(x), innerHull.getNode(y));
+//            VectorYEdge vye = new VectorYEdge(innerHull.getNode(x), innerHull.getNode(y));
             //VectorYEdge vye = new VectorYEdge(innerHull.getNode(innerHull.size() - 1), innerHull.getNode(0)); // TODO: DONE
             //VectorYEdge vye = new VectorYEdge(innerHull.getNode(0), innerHull.getNode(1)); // TODO: DONE
             //int index = Math.min(2, innerHull.size() - 1);
