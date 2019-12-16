@@ -142,14 +142,15 @@ public class Edge
      * @return The euclidean distance from this line to the given point.
      */
     public double distance(Vector p) {
-        return Math.abs(normal().dot(p) + x2()*y1() - y2()*x1()) / length();
+        //return Math.abs(normal().dot(p) + x2()*y1() - y2()*x1()) / length();
+        return Math.abs((y2() - y1())*p.x() - (x2() - x1())*p.y() + x2() * y1() - y2() * x1()) / length();
     }
     
     /**
      * @return The normal vector associated with this edge.
      */
     public Vector normal() {
-        return new Vector(y1() - y2(), x2() - x1());
+        return new Vector(y2() - y1(), x1() - x2());
     }
     
     /**

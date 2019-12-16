@@ -101,8 +101,8 @@ public class ConvexLayers2 {
         vis.clear();
         vis.setData(List.of(p.getVertices()));
         vis.setEdges(List.of(Visualizer.toEdge(sol)));
-        //vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
-        vis.addData(List.of(out, in));
+        vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
+        //vis.addData(List.of(out, in));
     }
     
 
@@ -181,7 +181,7 @@ public class ConvexLayers2 {
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
             vis.redraw();
             
-        } while (e.relOri(cur.getVec()) <= 0 && !innerHull.isEmpty());
+        } while (prev != cur && e.relOri(cur.getVec()) <= 0 && !innerHull.isEmpty());
         sol.add(new OutputEdge(prev.getIv(), outerNode.getIv()));
         vis.redraw();
     }
@@ -197,19 +197,14 @@ public class ConvexLayers2 {
      * @param ni        The intersection which was processed.
      */
     private void fixInnerHull(ConvexHull innerHull, Collection<InputVertex> remaining, NearIntersection ni,
-                              NearIntersection.Orientation ori, Visualizer vis) {
-        List<InputVertex> toRemove = new ArrayList<>();
+                              Visualizer vis) {
+        Collection<InputVertex> toRemove = new HashSet<>();
+        int i = 0;
         for (InputVertex in : remaining) {
+            toRemove.add(in);
             List<InputVertex> del = innerHull.addAndUpdate(in);
-            if (del.size() == 0) {
-                toRemove.add(in);
-                vis.redraw();
-                
-            } else if (del.get(0) != in) {
-                Logger.write("The inner hull is corrupt!!", Logger.Type.ERROR);
-                vis.redraw();
-                throw new IllegalStateException();
-            }
+            toRemove.removeAll(del);
+            if (del.size() != 1 || del.get(0) != in) vis.redraw();
         }
         remaining.removeAll(toRemove);
     }
@@ -235,35 +230,32 @@ public class ConvexLayers2 {
 
         // Reset visualizer.
         resetVis(vis, p, innerHull, outerHull, sol);
-        vis.redraw();
         
         // Add the outer hull to the solution set.
         addHullToSol(sol, outerHull);
-        //addHullToSol(sol, innerHull);
+        vis.redraw();
         
         // BEGIN ALGO LOGIC
-        while (!innerHull.isEmpty()) {
+        while (!innerHull.isEmpty()) { // TODO: fix this
             if (innerHull.size() == 1) {
                 InputVertex iv = innerHull.get(0);
-                Edge e = outerHull.getBottomTopEdge();
                 sol.add(new OutputEdge(outerHull.getBottom(), iv));
                 sol.add(new OutputEdge(iv, outerHull.getTop()));
                 
-                double ori = e.relOri(iv.getV());
+                double ori = outerHull.getBottomTopEdge().relOri(iv.getV());
                 if (ori < 0) sol.add(new OutputEdge(outerHull.getMinX(), iv));
                 else if (ori > 0) sol.add(new OutputEdge(iv, outerHull.getMaxX()));
                 
                 vis.redraw();
                 break;
-                
-            }/* else if (innerHull.size() == 2) {
-                
-                
-                break;
-            }*/
+            }
+            
             // Compute intersection.
-            //VectorYEdge vye = innerHull.getRandomEdge(); // TODO: place back when done.
-            VectorYEdge vye = new VectorYEdge(innerHull.getNode(innerHull.size() - 1), innerHull.getNode(0));
+            VectorYEdge vye = innerHull.getRandomEdge(); // TODO: place back when done.
+            //VectorYEdge vye = new VectorYEdge(innerHull.getNode(innerHull.size() - 1), innerHull.getNode(0)); // TODO: DONE
+            //VectorYEdge vye = new VectorYEdge(innerHull.getNode(0), innerHull.getNode(1)); // TODO: DONE
+            //int index = Math.min(2, innerHull.size() - 1);
+            //VectorYEdge vye = new VectorYEdge(innerHull.getNode(index - 1), innerHull.getNode(index)); // TODO: DONE
             Edge e = vye.toEdge();
             boolean hasLeft;
             {
@@ -315,9 +307,8 @@ public class ConvexLayers2 {
             
             // Fix the inner hull.
             if (!innerHull.isEmpty()) {
-                fixInnerHull(innerHull, remaining, ni, ori, vis);
+                fixInnerHull(innerHull, remaining, ni, vis);
             }
-            
             // Reset visualizer.
             resetVis(vis, p, innerHull, outerHull, sol);
         }
