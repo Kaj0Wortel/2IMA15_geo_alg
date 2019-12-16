@@ -1,15 +1,9 @@
 package convex_layers.hull;
 
-import convex_layers.InputVertex;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tools.Var;
-import tools.data.collection.rb_tree.LinkedRBTree;
-import tools.data.collection.rb_tree.RBTree;
 import tools.log.Logger;
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 
 /**
@@ -77,7 +71,7 @@ public class NearIntersection {
      * @param hull The hull the vertices belong to.
      */
     public void removeMiddleNodes(ConvexHull hull) {
-        Logger.write("ORI: " + ori);
+//        Logger.write("ORI: " + ori);
         if (ori == Orientation.LEFT || ori == Orientation.RIGHT) {
             VectorYNode node = getInnerNode1();
             VectorYNode target = getInnerNode2();

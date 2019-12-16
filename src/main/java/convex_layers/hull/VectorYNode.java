@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import tools.data.collection.rb_tree.LinkedRBKey;
-import tools.log.Logger;
 
 /**
  * Linked red black tree key node class for sorting vertices on y-coordinate.

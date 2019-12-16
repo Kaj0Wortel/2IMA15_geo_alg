@@ -1,5 +1,6 @@
 package convex_layers.hull;
 
+import convex_layers.OutputEdge;
 import convex_layers.VectorYEdge;
 import convex_layers.InputVertex;
 import convex_layers.math.Edge;
@@ -18,7 +19,8 @@ import java.util.*;
 
 /**
  * This class represents the convex hull data structure.
- * This data structure should be used for search queries on the hull.
+ * This data structure can be used for storing and updating a convex hull,
+ * and performing fast search queries on the hull. 
  */
 public class ConvexHull
             implements Collection<InputVertex> {
@@ -33,10 +35,11 @@ public class ConvexHull
     private final LinkedRBTree<VectorYNode> right;
     /** The element with the maximum y-coordinate. */
     private VectorYNode top;
-    /** The element with the lowest y-coordinate. */
+    /** The element with the minimum y-coordinate. */
     private VectorYNode bottom;
-    
+    /** The element with the minimum x-coordinate. */
     private VectorYNode minX;
+    /** The element with the maximum x-coordinate. */
     private VectorYNode maxX;
     
     
@@ -45,9 +48,10 @@ public class ConvexHull
      * ----------------------------------------------------------------------
      */
     /**
-     * Creates a new convex hull data structure from the given left and right hald-hulls. <br>
-     * The initialisation takes {@code O(n log n)} time if the collections are unsorted, or
-     * {@code O(n)} time if the collections are (nearly) sorted from low y-index to high y-index.
+     * Creates a new convex hull data structure from the given left and right half-hulls.
+     *
+     * @apiNote Runs in {@code O(n*log(n))} if the points are not sorted,
+     *     or {@code O(n)} if the points are (almost) sorted.
      * 
      * @param lCol The left side of the convex hull.
      * @param rCol The right side of the convex hull.
@@ -79,6 +83,9 @@ public class ConvexHull
      */
     /**
      * Creates a new convex hull fom the given data set.
+     *
+     * @apiNote Runs in {@code O(n*log(n))} if the points are not sorted,
+     *     or {@code O(n)} if the points are (almost) sorted.
      * 
      * @param col The collection to create the hull from.
      * 
@@ -177,6 +184,8 @@ public class ConvexHull
      * on y-coordinate, or computes the lower half convex hull if sorted on x-coordinate. <br>
      * To obtain the other half call with {@code inverse == true.}
      * 
+     * @apiNote Runs in {@code O(n)}.
+     * 
      * @param in      The input vertices.
      * @param inverse Whether the other side of the hull should be computed.
      * 
@@ -215,7 +224,7 @@ public class ConvexHull
     /**
      * Determines the four points near the intersection of the extended edge with the hull.
      *
-     * @apiNote This function runs in {@code O(log(n))}.
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param e       The edge to get the intersection of.
      * @param hasLeft Whether the given edge has nodes of it's convex hull on the left of it.
@@ -248,7 +257,7 @@ public class ConvexHull
             throw new IllegalArgumentException();
             
         } else if (relOriTop * relOriBot < 0) {
-            Logger.write("BOTH");
+//            Logger.write("BOTH");
             // Line goes through both the left and right side.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
             Edge bt = getBottomTopEdge();
@@ -256,7 +265,7 @@ public class ConvexHull
             if (bt.relOriRounded(e.v1()) * bt.distance(e.v1()) > bt.relOriRounded(e.v2()) * bt.distance(e.v2())) {
                 e = new Edge(e.v2(), e.v1());
                 hasLeft = !hasLeft;
-                Logger.write("FLIP");
+//                Logger.write("FLIP");
             }
             if (hasLeft) {
                 orientation = NearIntersection.Orientation.BOTTOM;
@@ -277,13 +286,13 @@ public class ConvexHull
             // of the line.
             Edge bottomTopEdge = getBottomTopEdge();
             if (bottomTopEdge.relOri(e.v1()) < 0) {
-                Logger.write("LEFT");
+//                Logger.write("LEFT");
                 // Edge goes through on the left side.
                 // Set direction of e to upwards, if needed.
                 if (e.y1() > e.y2()) {
                     e = new Edge(e.v2(), e.v1());
                     hasLeft = !hasLeft;
-                    Logger.write("FLIP");
+//                    Logger.write("FLIP");
                 }
                 Pair<VectorYNode, VectorYNode> pair = getNodeAboveOneSide(left, e, true);
                 vyn1 = pair.getFirst();
@@ -298,13 +307,13 @@ public class ConvexHull
                 }
 
             } else {
-                Logger.write("RIGHT");
+//                Logger.write("RIGHT");
                 // Edge goes through on the right side.
                 // Set direction of e to downwards, if needed.
                 if (e.y1() < e.y2()) {
                     e = new Edge(e.v2(), e.v1());
                     hasLeft = !hasLeft;
-                    Logger.write("FLIP");
+//                    Logger.write("FLIP");
                 }
                 Pair<VectorYNode, VectorYNode> pair = getNodeAboveOneSide(right, e, true);
                 vyn1 = pair.getFirst();
@@ -319,14 +328,14 @@ public class ConvexHull
                 }
             }
         }
-        Logger.write("Edge: " + e);
-        Logger.write(hasLeft);
-        Logger.write(new Object[] {
-                "  vyn1: " + vyn1,
-                "  vyn2: " + vyn2,
-                "  vyn3: " + vyn3,
-                "  vyn4: " + vyn4
-        });
+//        Logger.write("Edge: " + e);
+//        Logger.write(hasLeft);
+//        Logger.write(new Object[] {
+//                "  vyn1: " + vyn1,
+//                "  vyn2: " + vyn2,
+//                "  vyn3: " + vyn3,
+//                "  vyn4: " + vyn4
+//        });
         
         return new NearIntersection(vyn1, vyn2, vyn3, vyn4, orientation);
     }
@@ -338,6 +347,8 @@ public class ConvexHull
      *     <li>The line goes through both the left and the right side.</li>
      *     <li>The line is directed towards the right.</li>
      * </ul>
+     *
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param tree The tree to determine the intersections with.
      * @param e    The line to calculate the intersections for.
@@ -376,6 +387,8 @@ public class ConvexHull
      * </ul>
      * If {@code up} is {@code true}, then the points around the upper intersection are returned.
      * Otherwise are the points around the lower intersection returned.
+     *
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param tree The tree to determine the intersections with.
      * @param e    The line to calculate the intersections for.
@@ -422,6 +435,8 @@ public class ConvexHull
     }
     
     /**
+     * @apiNote Runs in {@code O(log(n))}.
+     * 
      * Initialises the {@link #minX} and {@link #maxX} fields.
      */
     private void updateMinMaxX() {
@@ -478,8 +493,8 @@ public class ConvexHull
     /**
      * Gets the next node of the chain. If no next node exists, takes the maximum node of the
      * other chain. If this node also doesn't exist, then the same node is returned.
-     * 
-     * @apiNote This function runs in {@code O(1)}.
+     *
+     * @apiNote Runs in {@code O(1)}.
      * 
      * @param node The node to get the next node of.
      * 
@@ -501,7 +516,7 @@ public class ConvexHull
      * Gets the previous node of the chain. If no previous node exists, takes the minimum node
      * of the other chain. If this node also doesn't exist, then the same node is returned.
      *
-     * @apiNote This function runs in {@code O(1)}.
+     * @apiNote Runs in {@code O(1)}.
      * 
      * @param node The node to get the previous node of.
      *
@@ -533,6 +548,8 @@ public class ConvexHull
     
     /**
      * Traverses the hull in clockwise order.
+     *
+     * @apiNote Runs in {@code O(1)}.
      * 
      * @param node The node to get the next node for.
      * 
@@ -575,6 +592,8 @@ public class ConvexHull
     
     /**
      * Traverses the hull in counter clockwise order.
+     * 
+     * @apiNote Runs in {@code O(1)}.
      *
      * @param node The node to get the next node for.
      *
@@ -616,16 +635,13 @@ public class ConvexHull
     }
 
     /**
+     * @apiNote Runs in {@code O(log(n))}.
+     * 
      * @return A random edge from the hull.
      */
     public VectorYEdge getRandomEdge() {
-        int ran = Var.RAN.nextInt(size());
-        VectorYNode node = getNode(ran);
-        if (ran < left.size()) {
-            return new VectorYEdge(node, next(node));
-        } else {
-            return new VectorYEdge(node, prev(node));
-        }
+        VectorYNode node = getNode(Var.RAN.nextInt(size()));
+        return new VectorYEdge(node, clockwise(node));
     }
 
     /**
@@ -663,7 +679,7 @@ public class ConvexHull
     /**
      * Adds a vertex to the hull.
      *
-     * @apiNote This function runs in {@code O(log(n))}.
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param iv The vertex to add.
      * 
@@ -680,7 +696,7 @@ public class ConvexHull
      * the returned list. This is the only way for the given vertex to be removed. <br>
      * Moreover, if the given vertex is removed, then no other vertices will be removed.
      *
-     * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the number of removed elements.
+     * @apiNote Runs in {@code O(log(n) + k)}, where {@code k} denotes the number of removed elements.
      * 
      * @param iv The input vertex to add.
      * 
@@ -740,6 +756,8 @@ public class ConvexHull
     
     /**
      * Inserts a node in the chain.
+     *
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param vyn The node to add.
      * 
@@ -827,6 +845,8 @@ public class ConvexHull
     /**
      * {@inheritDoc}
      * 
+     * @apiNote Runs in {@code O(log(n))}.
+     * 
      * @apiNote This function runs in {@code O(log(n))}.
      */
     @Override
@@ -838,6 +858,8 @@ public class ConvexHull
     
     /**
      * {@inheritDoc}
+     *
+     * @apiNote Runs in {@code O(k*log(n))}.
      *
      * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
      */
@@ -852,6 +874,8 @@ public class ConvexHull
     /**
      * {@inheritDoc}
      *
+     * @apiNote Runs in {@code O(k*log(n))}.
+     *
      * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
      */
     @Override
@@ -862,6 +886,8 @@ public class ConvexHull
     
     /**
      * {@inheritDoc}
+     * 
+     * @apiNote Runs in {@code O(k*log(n))}.
      *
      * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
      */
@@ -873,7 +899,16 @@ public class ConvexHull
         }
         return mod;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @apiNote Runs in {@code O(k*log(n))}, where {@code k} denotes the minimum of:
+     *     <ul>
+     *         <li>The number of items in {@code col} which also occur in the hull.</li>
+     *         <li>The number of items in the hull which do not occur in {@code col}.</li>
+     *     </ul>
+     */
     @Override
     public boolean retainAll(Collection<?> col) {
         boolean mod = left.retainAll(col);
@@ -936,6 +971,8 @@ public class ConvexHull
     
     /**
      * Adds all vertices from the list.
+     *
+     * @apiNote Runs in {@code O(k*log(n))}.
      * 
      * @param ivs The vertices to add.
      * 
@@ -951,6 +988,8 @@ public class ConvexHull
     
     /**
      * Removes the given vertex.
+     *
+     * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param iv The vertex to be removed.
      * @return {@code true} if the vertex was removed. {@code false} otherwise.
@@ -961,6 +1000,8 @@ public class ConvexHull
 
     /**
      * Removes the given node.
+     *
+     * @apiNote Runs in {@code O(log(n))}.
      *
      * @param vyn The node to be removed.
      * @return {@code true} if the vertex was removed. {@code false} otherwise.
@@ -1026,6 +1067,8 @@ public class ConvexHull
     
     /**
      * Removes all vertices from the list.
+     * 
+     * @apiNote Runs in {@code O(k*log(n))}.
      *
      * @param ivs The vertices to remove.
      *
@@ -1041,6 +1084,8 @@ public class ConvexHull
     
     /**
      * Removes all nodes from the list.
+     *
+     * @apiNote Runs in {@code O(k*log(n))}.
      *
      * @param vyns The nodes to remove.
      *
@@ -1063,11 +1108,11 @@ public class ConvexHull
     public boolean isEmpty() {
         return size() == 0;
     }
-
+    
     /**
      * {@inheritDoc}
      *
-     * @apiNote This function runs in {@code O(log(n))}.
+     * @apiNote Runs in {@code O(log(n))}.
      */
     @Override
     public boolean contains(Object obj) {
@@ -1197,6 +1242,8 @@ public class ConvexHull
     }
 
     /**
+     * @apiNote Runs in {@code O(1)}.
+     * 
      * @return The top element, or {@code null} if the hull is empty.
      */
     public InputVertex getTop() {
@@ -1204,6 +1251,8 @@ public class ConvexHull
     }
 
     /**
+     * @apiNote Runs in {@code O(1)}.
+     * 
      * @return The bottom element, or {@code null} if the hull is empty.
      */
     public InputVertex getBottom() {
@@ -1211,6 +1260,8 @@ public class ConvexHull
     }
     
     /**
+     * @apiNote Runs in {@code O(1)}.
+     * 
      * @return The left most element, {@code null} if the hull is empty.
      */
     public InputVertex getMinX() {
@@ -1218,6 +1269,8 @@ public class ConvexHull
     }
     
     /**
+     * @apiNote Runs in {@code O(1)}.
+     * 
      * @return The right most element, {@code null} if the hull is empty.
      */
     public InputVertex getMaxX() {
@@ -1225,10 +1278,71 @@ public class ConvexHull
     }
 
     /**
+     * @apiNote Runs in {@code O(1)}.
+     * 
      * @return An edge from the bottom to the top of the convex hull.
      */
     public Edge getBottomTopEdge() {
         return new Edge(bottom.getVec(), top.getVec());
+    }
+
+    /**
+     * Determines the two/three edges needed to connect a single node inside this hull
+     * such that angles are convex. <br>
+     * The given vertex should be strictly inside this hull, i.e. it should not lie on the hull.
+     * 
+     * @apiNote Runs in {@code O(log(n))} time. Expected running time is {@code O(1)}.
+     * 
+     * @param iv The vertex to find the edges for.
+     * 
+     * @return A collection of all edges  
+     */
+    public Collection<OutputEdge> getInnerPointConnections(InputVertex iv) {
+        if (isEmpty()) {
+            throw new IllegalStateException();
+        }
+        Collection<OutputEdge> out = new ArrayList<>(3);
+        out.add(new OutputEdge(top.getIv(), iv));
+        out.add(new OutputEdge(iv, bottom.getIv()));
+        
+        double ori = getBottomTopEdge().relOri(iv.getV());
+        Edge topEdge;
+        Edge botEdge;
+        VectorYNode node;
+        if (ori < 0) {
+            node = left.getRoot();
+            topEdge = new Edge(iv.getV(), top.getVec());
+            botEdge = new Edge(bottom.getVec(), iv.getV());
+            
+        } else if (ori > 0) {
+            node = right.getRoot();
+            topEdge = new Edge(top.getVec(), iv.getV());
+            botEdge = new Edge(iv.getV(), bottom.getVec());
+            
+        } else {
+            return out;
+        }
+        while (node != null) {
+            if (node == top) {
+                node = node.right();
+                continue;
+            }
+            if (node == bottom) {
+                node = node.left();
+                continue;
+            }
+            double oriTop = topEdge.relOri(node.getVec());
+            double oriBot = botEdge.relOri(node.getVec());
+            if (oriTop <= 0 && oriBot <= 0) {
+                out.add(new OutputEdge(node.getIv(), iv));
+                break;
+                
+            } else if (oriTop > 0 && oriBot <= 0) node = node.left();
+            else if (oriTop <= 0 && oriBot > 0) node = node.right();
+            else throw new IllegalStateException();
+        }
+        
+        return out;
     }
     
     @Override

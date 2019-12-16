@@ -101,8 +101,8 @@ public class ConvexLayers2 {
         vis.clear();
         vis.setData(List.of(p.getVertices()));
         vis.setEdges(List.of(Visualizer.toEdge(sol)));
-        vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
-        //vis.addData(List.of(out, in));
+        //vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
+        vis.addData(List.of(out, in));
     }
     
 
@@ -236,22 +236,35 @@ public class ConvexLayers2 {
         vis.redraw();
         
         // BEGIN ALGO LOGIC
+        int i = 0; // TODO: TMP 
         while (!innerHull.isEmpty()) { // TODO: fix this
             if (innerHull.size() == 1) {
                 InputVertex iv = innerHull.get(0);
-                sol.add(new OutputEdge(outerHull.getBottom(), iv));
-                sol.add(new OutputEdge(iv, outerHull.getTop()));
-                
-                double ori = outerHull.getBottomTopEdge().relOri(iv.getV());
-                if (ori < 0) sol.add(new OutputEdge(outerHull.getMinX(), iv));
-                else if (ori > 0) sol.add(new OutputEdge(iv, outerHull.getMaxX()));
-                
+                sol.addAll(outerHull.getInnerPointConnections(iv));
                 vis.redraw();
                 break;
             }
             
             // Compute intersection.
             VectorYEdge vye = innerHull.getRandomEdge(); // TODO: place back when done.
+//            VectorYEdge vye;
+//            // 3/4
+//            // -1/1
+//            // 1/2
+//            int x;
+//            int y;
+//            if (i == 0) {
+//                x = 3;
+//                y = 4;
+//            } else if (i == 1) {
+//                x = innerHull.size() - 1;
+//                y = 0;
+//            } else {
+//                x = 1;
+//                y = 2;
+//            }
+//            i++;
+//            vye = new VectorYEdge(innerHull.getNode(x), innerHull.getNode(y));
             //VectorYEdge vye = new VectorYEdge(innerHull.getNode(innerHull.size() - 1), innerHull.getNode(0)); // TODO: DONE
             //VectorYEdge vye = new VectorYEdge(innerHull.getNode(0), innerHull.getNode(1)); // TODO: DONE
             //int index = Math.min(2, innerHull.size() - 1);
