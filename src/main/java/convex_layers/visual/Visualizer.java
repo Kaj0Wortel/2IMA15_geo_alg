@@ -306,12 +306,13 @@ public class Visualizer {
     public synchronized void redraw() {
         Logger.write("Draw image " + (imgs.size() + 1));
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
+            Runtime r = Runtime.getRuntime();
             Logger.write(new String[] {
                     "**************************************",
                     "**  CRITICAL  MEMORY  WARNING  !!!  **",
                     "**************************************",
-                    "Memory: " + MultiTool.memToString(MultiTool.memoryInUse()) + " / " + 
-                            MultiTool.memToString(MultiTool.maxFreeMemory()),
+                    "Memory available: " + MultiTool.memToString(MultiTool.maxFreeMemory()) + " / " + 
+                            MultiTool.memToString(r.maxMemory()),
                     "Drawing of image is aborted."
             }, Logger.Type.WARNING);
             return;
