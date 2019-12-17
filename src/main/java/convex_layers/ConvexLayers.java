@@ -109,6 +109,7 @@ public class ConvexLayers {
             hullOrder.add(v);
             v = v.getNext();
         } while (!v.equals(hull));
+        hullOrder.add(v);
         System.out.println(hull.getId());
         return hullOrder;
     }
