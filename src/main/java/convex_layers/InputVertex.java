@@ -91,6 +91,7 @@ public class InputVertex
     /**
      * @return The x-coordinate of the vertex.
      */
+    @Override
     public double getX() {
         return v.x();
     }
@@ -98,6 +99,7 @@ public class InputVertex
     /**
      * @return The y-coordinate of the vertex.
      */
+    @Override
     public double getY() {
         return v.y();
     }
@@ -145,23 +147,6 @@ public class InputVertex
     @Override
     public String toString() {
         return getClass().getCanonicalName() + "[ID: " + id + ", vec: " + v.toString() + "]";
-    }
-
-
-    @Override
-    public int compareToX(InputVertex node) {
-        double diff = getX() - node.getX();
-        if (diff == 0) return 0;
-        else if (diff < 0) return Math.min(-1, (int) diff);
-        else return Math.max(1, (int) diff);
-    }
-
-    @Override
-    public int compareToY(InputVertex node) {
-        double diff = getY() - node.getY();
-        if (diff == 0) return 0;
-        else if (diff < 0) return Math.min(-1, (int) diff);
-        else return Math.max(1, (int) diff);
     }
     
     
