@@ -510,6 +510,28 @@ public class PriorTree<T extends Node2D<T>>
         };
     }
     
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getClass().getCanonicalName());
+        sb.append("[");
+        sb.append(Var.LS);
+        sb.append("  ");
+        boolean first = true;
+        for (Iterator<Node<T>> it = nodeIterator(); it.hasNext(); ) {
+            Node<T> node = it.next();
+            if (first) first = false;
+            else {
+                sb.append(",");
+                sb.append(Var.LS);
+                sb.append("  ");
+            }
+            sb.append(node.toString());
+        }
+        sb.append(Var.LS);
+        sb.append("]");
+        return sb.toString();
+    }
+    
     
     
     // TMP

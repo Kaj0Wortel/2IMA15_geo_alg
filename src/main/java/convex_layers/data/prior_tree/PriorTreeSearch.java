@@ -1,13 +1,18 @@
 package convex_layers.data.prior_tree;
 
+import convex_layers.BaseInputVertex;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import lombok.RequiredArgsConstructor;
+import tools.Var;
 import tools.data.Function;
 import tools.data.collection.FunctionCollection;
+import tools.log.Logger;
+import tools.log.StreamLogger;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Wrapper class of the {@link PriorTree} class which adds the full range search functionality.
@@ -36,51 +41,69 @@ public class PriorTreeSearch<T extends Node2D<T>>
      * Inner classes.
      * ----------------------------------------------------------------------
      */
+
     /**
      * Wrapper class which inverts all operations related to the x-axis.
-     * 
+     *
      * @param <S> The source type to wrap.
      */
     @RequiredArgsConstructor
     private static class InvertedXNode2D<S extends Node2D<S>>
             implements Node2D<InvertedXNode2D<S>> {
-        /** The source node used to get the information from. */
+        /**
+         * The source node used to get the information from.
+         */
         private final S src;
-        
+
         @Override
         public double getX() {
             return -src.getX();
         }
-        
+
         @Override
         public double getY() {
             return src.getY();
         }
-        
+
         @Override
         public int compareToX(InvertedXNode2D<S> node) {
             return -src.compareToX(node.src);
         }
-        
+
         @Override
         public int compareToY(InvertedXNode2D<S> node) {
             return src.compareToY(node.src);
         }
-        
+
         @Override
         public int compareToXThenY(InvertedXNode2D<S> node) {
             return src.compareToXThenY(node.src);
         }
-        
+
         @Override
         public int compareToYThenX(InvertedXNode2D<S> node) {
             return src.compareToYThenX(node.src);
         }
+
+        @Override
+        public int hashCode() {
+            return src.hashCode();
+        }
         
+        @Override
+        @SuppressWarnings("unchecked")
+        public boolean equals(Object obj) {
+            if (!(obj instanceof InvertedXNode2D)) return false;
+            return src.equals(((InvertedXNode2D<S>) obj).src);
+        }
         
+        @Override
+        public String toString() {
+            return src.toString();
+        }
+        
+
     }
-    
-    
     
     
     /* ----------------------------------------------------------------------
@@ -161,12 +184,12 @@ public class PriorTreeSearch<T extends Node2D<T>>
     
     @Override
     public Collection<T> getRangeUpRight(double xMin, double xMax, double yMin, double yMax) {
-        return new FunctionCollection<>(right.getUnboundedRange(-xMax, yMin, yMax), invertFunction, revertFunction);
+        return new FunctionCollection<>(right.getUnboundedRange(-xMin, yMin, yMax), invertFunction, revertFunction);
     }
     
     @Override
     public Collection<T> getRangeDownRight(double xMin, double xMax, double yMin, double yMax) {
-        return new FunctionCollection<>(right.getUnboundedRange(-xMax, yMin, yMax), invertFunction, revertFunction);
+        return new FunctionCollection<>(right.getUnboundedRange(-xMin, yMin, yMax), invertFunction, revertFunction);
     }
     
     @Override
@@ -177,6 +200,22 @@ public class PriorTreeSearch<T extends Node2D<T>>
     @Override
     public Collection<T> getRangeDownLeft(double xMin, double xMax, double yMin, double yMax) {
         return left.getUnboundedRange(xMax, yMin, yMax);
+    }
+    
+    public static void main(String[] args) {
+        Logger.setDefaultLogger(new StreamLogger(System.out));
+        PriorTreeSearch<BaseInputVertex> pts = new PriorTreeSearch<>(List.of(
+                new BaseInputVertex(0, 1, 1),
+                new BaseInputVertex(0, 2, 1),
+                new BaseInputVertex(0, 3, 1),
+                new BaseInputVertex(0, 1, 2),
+                new BaseInputVertex(0, 2, 2),
+                new BaseInputVertex(0, 3, 2),
+                new BaseInputVertex(0, 1, 3),
+                new BaseInputVertex(0, 2, 3),
+                new BaseInputVertex(0, 3, 3)
+        ));
+        System.out.println(pts.getRangeUpRight(1, 2, 1, 2).toString().replaceAll("], ", "]," + Var.LS));
     }
     
     
