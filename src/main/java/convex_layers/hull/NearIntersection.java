@@ -1,5 +1,6 @@
 package convex_layers.hull;
 
+import convex_layers.BaseInputVertex;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tools.Var;
@@ -11,20 +12,20 @@ import tools.log.Logger;
  */
 @Getter
 @AllArgsConstructor
-public class NearIntersection {
+public class NearIntersection<IV extends BaseInputVertex> {
     
     /* ----------------------------------------------------------------------
      * Variables.
      * ----------------------------------------------------------------------
      */
     /** The upper left vertex of the near intersection. */
-    protected final VectorYNode v1;
+    protected final VectorYNode<IV> v1;
     /** The lower left vertex of the near intersection. */
-    protected final VectorYNode v2;
+    protected final VectorYNode<IV> v2;
     /** The upper right vertex of the near intersection. */
-    protected final VectorYNode v3;
+    protected final VectorYNode<IV> v3;
     /** The lower right vertex of the near intersection. */
-    protected final VectorYNode v4;
+    protected final VectorYNode<IV> v4;
     /** The orientation of the intersection.. */
     protected final Orientation ori;
     
@@ -44,7 +45,7 @@ public class NearIntersection {
         /** Part to replace is on the top side. */
         TOP,
         /** Part to replace is on the bottom side. */
-        BOTTOM;
+        BOTTOM
         
         
     }
@@ -70,14 +71,14 @@ public class NearIntersection {
      * 
      * @param hull The hull the vertices belong to.
      */
-    public void removeMiddleNodes(ConvexHull hull) {
+    public void removeMiddleNodes(ConvexHull<IV> hull) {
 //        Logger.write("ORI: " + ori);
+        VectorYNode<IV> node = getInnerNode1();
+        VectorYNode<IV> target = getInnerNode2();
         if (ori == Orientation.LEFT || ori == Orientation.RIGHT) {
-            VectorYNode node = getInnerNode1();
-            VectorYNode target = getInnerNode2();
-            
+
             while (node != null && node != target) {
-                VectorYNode rem = node;
+                VectorYNode<IV> rem = node;
                 node = node.prev();
                 hull.remove(rem);
             }
@@ -87,22 +88,20 @@ public class NearIntersection {
             hull.remove(target);
             
         } else {
-            VectorYNode n1 = getInnerNode1();
-            VectorYNode n2 = getInnerNode2();
             boolean top = (ori == Orientation.TOP);
-            while (n1 != null && n1 != n2) {
-                VectorYNode rem = n1;
-                if (top) n1 = n1.next();
-                else n1 = n1.prev();
+            while (node != null && node != target) {
+                VectorYNode<IV> rem = node;
+                if (top) node = node.next();
+                else node = node.prev();
                 hull.remove(rem);
             }
-            if (n1 == n2) {
-                hull.remove(n1);
+            if (node == target) {
+                hull.remove(node);
             } else {
-                while (n2 != null) {
-                    VectorYNode rem = n2;
-                    if (top) n2 = n2.next();
-                    else n2 = n2.prev();
+                while (target != null) {
+                    VectorYNode<IV> rem = target;
+                    if (top) target = target.next();
+                    else target = target.prev();
                     hull.remove(rem);
                 }
             }
@@ -112,7 +111,7 @@ public class NearIntersection {
     /**
      * @return The first inner node.
      */
-    public VectorYNode getInnerNode1() {
+    public VectorYNode<IV> getInnerNode1() {
         switch (ori) {
             case LEFT:
             case BOTTOM:
@@ -128,7 +127,7 @@ public class NearIntersection {
     /**
      * @return The second inner node.
      */
-    public VectorYNode getInnerNode2() {
+    public VectorYNode<IV> getInnerNode2() {
         switch (ori) {
             case LEFT:
             case BOTTOM:
@@ -144,7 +143,7 @@ public class NearIntersection {
     /**
      * @return The first outer node.
      */
-    public VectorYNode getOuterNode1() {
+    public VectorYNode<IV> getOuterNode1() {
         switch (ori) {
             case LEFT:
             case BOTTOM:
@@ -160,7 +159,7 @@ public class NearIntersection {
     /**
      * @return The second outer node.
      */
-    public VectorYNode getOuterNode2() {
+    public VectorYNode<IV> getOuterNode2() {
         switch (ori) {
             case LEFT:
             case BOTTOM:

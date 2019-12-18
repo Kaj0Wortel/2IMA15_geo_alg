@@ -6,9 +6,11 @@ import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
 import convex_layers.visual.Visualizer;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
 import tools.Var;
 import tools.log.Logger;
 import tools.log.StreamLogger;
@@ -21,7 +23,7 @@ import java.util.*;
  * 
  * @see ConvexLayers
  */
-public class ConvexLayers2 {
+public class ConvexLayersOptimized {
     
     /* ----------------------------------------------------------------------
      * Functions.
@@ -44,7 +46,7 @@ public class ConvexLayers2 {
             System.exit(-1);
         }
         
-        Collection<InputVertex> vertices = new ArrayList<>();
+        Collection<BaseInputVertex> vertices = new ArrayList<>();
         String name = json.getString("name");
         JSONArray points = json.getJSONArray("points");
         for (int i = 0; i < points.length(); i++) {
@@ -53,7 +55,7 @@ public class ConvexLayers2 {
             double x = point.getDouble("x");
             double y = point.getDouble("y");
             Logger.write("id: " + id + ", x: " + x + ", y : " + y);
-            vertices.add(new InputVertex(id, x, y, false, null, null));
+            vertices.add(new BaseInputVertex(id, x, y));
         }
         
         return new Problem2(name, vertices);
@@ -98,7 +100,8 @@ public class ConvexLayers2 {
      * @param out  The outer convex hull.
      * @param sol  The solution set.
      */
-    private void resetVis(Visualizer vis, Problem2 p, ConvexHull in, ConvexHull out, Collection<OutputEdge> sol) {
+    private void resetVis(Visualizer vis, Problem2 p, ConvexHull<BaseInputVertex> in, ConvexHull<BaseInputVertex> out,
+                          Collection<OutputEdge> sol) {
         vis.clear();
         vis.setData(List.of(p.getVertices()));
         vis.setEdges(List.of(Visualizer.toEdge(sol)));
@@ -113,10 +116,10 @@ public class ConvexLayers2 {
      * @param sol  The solution collection.
      * @param hull The hull to add.
      */
-    private void addHullToSol(Collection<OutputEdge> sol, ConvexHull hull) {
-        InputVertex prev = null;
-        InputVertex first = null;
-        for (InputVertex iv : hull) {
+    private void addHullToSol(Collection<OutputEdge> sol, ConvexHull<BaseInputVertex> hull) {
+        BaseInputVertex prev = null;
+        BaseInputVertex first = null;
+        for (BaseInputVertex iv : hull) {
             if (prev == null) {
                 first = prev = iv;
                 continue;
@@ -141,19 +144,21 @@ public class ConvexLayers2 {
      * @param first     Whether to process the first or second point of the intersection.
      * @param vis       The visualizer.
      */
-    private void fixOuterHull(ConvexHull innerHull, ConvexHull outerHull, Collection<OutputEdge> sol,
-                             NearIntersection ni, VectorYNode begin, boolean first, Visualizer vis) {
+    private void fixOuterHull(ConvexHull<BaseInputVertex> innerHull, ConvexHull<BaseInputVertex> outerHull,
+                              Collection<OutputEdge> sol, NearIntersection<BaseInputVertex> ni,
+                              VectorYNode<BaseInputVertex> begin,
+                              boolean first, Visualizer vis) {
         if (innerHull.isEmpty()) return;
         NearIntersection.Orientation ori = ni.getOri();
-        VectorYNode cur = begin;
-        VectorYNode prev = null;
+        VectorYNode<BaseInputVertex> cur = begin;
+        VectorYNode<BaseInputVertex> prev = null;
         boolean dir = (ori == NearIntersection.Orientation.BOTTOM || ori == NearIntersection.Orientation.LEFT);
         boolean clockwise = (dir == first);
-        VectorYNode outerNode = (first
+        VectorYNode<BaseInputVertex> outerNode = (first
                 ? ni.getOuterNode1()
                 : ni.getOuterNode2()
         );
-        VectorYNode innerNode = (first
+        VectorYNode<BaseInputVertex> innerNode = (first
                 ? ni.getInnerNode1()
                 : ni.getInnerNode2()
         );
@@ -197,13 +202,13 @@ public class ConvexLayers2 {
      * @param remaining The remaining nodes.
      * @param ni        The intersection which was processed.
      */
-    private void fixInnerHull(ConvexHull innerHull, Collection<InputVertex> remaining, NearIntersection ni,
+    private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Collection<BaseInputVertex> remaining,
+                              NearIntersection<BaseInputVertex> ni,
                               Visualizer vis) {
-        Collection<InputVertex> toRemove = new HashSet<>();
-        int i = 0;
-        for (InputVertex in : remaining) {
+        Collection<BaseInputVertex> toRemove = new HashSet<>();
+        for (BaseInputVertex in : remaining) {
             toRemove.add(in);
-            List<InputVertex> del = innerHull.addAndUpdate(in);
+            List<BaseInputVertex> del = innerHull.addAndUpdate(in);
             toRemove.removeAll(del);
             if (del.size() != 1 || del.get(0) != in) vis.redraw();
         }
@@ -222,11 +227,11 @@ public class ConvexLayers2 {
         
         // Initialize the solution set and inner/outer hulls.
         Set<OutputEdge> sol = new HashSet<>();
-        Collection<InputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: use other data structure.
+        Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: use other data structure.
         
-        ConvexHull outerHull = ConvexHull.createConvexHull(remaining);
+        ConvexHull<BaseInputVertex> outerHull = ConvexHull.createConvexHull(remaining);
         remaining.removeAll(outerHull);
-        ConvexHull innerHull = ConvexHull.createConvexHull(remaining);
+        ConvexHull<BaseInputVertex> innerHull = ConvexHull.createConvexHull(remaining);
         remaining.removeAll(innerHull);
 
         // Reset visualizer.
@@ -237,10 +242,9 @@ public class ConvexLayers2 {
         vis.redraw();
         
         // BEGIN ALGO LOGIC
-        int i = 0; // TODO: TMP 
         while (!innerHull.isEmpty()) { // TODO: fix this
             if (innerHull.size() == 1) {
-                InputVertex iv = innerHull.get(0);
+                BaseInputVertex iv = innerHull.get(0);
                 sol.addAll(outerHull.getInnerPointConnections(iv));
                 vis.redraw();
                 break;
@@ -279,7 +283,7 @@ public class ConvexLayers2 {
                 }
                 // Iterate over the hull, and try to find an vertex which lies on either side.
                 if (ori == 0) {
-                    for (InputVertex iv : innerHull) {
+                    for (BaseInputVertex iv : innerHull) {
                         ori = e.relOri(iv.getV());
                         if (ori == 0) break;
                     }
@@ -287,10 +291,10 @@ public class ConvexLayers2 {
                 hasLeft = (ori < 0);
             }
             
-            NearIntersection ni = outerHull.getPointsNearLine(e, hasLeft);
+            NearIntersection<BaseInputVertex> ni = outerHull.getPointsNearLine(e, hasLeft);
             NearIntersection.Orientation ori = ni.getOri();
             {
-                List<InputVertex> intersect = List.of(
+                List<BaseInputVertex> intersect = List.of(
                         ni.getInnerNode1().getIv(),
                         ni.getInnerNode2().getIv(),
                         ni.getOuterNode2().getIv(),
@@ -306,8 +310,8 @@ public class ConvexLayers2 {
             // For the inner part, add the output edges, add the two vertices from the inner hull
             // to the outer hull, and remove all unneeded nodes from the outer hull.
             Edge minMaxEdge = outerHull.getBottomTopEdge();
-            VectorYNode first = vye.getFirst(ori, minMaxEdge);
-            VectorYNode second = vye.getSecond(ori, minMaxEdge);
+            VectorYNode<BaseInputVertex> first = vye.getFirst(ori, minMaxEdge);
+            VectorYNode<BaseInputVertex> second = vye.getSecond(ori, minMaxEdge);
             sol.add(new OutputEdge(first.getIv(), second.getIv()));
             vis.redraw();
             
@@ -350,7 +354,7 @@ public class ConvexLayers2 {
         String path = "data/" + folder + Var.FS + type + Var.FS + name;
         File inFile = new File(path + ".instance.json");
         File outFile = new File(path + ".solution.json");
-        new ConvexLayers2().solve(inFile, outFile);
+        new ConvexLayersOptimized().solve(inFile, outFile);
     }
     
     

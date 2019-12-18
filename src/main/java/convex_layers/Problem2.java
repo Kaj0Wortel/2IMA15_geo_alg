@@ -16,7 +16,7 @@ public class Problem2 {
     /** The name of the problem. */
     private String name;
     /** The vertices representing the problem. */
-    private Collection<InputVertex> vertices;
+    private Collection<BaseInputVertex> vertices;
 
 
 }

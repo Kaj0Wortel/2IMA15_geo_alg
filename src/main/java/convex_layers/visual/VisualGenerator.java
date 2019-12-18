@@ -4,6 +4,9 @@ import convex_layers.math.Vector;
 import tools.MultiTool;
 import tools.Var;
 import tools.event.Key;
+import tools.log.Logger;
+import tools.log.NullLogger;
+import tools.log.StreamLogger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -31,24 +34,60 @@ import java.util.concurrent.locks.ReentrantLock;
  * </table>
  */
 public class VisualGenerator {
+    
+    /* ----------------------------------------------------------------------
+     * Constants.
+     * ----------------------------------------------------------------------
+     */
+    /** The width of the canvas. */
     private static final int WIDTH = 1920;
+    /** The height of the canvas. */
     private static final int HEIGHT = 1080;
+    /** The size of a single point. */
     private static final int POINT_SIZE = 20;
+    /** The default directory used to store the data at. */
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "gen_data" + Var.FS);
-
+    
+    /** The key used to open the save menu. */
     private static final Key SAVE_KEY = Key.S.setMask(Key.CTRL_MASK);
+    /** The key used to delete the current nodes. */
     private static final Key DEL_KEY = Key.Q.setMask(Key.CTRL_MASK);
     
-    static {
-        DEFAULT_DIR.mkdirs();
-    }
     
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    /** The frame used for the application. */
     private final JFrame frame;
+    /** The canvas used to paint on. */
     private final Canvas canvas;
+    /** The list of points which should be drawn. */
     private final List<Vector> points = new ArrayList<>();
+    /** The lock used for concurrent operations. */
     private Lock lock = new ReentrantLock();
     
     
+    /* ----------------------------------------------------------------------
+     * Static initialization.
+     * ----------------------------------------------------------------------
+     */
+    static {
+        if (Logger.getLog() instanceof NullLogger) {
+            Logger.setDefaultLogger(new StreamLogger(System.out));
+        }
+        //noinspection ResultOfMethodCallIgnored
+        DEFAULT_DIR.mkdirs();
+    }
+    
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * Creates a new point generation which allows a user to graphically create a new point set.
+     */
     public VisualGenerator() {
         frame = new JFrame("point generator");
         canvas = new Canvas(frame);
@@ -67,7 +106,7 @@ public class VisualGenerator {
             public void keyReleased(KeyEvent e) {
                 Key eKey = new Key(e, false);
                 if (SAVE_KEY.equals(eKey)) {
-                    save();
+                    new Thread(() -> save(), "Saving thread").start();
                     
                 } else if (DEL_KEY.equals(eKey)) {
                     del();
@@ -84,6 +123,18 @@ public class VisualGenerator {
         });
     }
     
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * Adds a point to the dataset.
+     * @param x The x-coordinate of the point on the canvas.
+     * @param y The y-coordinate of the point on the canvas.
+     * @param w The width of the canvas.
+     * @param h The height of the canvas.
+     */
     private void addPoint(int x, int y, int w, int h) {
         double canvasX = ((double) x * WIDTH) / w;
         double canvasY = ((double) y * HEIGHT) / h;
@@ -91,6 +142,7 @@ public class VisualGenerator {
             lock.lock();
             try {
                 points.add(new Vector(canvasX, HEIGHT - canvasY));
+                
             } finally {
                 lock.unlock();
             }
@@ -102,6 +154,11 @@ public class VisualGenerator {
         canvas.repaint();
     }
     
+    /**
+     * Saves the current point set to a file. <br>
+     * <b>WARNING!</b><br>
+     * This is a blocking function!
+     */
     private void save() {
         JFileChooser chooser = new JFileChooser();
         FileFilter ff = new FileNameExtensionFilter("JSON file", "json");
@@ -132,6 +189,11 @@ public class VisualGenerator {
         } 
     }
     
+    /**
+     * Saves the current point set to the given. <br>
+     * <b>WARNING!</b><br>
+     * This is a blocking function!
+     */
     private void save(File file) {
         new Thread(() -> {
             lock.lock();
@@ -147,7 +209,8 @@ public class VisualGenerator {
                 bw.write("], \"type\": \"Instance\", \"name\": \"user input\"}");
                 
             } catch (IOException e) {
-                System.err.println(e);
+                Logger.write(e);
+                
             } finally {
                 lock.unlock();
             }
@@ -155,11 +218,13 @@ public class VisualGenerator {
         }).start();
     }
     
+    /**
+     * Deletes the current point set.
+     */
     private void del() {
         new Thread(() -> {
             lock.lock();
             try {
-                System.out.println("DEL");
                 points.clear();
                 wipeCanvas();
                 canvas.repaint();
@@ -170,6 +235,14 @@ public class VisualGenerator {
         }).start();
     }
     
+    /**
+     * Converts a vector to a JSON string.
+     * 
+     * @param v     The vector to convert.
+     * @param index The index of the vector.
+     * 
+     * @return A JSON string representation of the vector.
+     */
     private String vectorToString(Vector v, int index) {
         String[] coords = {
                 Double.toString(v.x()),
@@ -187,10 +260,18 @@ public class VisualGenerator {
         return "{\"i\": " + index + ", \"x\": " + coords[0] + ", \"y\": " + coords[1] + "}";
     }
     
+    /**
+     * Clears the canvas image.
+     */
     private void wipeCanvas() {
         canvas.setCanvas(new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR));
     }
     
+    /**
+     * Invokes the program.
+     * 
+     * @param args Invokation arguments.
+     */
     public static void main(String[] args) {
         new VisualGenerator();
     }

@@ -1,8 +1,6 @@
 package convex_layers.hull;
 
-import convex_layers.hull.ConvexHull;
-import convex_layers.hull.NearIntersection;
-import convex_layers.hull.VectorYNode;
+import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,11 +12,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class VectorYEdge {
+public class VectorYEdge<IV extends BaseInputVertex> {
     /** The first node of the edge. */
-    private final VectorYNode iv1;
+    private final VectorYNode<IV> iv1;
     /** The second node of the edge. */
-    private final VectorYNode iv2;
+    private final VectorYNode<IV> iv2;
 
 
     /**
@@ -34,7 +32,7 @@ public class VectorYEdge {
      *
      * @return The first node of the edge, relative to the given edge.
      */
-    public VectorYNode getFirst(NearIntersection.Orientation ori, Edge relEdge) {
+    public VectorYNode<IV> getFirst(NearIntersection.Orientation ori, Edge relEdge) {
         switch (ori) {
             case LEFT:
             case RIGHT:
@@ -57,7 +55,7 @@ public class VectorYEdge {
      * 
      * @return The second node of the edge, relative to the given edge.
      */
-    public VectorYNode getSecond(NearIntersection.Orientation ori, Edge relEdge) {
+    public VectorYNode<IV> getSecond(NearIntersection.Orientation ori, Edge relEdge) {
         if (getFirst(ori, relEdge) == iv1) return iv2;
         else return iv1;
     }

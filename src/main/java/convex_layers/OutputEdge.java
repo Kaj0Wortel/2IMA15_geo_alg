@@ -17,9 +17,9 @@ import java.util.Objects;
 public class OutputEdge {
     
     /** Vertex 1 of the edge. */
-    private final InputVertex v1;
+    private final BaseInputVertex v1;
     /** Vertex 2 of the edge. */
-    private final InputVertex v2;
+    private final BaseInputVertex v2;
     
     
     @Override

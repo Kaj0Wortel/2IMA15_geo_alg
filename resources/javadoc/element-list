@@ -2,6 +2,7 @@ tools
 tools.concurrent
 tools.data
 tools.data.array
+tools.data.collection
 tools.data.collection.rb_tree
 tools.data.file
 tools.data.img

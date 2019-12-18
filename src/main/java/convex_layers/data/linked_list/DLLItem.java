@@ -1,5 +1,5 @@
 
-package convex_layers.linked_list;
+package convex_layers.data.linked_list;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

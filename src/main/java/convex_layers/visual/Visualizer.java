@@ -1,15 +1,12 @@
 package convex_layers.visual;
 
-import convex_layers.InputVertex;
+import convex_layers.BaseInputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import tools.MultiTool;
 import tools.Var;
 import tools.data.array.ArrayTools;
-import tools.data.file.DirFileTree;
-import tools.data.file.FileTree;
-import tools.data.file.TreeFile;
 import tools.event.Key;
 import tools.font.FontLoader;
 import tools.log.Logger;
@@ -18,17 +15,12 @@ import tools.log.StreamLogger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -609,7 +601,7 @@ public class Visualizer {
      * 
      * @param data The data to be set for the visualizer.
      */
-    public void setData(List<Iterable<InputVertex>> data) {
+    public void setData(List<Iterable<? extends BaseInputVertex>> data) {
         clear();
         addData(data);
     }
@@ -619,8 +611,8 @@ public class Visualizer {
      * 
      * @param data The data to be added.
      */
-    public void addData(List<Iterable<InputVertex>> data) {
-        for (Iterable<InputVertex> d : data) {
+    public void addData(List<Iterable<? extends BaseInputVertex>> data) {
+        for (Iterable<? extends BaseInputVertex> d : data) {
             Iterable<Vector> vecIt = toVec(d);
             addPoint(vecIt);
             addEdge(connectEdges(vecIt));
@@ -630,7 +622,7 @@ public class Visualizer {
     
 
     /**
-     * Converts a collection of {@link InputVertex} to a collection of {@link Vector}. <br>
+     * Converts a collection of {@link BaseInputVertex} to a collection of {@link Vector}. <br>
      * This function clones the data, which implies that the data <b>won't</b> be modified when the
      * original collection is modified.
      * 
@@ -639,16 +631,16 @@ public class Visualizer {
      * 
      * @see #toVec(Iterable) 
      */
-    public static Iterable<Vector> cloneToVec(Iterable<InputVertex> in) {
+    public static Iterable<Vector> cloneToVec(Iterable<? extends BaseInputVertex> in) {
         List<Vector> out = new ArrayList<>();
-        for (InputVertex iv : in) {
+        for (BaseInputVertex iv : in) {
             out.add(iv.getV().clone());
         }
         return out;
     }
 
     /**
-     * Converts a collection of {@link InputVertex} to a collection of {@link Vector}. <br>
+     * Converts a collection of {@link BaseInputVertex} to a collection of {@link Vector}. <br>
      * This function does not clone the data, which implies that the data <b>will</b> be updated
      * when the original collection is modified.
      *
@@ -658,9 +650,9 @@ public class Visualizer {
      *
      * @see #cloneToVec(Iterable)
      */
-    public static Iterable<Vector> toVec(final Iterable<InputVertex> in) {
+    public static Iterable<Vector> toVec(final Iterable<? extends BaseInputVertex> in) {
         return () -> new Iterator<Vector>() {
-            private final Iterator<InputVertex> it = in.iterator();
+            private final Iterator<? extends BaseInputVertex> it = in.iterator();
             
             @Override
             public boolean hasNext() {
@@ -675,17 +667,17 @@ public class Visualizer {
     }
 
     /**
-     * Converts a collection of {@link InputVertex} to a collection of labels. <br>
+     * Converts a collection of {@link BaseInputVertex} to a collection of labels. <br>
      * This function does not clone the data, which implies that the data <b>will</b> be updated
      * when the original collection is modified.
-     *
+     * 
      * @param in The collection to be converted.
      * 
      * @return The labels matching the given input vertices.
      */
-    public static Iterable<String> toLabel(final Iterable<InputVertex> in) {
+    public static Iterable<String> toLabel(final Iterable<? extends BaseInputVertex> in) {
         return () -> new Iterator<String>() {
-            private final Iterator<InputVertex> it = in.iterator();
+            private final Iterator<? extends BaseInputVertex> it = in.iterator();
             
             @Override
             public boolean hasNext() {

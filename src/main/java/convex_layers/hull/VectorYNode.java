@@ -1,6 +1,6 @@
 package convex_layers.hull;
 
-import convex_layers.InputVertex;
+import convex_layers.BaseInputVertex;
 import convex_layers.math.Vector;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,17 +13,17 @@ import tools.data.collection.rb_tree.LinkedRBKey;
 @Getter
 @Setter
 @AllArgsConstructor
-public class VectorYNode
-        extends LinkedRBKey<VectorYNode> {
+public class VectorYNode<IV extends BaseInputVertex>
+        extends LinkedRBKey<VectorYNode<IV>> {
     
     /* ----------------------------------------------------------------------
      * Variables.
      * ----------------------------------------------------------------------
      */
     /** The underlying input vertex. */
-    private final InputVertex iv;
+    private final IV iv;
     
-    private ConvexHull hull;
+    private ConvexHull<IV> hull;
     
     private boolean isLeft;
 
@@ -57,7 +57,7 @@ public class VectorYNode
     /**
      * @return The hull of this vector.
      */
-    public ConvexHull getHull() {
+    public ConvexHull<IV> getHull() {
         return hull;
     }
     
@@ -81,11 +81,12 @@ public class VectorYNode
         }
         return 0;
     }
-    
-    @Override
+
+
+    @SuppressWarnings("unchecked")@Override
     public boolean equals(Object obj) {
         if (!(obj instanceof VectorYNode)) return false;
-        return iv.equals(((VectorYNode) obj).iv);
+        return iv.equals(((VectorYNode<IV>) obj).iv);
     }
     
     @Override

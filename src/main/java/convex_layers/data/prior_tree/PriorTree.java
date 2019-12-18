@@ -1,6 +1,8 @@
-package convex_layers.prior_tree;
+package convex_layers.data.prior_tree;
 
-import convex_layers.InputVertex;
+import convex_layers.BaseInputVertex;
+import convex_layers.data.Base2DTree;
+import convex_layers.data.Node2D;
 import lombok.*;
 import tools.Var;
 import tools.iterators.FunctionIterator;
@@ -11,17 +13,22 @@ import tools.log.StreamLogger;
 import java.util.*;
 import java.util.List;
 
-public class PriorTree<T extends PriorTreeNode<T>>
-            implements Collection<T> {
+/**
+ * Priority search tree data structure.
+ * @param <T>
+ */
+public class PriorTree<T extends Node2D<T>>
+        implements Base2DTree<T> {
     
     /* ----------------------------------------------------------------------
      * Variables.
      * ----------------------------------------------------------------------
      */
-    /** The root node of the tree. */
-    private Node<T> root;
     /** The size of the tree. */
     protected int size = 0;
+    /** The root node of the tree. */
+    private Node<T> root;
+    
     
     /* ----------------------------------------------------------------------
      * Inner classes.
@@ -36,8 +43,8 @@ public class PriorTree<T extends PriorTreeNode<T>>
     @Setter
     @AllArgsConstructor
     @RequiredArgsConstructor
-    protected static class Node<T extends PriorTreeNode<T>>
-            implements PriorTreeNode<Node<T>> {
+    protected static class Node<T extends Node2D<T>>
+            implements Node2D<Node<T>> {
         /** The data of the node */
         final T data;
         /** The parent of this node. */
@@ -95,7 +102,7 @@ public class PriorTree<T extends PriorTreeNode<T>>
      * @param <T> The data type of the data of the nodes.
      */
     @AllArgsConstructor
-    private static class Elem<T extends PriorTreeNode<T>> {
+    private static class Elem<T extends Node2D<T>> {
         /** The current node. */
         private Node<T> node;
         /** All left children of the current node, sorted on x. */
@@ -116,12 +123,19 @@ public class PriorTree<T extends PriorTreeNode<T>>
      * ----------------------------------------------------------------------
      */
     /**
-     * Creates and initializes a new priority tree.
-     * 
-     * @param nodes The nodes to be added.
+     * Creates an empty priority search tree.
      */
-    public PriorTree(Collection<T> nodes) {
-        initTree(nodes);
+    public PriorTree() {
+        size = 0;
+    }
+
+    /**
+     * Creates a new quad tree containing the given elements.
+     *
+     * @param col The initial elements of the quad tree.
+     */
+    public PriorTree(Collection<T> col) {
+        init(col);
     }
     
     
@@ -129,17 +143,10 @@ public class PriorTree<T extends PriorTreeNode<T>>
      * Functions.
      * ----------------------------------------------------------------------
      */
-    /**
-     * Initializes the tree with the given elements.
-     *
-     * @apiNote Runs in {@code n*log(n)}.
-     * 
-     * @param nodes The nodes of the tree.
-     */
+    @Override
     @SuppressWarnings("unchecked")
-    private void initTree(Collection<T> nodes) {
-        size = nodes.size();
-        root = null;
+    public void init(Collection<T> nodes) {
+        clear();
         
         // Convert data to nodes.
         if (nodes.isEmpty()) return;
@@ -306,6 +313,8 @@ public class PriorTree<T extends PriorTreeNode<T>>
      * Reports all elements in the given range. <br>
      * All boundaries are inclusive.
      * 
+     * @implSpec Runs in {@code O(log(n) + k)}.
+     * 
      * @param xMax The maximum x-coordinate (incl.).
      * @param yMin The minimum y-coordinate (incl.).
      * @param yMax The maximum y-coordinate (incl.).
@@ -413,7 +422,7 @@ public class PriorTree<T extends PriorTreeNode<T>>
         if (obj instanceof Node) {
             elem = ((Node<T>) obj).data;
             
-        } else if (obj instanceof PriorTreeNode) {
+        } else if (obj instanceof Node2D) {
             elem = (T) obj;
             
         } else return null;
@@ -432,6 +441,7 @@ public class PriorTree<T extends PriorTreeNode<T>>
         return null;
     }
     
+    @Override
     public T get(Object obj) {
         Node<T> node = getNode(obj);
         return (node == null ? null : node.data);
@@ -448,67 +458,18 @@ public class PriorTree<T extends PriorTreeNode<T>>
     }
     
     @Override
-    public boolean isEmpty() {
-        return size() == 0;
-    }
-    
-    @Override
-    public Iterator<T> iterator() {
-        return new FunctionIterator<>(nodeIterator(),
-                (node) -> (node == null ? null : node.data));
-    }
-    
-    @Override
     public Object[] toArray() {
-        return toArray(new PriorTreeNode[size()]);
-    }
-    
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T1> T1[] toArray(T1[] arr) {
-        int i = 0;
-        for (T data : this) {
-            arr[i++] = (T1) data;
-            if (i > arr.length) break;
-        }
-        return arr;
+        return toArray(new Node2D[size()]);
     }
     
     @Override
     public boolean add(T t) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO
     }
     
     @Override
     public boolean remove(Object o) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public boolean containsAll(Collection<?> col) {
-        for (Object obj : col) { // TODO: optimize this stuff with a range query or something.
-            if (!contains(obj)) return false;
-        }
-        return true;
-    }
-    
-    @Override
-    public boolean addAll(Collection<? extends T> col) {
-        boolean mod = false;
-        for (T data : col) {
-            if (add(data)) mod = true;
-        }
-        return mod;
-    }
-    
-    @Override
-    public boolean removeAll(Collection<?> collection) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public boolean retainAll(Collection<?> collection) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // TODO
     }
     
     @Override
@@ -516,23 +477,20 @@ public class PriorTree<T extends PriorTreeNode<T>>
         size = 0;
         root = null;
     }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new FunctionIterator<>(nodeIterator(),
+                (node) -> (node == null ? null : node.data));
+    }
     
     /**
      * @return An iterator over the nodes in this tree. There is no
      *     guarantee in which order the nodes are returned.
      */
     protected Iterator<Node<T>> nodeIterator() {
-        if (root == null) {
-            return new GeneratorIterator<>() {
-                @Override
-                protected Node<T> generateNext() {
-                    done();
-                    return null;
-                }
-            };
-        }
         return new GeneratorIterator<>() {
-            Deque<Node<T>> stack = new LinkedList<>(List.of(root));
+            Deque<Node<T>> stack = new LinkedList<>((root == null ? List.of() : List.of(root)));
             
             @Override
             protected Node<T> generateNext() {
@@ -557,16 +515,18 @@ public class PriorTree<T extends PriorTreeNode<T>>
     // TMP
     public static void main(String[] args) {
         Logger.setDefaultLogger(new StreamLogger(System.out));
-        PriorTree<InputVertex> tree = new PriorTree<>(List.of(
-                new InputVertex(0L, 1, 1),
-                new InputVertex(0L, 2, 1),
-                new InputVertex(0L, 3, 1),
-                new InputVertex(0L, 1, 2),
-                new InputVertex(0L, 2, 2),
-                new InputVertex(0L, 3, 2),
-                new InputVertex(0L, 1, 3),
-                new InputVertex(0L, 2, 3),
-                new InputVertex(0L, 3, 3)
+        PriorTree<BaseInputVertex> t = new PriorTree<>();
+        Logger.write(t.iterator().hasNext());
+        PriorTree<BaseInputVertex> tree = new PriorTree<>(List.of(
+                new BaseInputVertex(0L, 1, 1),
+                new BaseInputVertex(0L, 2, 1),
+                new BaseInputVertex(0L, 3, 1),
+                new BaseInputVertex(0L, 1, 2),
+                new BaseInputVertex(0L, 2, 2),
+                new BaseInputVertex(0L, 3, 2),
+                new BaseInputVertex(0L, 1, 3),
+                new BaseInputVertex(0L, 2, 3),
+                new BaseInputVertex(0L, 3, 3)
         ));
         Logger.write("ENDED");
         //Logger.write(tree.debug());

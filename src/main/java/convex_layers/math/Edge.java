@@ -1,6 +1,6 @@
 package convex_layers.math;
 
-import convex_layers.InputVertex;
+import convex_layers.BaseInputVertex;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class Edge
      * @param iv1 The first input vertex.
      * @param iv2 The second input vertex.
      */
-    public Edge(InputVertex iv1, InputVertex iv2) {
+    public Edge(BaseInputVertex iv1, BaseInputVertex iv2) {
         this.v1 = iv1.getV();
         this.v2 = iv2.getV();
     }
