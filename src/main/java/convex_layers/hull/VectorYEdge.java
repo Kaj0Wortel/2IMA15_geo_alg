@@ -26,38 +26,9 @@ public class VectorYEdge<IV extends BaseInputVertex> {
         return new Edge(iv1.getIv(), iv2.getIv());
     }
     
-    /**
-     * @param ori     The orientation of the edge relative to the originating hull.
-     * @param relEdge The edge relative to which the second node should be returned.
-     *
-     * @return The first node of the edge, relative to the given edge.
-     */
-    public VectorYNode<IV> getFirst(NearIntersection.Orientation ori, Edge relEdge) {
-        switch (ori) {
-            case LEFT:
-            case RIGHT:
-                if (iv1.getIv().getY() > iv2.getIv().getY()) return iv1;
-                else return iv2;
-            case BOTTOM:
-            case TOP:
-                double relDist1 = relEdge.relOriRounded(iv1.getVec()) * relEdge.distance(iv1.getVec());
-                double relDist2 = relEdge.relOriRounded(iv2.getVec()) * relEdge.distance(iv2.getVec());
-                if (relDist1 < relDist2) return iv1;
-                else return iv2;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-    
-    /**
-     * @param ori     The orientation of the edge relative to the originating hull.
-     * @param relEdge The edge relative to which the second node should be returned.
-     * 
-     * @return The second node of the edge, relative to the given edge.
-     */
-    public VectorYNode<IV> getSecond(NearIntersection.Orientation ori, Edge relEdge) {
-        if (getFirst(ori, relEdge) == iv1) return iv2;
-        else return iv1;
+    @Override
+    public String toString() {
+        return getClass().getCanonicalName() + "[" + iv1 + ", " + iv2 + "]";
     }
     
     

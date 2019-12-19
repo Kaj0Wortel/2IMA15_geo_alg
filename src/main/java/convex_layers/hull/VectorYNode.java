@@ -22,9 +22,9 @@ public class VectorYNode<IV extends BaseInputVertex>
      */
     /** The underlying input vertex. */
     private final IV iv;
-    
+    /** The convex hull this vector lies in. */
     private ConvexHull<IV> hull;
-    
+    /** Denotes whether the node lies in the left or the right hull. */
     private boolean isLeft;
 
 

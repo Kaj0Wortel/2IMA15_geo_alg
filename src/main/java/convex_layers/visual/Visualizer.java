@@ -296,6 +296,7 @@ public class Visualizer {
      * Redraws the image on the canvas.
      */
     public synchronized void redraw() {
+        //MultiTool.sleepThread(1000);
         Logger.write("Draw image " + (imgs.size() + 1));
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
             Runtime r = Runtime.getRuntime();

@@ -1,6 +1,7 @@
 package convex_layers.hull;
 
 import convex_layers.BaseInputVertex;
+import convex_layers.visual.Visualizer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tools.Var;
@@ -18,37 +19,22 @@ public class NearIntersection<IV extends BaseInputVertex> {
      * Variables.
      * ----------------------------------------------------------------------
      */
-    /** The upper left vertex of the near intersection. */
-    protected final VectorYNode<IV> v1;
-    /** The lower left vertex of the near intersection. */
-    protected final VectorYNode<IV> v2;
-    /** The upper right vertex of the near intersection. */
-    protected final VectorYNode<IV> v3;
-    /** The lower right vertex of the near intersection. */
-    protected final VectorYNode<IV> v4;
-    /** The orientation of the intersection.. */
-    protected final Orientation ori;
+    /** The first outer vertex of the intersection. */
+    protected final VectorYNode<IV> n1;
+    /** The first inner vertex of the intersection. */
+    protected final VectorYNode<IV> n2;
+    /** The second inner vertex of the intersection. */
+    protected final VectorYNode<IV> n3;
+    /** The second outer vertex of the intersection. */
+    protected final VectorYNode<IV> n4;
+    /** Whether the inner part is defined in clockwise order. */
+    protected final boolean clockwise;
+    /** The first point of the line on the inner hull. */
+    protected final VectorYNode<IV> innerVec1;
+    /** The second point of the line on the inner hull. */
+    protected final VectorYNode<IV> innerVec2;
     
-    
-    /* ----------------------------------------------------------------------
-     * Inner classes.
-     * ----------------------------------------------------------------------
-     */
-    /**
-     * Enum for the orientation of the intersection.
-     */
-    public enum Orientation {
-        /** Part to replace is on the left side.*/
-        LEFT,
-        /** Part to replace is on the right side. */
-        RIGHT,
-        /** Part to replace is on the top side. */
-        TOP,
-        /** Part to replace is on the bottom side. */
-        BOTTOM
-        
-        
-    }
+    protected final boolean hasLeft;
     
     
     /* ----------------------------------------------------------------------
@@ -58,11 +44,13 @@ public class NearIntersection<IV extends BaseInputVertex> {
     @Override
     public String toString() {
         return getClass().getCanonicalName() + "[" + Var.LS +
-                "    v1 : " + v1 + "," + Var.LS +
-                "    v2 : " + v2+ "," + Var.LS +
-                "    v3 : " + v3 + "," + Var.LS +
-                "    v4 : " + v4 + "," +  Var.LS +
-                "    ori: " + ori + Var.LS +
+                "    n1 : " + n1 + "," + Var.LS +
+                "    n2 : " + n2 + "," + Var.LS +
+                "    n3 : " + n3 + "," + Var.LS +
+                "    n4 : " + n4 + "," +  Var.LS +
+                "    clockwise: " + clockwise + Var.LS +
+                "    v1: " + innerVec1 + "," + Var.LS +
+                "    v2: " + innerVec2 + "," + Var.LS +
                 "]";
     }
 
@@ -71,101 +59,19 @@ public class NearIntersection<IV extends BaseInputVertex> {
      * 
      * @param hull The hull the vertices belong to.
      */
-    public void removeMiddleNodes(ConvexHull<IV> hull) {
-        Logger.write("ORI: " + ori);
-        VectorYNode<IV> node = getInnerNode1();
-        VectorYNode<IV> target = getInnerNode2();
-        if (ori == Orientation.LEFT || ori == Orientation.RIGHT) {
-            Logger.write("  " + node);
-            Logger.write("  " + target);
-            while (node != null && node != target) {
-                VectorYNode<IV> rem = node;
-                node = (ori == Orientation.LEFT
-                        ? hull.counterClockwise(node)
-                        : hull.clockwise(node)
-                );
-                hull.remove(rem);
-            }
-            if (node != target) {
-                Logger.write("Target was not reached in removal loop!", Logger.Type.WARNING);
-            }
-            hull.remove(target);
-            
-        } else {
-            Logger.write("NODE: " + node);
-            while (node != null && node != target) {
-                VectorYNode<IV> rem = node;
-                node = (ori == Orientation.TOP
-                        ? hull.clockwise(node)
-                        : hull.counterClockwise(node)
-                );
-                hull.remove(rem);
-            }
+    public void removeMiddleNodes(ConvexHull<IV> hull, Visualizer vis) {
+        VectorYNode<IV> node = n2;
+        while (node != null && node != n3) {
+            VectorYNode<IV> rem = node;
+            node = (clockwise
+                    ? hull.clockwise(node)
+                    : hull.counterClockwise(node)
+            );
+            hull.remove(rem);
+            vis.redraw();
         }
-    }
-
-    /**
-     * @return The first inner node.
-     */
-    public VectorYNode<IV> getInnerNode1() {
-        switch (ori) {
-            case LEFT:
-            case BOTTOM:
-            case RIGHT:
-                return v2;
-            case TOP:
-                return v1;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * @return The second inner node.
-     */
-    public VectorYNode<IV> getInnerNode2() {
-        switch (ori) {
-            case LEFT:
-            case BOTTOM:
-            case RIGHT:
-                return v4;
-            case TOP:
-                return v3;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * @return The first outer node.
-     */
-    public VectorYNode<IV> getOuterNode1() {
-        switch (ori) {
-            case LEFT:
-            case BOTTOM:
-            case RIGHT:
-                return v1;
-            case TOP:
-                return v2;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * @return The second outer node.
-     */
-    public VectorYNode<IV> getOuterNode2() {
-        switch (ori) {
-            case LEFT:
-            case BOTTOM:
-            case RIGHT:
-                return v3;
-            case TOP:
-                return v4;
-            default:
-                throw new IllegalStateException();
-        }
+        hull.remove(n3);
+        
     }
     
     

@@ -226,7 +226,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      *
      * @apiNote Runs in {@code O(log(n))}.
      * 
-     * @param e       The edge to get the intersection of.
+     * @param vye     The edge to get the intersection of.
      * @param hasLeft Whether the given edge has nodes of it's convex hull on the left of it.
      * 
      * @return A {@link NearIntersection} with the points.
@@ -235,10 +235,15 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @throws IllegalArgumentException If the line created from the given edge
      *     intersects the top/bottom of the hull.
      */
-    public NearIntersection<IV> getPointsNearLine(Edge e, boolean hasLeft) {
+    public NearIntersection<IV> getPointsNearLine(VectorYEdge<IV> vye, boolean hasLeft) {
         if (isEmpty()) throw new IllegalStateException("This function cannot be called on an empty hull.");
+        
         VectorYNode<IV> vyn1, vyn2, vyn3, vyn4;
-        NearIntersection.Orientation orientation;
+        Pair<VectorYNode<IV>, VectorYNode<IV>> pair1;
+        Pair<VectorYNode<IV>, VectorYNode<IV>> pair2;
+        Edge e = vye.toEdge();
+        boolean clockwise;
+        boolean flipped = false;
         
         // TODO: edge cases:
         //  - edge goes through vertex (done?).
@@ -266,28 +271,29 @@ public class ConvexHull<IV extends BaseInputVertex>
                 e = new Edge(e.v2(), e.v1());
                 hasLeft = !hasLeft;
                 Logger.write("FLIP");
+                flipped = true;
             }
+            pair1 = getNodeAboveBothSides(left, e);
+            pair2 = getNodeAboveBothSides(right, e);
+
             if (hasLeft) {
-                //orientation = NearIntersection.Orientation.BOTTOM;
-                orientation = NearIntersection.Orientation.RIGHT;
-                
+                vyn1 = pair1.getFirst();
+                vyn2 = pair1.getSecond();
+                vyn3 = pair2.getSecond();
+                vyn4 = pair2.getFirst();
+                clockwise = false; // TODO
             } else {
-                //orientation = NearIntersection.Orientation.TOP;
-                orientation = NearIntersection.Orientation.LEFT;
+                vyn1 = pair1.getSecond();
+                vyn2 = pair1.getFirst();
+                vyn3 = pair2.getFirst();
+                vyn4 = pair2.getSecond();
+                clockwise = true; // TODO
             }
-            Pair<VectorYNode<IV>, VectorYNode<IV>> pair = getNodeAboveBothSides(left, e);
-            vyn1 = pair.getFirst();
-            vyn2 = pair.getSecond();
-            pair = getNodeAboveBothSides(right, e);
-            vyn3 = pair.getFirst();
-            vyn4 = pair.getSecond();
             
         } else {
             // The edge goes twice though either the left side or the right side.
             // Therefore must the two points defining the edge lie on the same side
             // of the line.
-            Pair<VectorYNode<IV>, VectorYNode<IV>> pairUp;
-            Pair<VectorYNode<IV>, VectorYNode<IV>> pairDown;
             Edge bottomTopEdge = getBottomTopEdge();
             if (bottomTopEdge.relOri(e.v1()) < 0) {
                 Logger.write("LEFT");
@@ -297,23 +303,22 @@ public class ConvexHull<IV extends BaseInputVertex>
                     e = new Edge(e.v2(), e.v1());
                     hasLeft = !hasLeft;
                     Logger.write("FLIP");
-                }
-                if (!hasLeft) {
-                    orientation = NearIntersection.Orientation.LEFT;
-                    pairUp = getNodeAboveOneSide(left, e, true);
-                    vyn1 = pairUp.getFirst();
-                    vyn2 = pairUp.getSecond();
-                    pairDown = getNodeAboveOneSide(left, e, false);
-                    vyn3 = pairDown.getSecond();
-                    vyn4 = pairDown.getFirst();
+                } else flipped = true;
+                pair1 = getNodeAboveOneSide(left, e, true);  // Up
+                pair2 = getNodeAboveOneSide(left, e, false); // Down
+
+                if (hasLeft) {
+                    vyn1 = pair1.getSecond();
+                    vyn2 = pair1.getFirst();
+                    vyn3 = pair2.getSecond();
+                    vyn4 = pair2.getFirst();
+                    clockwise = true;
                 } else {
-                    orientation = NearIntersection.Orientation.RIGHT;
-                    pairUp = getNodeAboveOneSide(left, e, true);
-                    vyn1 = pairUp.getSecond();
-                    vyn2 = pairUp.getFirst();
-                    pairDown = getNodeAboveOneSide(left, e, false);
-                    vyn3 = pairDown.getFirst();
-                    vyn4 = pairDown.getSecond();
+                    vyn1 = pair1.getFirst();
+                    vyn2 = pair1.getSecond();
+                    vyn3 = pair2.getFirst();
+                    vyn4 = pair2.getSecond();
+                    clockwise = false;
                 }
 
             } else {
@@ -324,37 +329,46 @@ public class ConvexHull<IV extends BaseInputVertex>
                     e = new Edge(e.v2(), e.v1());
                     hasLeft = !hasLeft;
                     Logger.write("FLIP");
+                    flipped = true;
                 }
+                
+                pair1 = getNodeAboveOneSide(right, e, true);  // Up
+                pair2 = getNodeAboveOneSide(right, e, false); // Down
+                
                 if (hasLeft) {
-                    orientation = NearIntersection.Orientation.LEFT;
-                    pairUp = getNodeAboveOneSide(right, e, true);
-                    vyn1 = pairUp.getSecond();
-                    vyn2 = pairUp.getFirst();
-                    pairDown = getNodeAboveOneSide(right, e, false);
-                    vyn3 = pairDown.getFirst();
-                    vyn4 = pairDown.getSecond();
+                    vyn1 = pair1.getSecond();
+                    vyn2 = pair1.getFirst();
+                    vyn3 = pair2.getSecond();
+                    vyn4 = pair2.getFirst();
+                    clockwise = false;
                 } else {
-                    orientation = NearIntersection.Orientation.RIGHT;
-                    pairUp = getNodeAboveOneSide(right, e, true);
-                    vyn1 = pairUp.getSecond();
-                    vyn2 = pairUp.getFirst();
-                    pairDown = getNodeAboveOneSide(right, e, false);
-                    vyn3 = pairDown.getFirst();
-                    vyn4 = pairDown.getSecond();
+                    vyn1 = pair1.getFirst();
+                    vyn2 = pair1.getSecond();
+                    vyn3 = pair2.getFirst();
+                    vyn4 = pair2.getSecond();
+                    clockwise = true;
                 }
             }
         }
-        Logger.write("Edge: " + e);
-        Logger.write(hasLeft);
-        Logger.write(orientation);
+        
+        Logger.write("VYEdge   : " + vye);
+        Logger.write("hasLeft  : " + hasLeft);
+        Logger.write("clockwise: " + clockwise);
         Logger.write(new Object[] {
                 "  vyn1: " + vyn1,
                 "  vyn2: " + vyn2,
                 "  vyn3: " + vyn3,
                 "  vyn4: " + vyn4
         });
-        
-        return new NearIntersection<>(vyn1, vyn2, vyn3, vyn4, orientation);
+        VectorYNode<IV> v1, v2;
+        if (!flipped) {
+            v1 = vye.getIv1();
+            v2 = vye.getIv2();
+        } else {
+            v1 = vye.getIv2();
+            v2 = vye.getIv1();
+        }
+        return new NearIntersection<>(vyn1, vyn2, vyn3, vyn4, clockwise, v1, v2, hasLeft);
     }
     
     /**
@@ -362,7 +376,8 @@ public class ConvexHull<IV extends BaseInputVertex>
      * The following is here assumed:
      * <ul>
      *     <li>The line goes through both the left and the right side.</li>
-     *     <li>The line is directed towards the right.</li>
+     *     <li>The line is directed towards the right relative to the line through
+     *         the bottom and top point..</li>
      * </ul>
      *
      * @apiNote Runs in {@code O(log(n))}.
@@ -580,17 +595,29 @@ public class ConvexHull<IV extends BaseInputVertex>
         if (size() == 0) throwNotPartOfThisHullException(node);
         Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
-        if (ori < 0) return next(node);
-        else if (ori > 0) return prev(node);
-        else {
+        if (ori < 0) {
+            if (node.next() != null) return node.next();
+            else if (right.isEmpty()) return left.getMin();
+            else return right.getMax();
+            
+        } else if (ori > 0) {
+            if (node.prev() != null) return node.prev();
+            else if (left.isEmpty()) return right.getMax();
+            else return left.getMin();
+            
+        } else {
             VectorYNode<IV> rtn;
             if (node == top) {
-                if (top == right.getMax()) rtn = next(node);
-                else rtn = prev(node);
+                if (top == right.getMax()) {
+                    if (right.size() == 1) rtn = left.getMin();
+                    else rtn = node.prev();
+                } else rtn = right.getMax();
                 
             } else if (node == bottom) {
-                if (bottom == left.getMin()) rtn = next(node);
-                else rtn = prev(node);
+                if (bottom == left.getMin()) {
+                    if (left.size() == 1) rtn = right.getMax();
+                    else rtn = node.next();
+                } else rtn = left.getMin();
                 
             } else {
                 throwNotPartOfThisHullException(node);
@@ -598,6 +625,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             }
             
             if (rtn != null) return rtn;
+            // Handle cases where either of the two sides is empty.
             if (left.size() == 0 ^ right.size() == 0) {
                 if (node == top) return bottom;
                 else return top;
@@ -624,17 +652,29 @@ public class ConvexHull<IV extends BaseInputVertex>
         if (size() == 0) throwNotPartOfThisHullException(node);
         Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
-        if (ori < 0) return prev(node);
-        else if (ori > 0) return next(node);
-        else {
+        if (ori < 0) {
+            if (node.prev() != null) return node.prev();
+            else if (right.isEmpty()) return left.getMax();
+            else return right.getMin();
+            
+        } else if (ori > 0) {
+            if (node.next() != null) return node.next();
+            else if (left.isEmpty()) return right.getMin();
+            else return left.getMax();
+            
+        } else {
             VectorYNode<IV> rtn;
             if (node == top) {
-                if (top == left.getMax()) rtn = prev(node);
-                else rtn = next(node);
-
+                if (top == left.getMax()) {
+                    if (left.size() == 1) rtn = right.getMin();
+                    else rtn = node.prev();
+                } else rtn = left.getMax();
+                
             } else if (node == bottom) {
-                if (bottom == right.getMin()) rtn = prev(node);
-                else rtn = next(node);
+                if (bottom == right.getMin()) {
+                    if (right.size() == 1) rtn = left.getMax();
+                    else rtn = node.next();
+                } else rtn = right.getMin();
                 
             } else {
                 throwNotPartOfThisHullException(node);
@@ -642,6 +682,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             }
             
             if (rtn != null) return rtn;
+            // Handle cases where either of the two sides is empty.
             if (left.size() == 0 ^ right.size() == 0) {
                 if (node == top) return bottom;
                 else return top;
@@ -796,6 +837,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                     if (top.getVec().x() > getMinX().getX()) {
                         left.remove(top);
                         right.add(top);
+                        top.setLeft(false);
                     }
                 }
                 
@@ -804,6 +846,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                     if (top.getVec().x() < getMaxX().getX()) {
                         right.remove(top);
                         left.add(top);
+                        top.setLeft(true);
                     }
                 }
             }
@@ -813,27 +856,29 @@ public class ConvexHull<IV extends BaseInputVertex>
         } else if (vyn.getVec().y() < bottom.getVec().y()) {
             if (bottom == left.getMin()) {
                 if (vyn.getVec().x() < bottom.getVec().x()) {
-                    if (top.getVec().x() > getMinX().getX()) {
+                    if (bottom.getVec().x() > getMinX().getX()) {
                         left.remove(bottom);
                         right.add(bottom);
+                        bottom.setLeft(false);
                     }
                 }
                 
             } else {
-                if (vyn.getVec().x() < bottom.getVec().x()) {
-                    if (top.getVec().x() < getMinX().getX()) {
+                if (vyn.getVec().x() > bottom.getVec().x()) {
+                    if (bottom.getVec().x() < getMaxX().getX()) {
                         right.remove(bottom);
                         left.add(bottom);
+                        bottom.setLeft(true);
                     }
                 }
             }
             newVerticalBound = true;
             bottom = vyn;
         }
-
+        
         if (vyn.getVec().x() > maxX.getVec().x()) {
             maxX = vyn;
-
+            
         } else if (vyn.getVec().x() < minX.getVec().x()) {
             minX = vyn;
         }
@@ -1348,8 +1393,8 @@ public class ConvexHull<IV extends BaseInputVertex>
                 out.add(new OutputEdge(node.getIv(), iv));
                 break;
                 
-            } else if (oriTop > 0 && oriBot <= 0) node = node.left();
-            else if (oriTop <= 0 && oriBot > 0) node = node.right();
+            } else if (oriTop > 0 && oriBot <= 0) node = node.right();
+            else if (oriTop <= 0 && oriBot > 0) node = node.left();
             else throw new IllegalStateException();
         }
         
@@ -1378,7 +1423,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {/*
         Logger.setDefaultLogger(new StreamLogger(System.out));
         List<BaseInputVertex> left = new ArrayList<>();
         List<BaseInputVertex> right = new ArrayList<>();
@@ -1414,10 +1459,10 @@ public class ConvexHull<IV extends BaseInputVertex>
         NearIntersection<BaseInputVertex> ni = ch.getPointsNearLine(e, true);
         Logger.write(ni);
         vis.addEdge(List.of(
-                new Edge(ni.v1.getVec(), ni.v2.getVec()),
-                new Edge(ni.v2.getVec(), ni.v4.getVec()),
-                new Edge(ni.v4.getVec(), ni.v3.getVec()),
-                new Edge(ni.v3.getVec(), ni.v1.getVec())
+                new Edge(ni.n1.getVec(), ni.n2.getVec()),
+                new Edge(ni.n2.getVec(), ni.n4.getVec()),
+                new Edge(ni.n4.getVec(), ni.n3.getVec()),
+                new Edge(ni.n3.getVec(), ni.n1.getVec())
         ));
         vis.redraw();
         
@@ -1428,7 +1473,7 @@ public class ConvexHull<IV extends BaseInputVertex>
         Logger.write(ch.addAndUpdate(new BaseInputVertex(50, -21, 60)));
         vis.redraw();
         vis.addData(List.of(ch));
-        vis.redraw();
+        vis.redraw();*/
     }
     
     

@@ -122,19 +122,10 @@ public class ConvexLayersOptimized
                               VectorYNode<BaseInputVertex> begin,
                               boolean first, Visualizer vis) {
         if (innerHull.isEmpty()) return;
-        NearIntersection.Orientation ori = ni.getOri();
         VectorYNode<BaseInputVertex> cur = begin;
         VectorYNode<BaseInputVertex> prev = null;
-        boolean dir = (ori == NearIntersection.Orientation.BOTTOM || ori == NearIntersection.Orientation.LEFT);
-        boolean clockwise = (dir == first);
-        VectorYNode<BaseInputVertex> outerNode = (first
-                ? ni.getOuterNode1()
-                : ni.getOuterNode2()
-        );
-        VectorYNode<BaseInputVertex> innerNode = (first
-                ? ni.getInnerNode1()
-                : ni.getInnerNode2()
-        );
+        VectorYNode<BaseInputVertex> outerNode = (first ? ni.getN1() : ni.getN4());
+        VectorYNode<BaseInputVertex> innerNode = (first ? ni.getN2() : ni.getN3());
         
         Edge e;
         do {
@@ -142,23 +133,27 @@ public class ConvexLayersOptimized
                 sol.add(new OutputEdge(prev.getIv(), cur.getIv()));
                 vis.redraw();
             }
-            
+            vis.redraw();
             prev = cur;
-            cur = (clockwise
+            cur = (ni.isClockwise() != first
                     ? innerHull.clockwise(cur)
                     : innerHull.counterClockwise(cur)
             );
-            e = (clockwise
+            e = (ni.isClockwise() != first
                     ? new Edge(prev.getVec(), outerNode.getVec())
                     : new Edge(outerNode.getVec(), prev.getVec())
             );
             
+            Logger.write("prev: " + prev);
+            Logger.write("cur: " + cur);
             innerHull.remove(prev.getIv());
             vis.redraw();
             outerHull.add(prev.getIv());
             vis.redraw();
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
             vis.redraw();
+            Logger.write("edge: " + e);
+            Logger.write("ori: " + e.relOri(cur.getVec()));
             
         } while (prev != cur && e.relOri(cur.getVec()) <= 0 && !innerHull.isEmpty());
         sol.add(new OutputEdge(prev.getIv(), outerNode.getIv()));
@@ -173,17 +168,15 @@ public class ConvexLayersOptimized
      * 
      * @param innerHull The inner hull.
      * @param remaining The remaining nodes.
-     * @param ni        The intersection which was processed.
      */
     private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Collection<BaseInputVertex> remaining,
-                              NearIntersection<BaseInputVertex> ni,
                               Visualizer vis) {
         Collection<BaseInputVertex> toRemove = new HashSet<>();
-        for (BaseInputVertex in : remaining) {
-            toRemove.add(in);
-            List<BaseInputVertex> del = innerHull.addAndUpdate(in);
+        for (BaseInputVertex iv : remaining) {
+            toRemove.add(iv);
+            List<BaseInputVertex> del = innerHull.addAndUpdate(iv);
             toRemove.removeAll(del);
-            if (del.size() != 1 || del.get(0) != in) vis.redraw();
+            if (del.size() != 1 || del.get(0) != iv) vis.redraw();
         }
         remaining.removeAll(toRemove);
     }
@@ -227,57 +220,70 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             // TODO: fix this case!
-            int x;
-            int y;
-            if (i == 0) {
-                x = 0;
-                y = 1;
-
-            } else if (i == 1) {
-                x = 0;
-                y = 1;
-
-            } else if (i == 2) {
-                x = 3;
-                y = 2;
-
-            } else {
-                x = 0;
-                y = 1;
-            }
-            Logger.write(innerHull.size());
-            i++;
-            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+//            int x;
+//            int y;
+//            Logger.write(i);
+//            if (i == 0) {
+//                x = 2;
+//                y = 3;
+//                
+//            } else if (i == 1) {
+//                x = 0;
+//                y = 1;
+//                
+//            } else if (i == 2) {
+//                x = 3;
+//                y = 4;
+//                
+//            } else if (i == 3) {
+//                x = 2;
+//                y = 3;
+//                
+//            } else if (i == 4) {
+//                x = 2;
+//                y = 3;
+//
+//            } else if (i == 5) {
+//                x = 3;
+//                y = 4;
+//
+//            } else {
+//                return sol;
+//            }
+//            Logger.write(x + ", " + y);
+//            i++;
+//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+            
             Edge e = vye.toEdge();
             boolean hasLeft;
             {
                 double ori = 0;
                 // The remaining points always lie within the inner hull.
-                if (!search.isEmpty()) {
-                    ori = e.relOri(search.iterator().next().getV());
+                for (BaseInputVertex iv : remaining) {// TODO: replace remaining -> search
+                    ori = e.relOri(iv.getV());
+                    if (ori != 0) break;
                 }
                 // Iterate over the hull, and try to find an vertex which lies on either side.
                 if (ori == 0) {
                     for (BaseInputVertex iv : innerHull) {
                         ori = e.relOri(iv.getV());
-                        if (ori == 0) break;
+                        if (ori != 0) break;
                     }
                 }
                 hasLeft = (ori < 0);
             }
             Logger.write("Edge: " + e);
             Logger.write("hasLeft: " + hasLeft);
-            NearIntersection<BaseInputVertex> ni = outerHull.getPointsNearLine(e, hasLeft);
-            NearIntersection.Orientation ori = ni.getOri();
+            NearIntersection<BaseInputVertex> ni = outerHull.getPointsNearLine(vye, hasLeft);
             { // Add intersection to the visualizer and reset it afterwards.
                 List<BaseInputVertex> intersect = List.of(
-                        ni.getInnerNode1().getIv(),
-                        ni.getInnerNode2().getIv(),
-                        ni.getOuterNode2().getIv(),
-                        ni.getOuterNode1().getIv(),
-                        ni.getInnerNode1().getIv()
+                        ni.getN1().getIv(),
+                        ni.getN2().getIv(),
+                        ni.getN3().getIv(),
+                        ni.getN4().getIv(),
+                        ni.getN1().getIv()
                 );
                 vis.addData(List.of(intersect));
                 vis.addEdge(List.of(vye.toEdge()));
@@ -287,13 +293,12 @@ public class ConvexLayersOptimized
             
             // For the inner part, add the output edges, add the two vertices from the inner hull
             // to the outer hull, and remove all unneeded nodes from the outer hull.
-            Edge minMaxEdge = outerHull.getBottomTopEdge();
-            VectorYNode<BaseInputVertex> first = vye.getFirst(ori, minMaxEdge);
-            VectorYNode<BaseInputVertex> second = vye.getSecond(ori, minMaxEdge);
+            VectorYNode<BaseInputVertex> first = ni.getInnerVec1();
+            VectorYNode<BaseInputVertex> second = ni.getInnerVec2();
             sol.add(new OutputEdge(first.getIv(), second.getIv()));
             vis.redraw();
             
-            ni.removeMiddleNodes(outerHull);
+            ni.removeMiddleNodes(outerHull, vis);
             vis.redraw();
             
             // Fix the outer hull.
@@ -301,8 +306,8 @@ public class ConvexLayersOptimized
             fixOuterHull(innerHull, outerHull, sol, ni, second, false, vis);
             
             // Fix the inner hull.
-            if (!innerHull.isEmpty()) {
-                fixInnerHull(innerHull, remaining, ni, vis); // TODO
+            if (!remaining.isEmpty()) {
+                fixInnerHull(innerHull, remaining, vis); // TODO
             }
             // Reset visualizer.
             vis.redraw();
@@ -329,8 +334,10 @@ public class ConvexLayersOptimized
 
         String folder = "challenge_1";
         String type = "uniform";
-        String name = "uniform-0000015-1";
+        //String name = "uniform-0000015-1";
+        String name = "uniform-0000040-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
+        
         File inFile = new File(path + ".instance.json");
         //File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
