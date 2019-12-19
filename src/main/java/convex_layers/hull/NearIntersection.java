@@ -72,14 +72,18 @@ public class NearIntersection<IV extends BaseInputVertex> {
      * @param hull The hull the vertices belong to.
      */
     public void removeMiddleNodes(ConvexHull<IV> hull) {
-//        Logger.write("ORI: " + ori);
+        Logger.write("ORI: " + ori);
         VectorYNode<IV> node = getInnerNode1();
         VectorYNode<IV> target = getInnerNode2();
         if (ori == Orientation.LEFT || ori == Orientation.RIGHT) {
-
+            Logger.write("  " + node);
+            Logger.write("  " + target);
             while (node != null && node != target) {
                 VectorYNode<IV> rem = node;
-                node = node.prev();
+                node = (ori == Orientation.LEFT
+                        ? hull.counterClockwise(node)
+                        : hull.clockwise(node)
+                );
                 hull.remove(rem);
             }
             if (node != target) {
@@ -88,22 +92,14 @@ public class NearIntersection<IV extends BaseInputVertex> {
             hull.remove(target);
             
         } else {
-            boolean top = (ori == Orientation.TOP);
+            Logger.write("NODE: " + node);
             while (node != null && node != target) {
                 VectorYNode<IV> rem = node;
-                if (top) node = node.next();
-                else node = node.prev();
+                node = (ori == Orientation.TOP
+                        ? hull.clockwise(node)
+                        : hull.counterClockwise(node)
+                );
                 hull.remove(rem);
-            }
-            if (node == target) {
-                hull.remove(node);
-            } else {
-                while (target != null) {
-                    VectorYNode<IV> rem = target;
-                    if (top) target = target.next();
-                    else target = target.prev();
-                    hull.remove(rem);
-                }
             }
         }
     }

@@ -27,6 +27,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ConvexLayersOptimized
             implements Solver {
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    /** Folder storing the user generated data. */
+    public static final String GEN_DATA = System.getProperty("user.dir") + Var.FS + "gen_data" + Var.FS;
+    
     
     /* ----------------------------------------------------------------------
      * Variables.
@@ -71,8 +78,8 @@ public class ConvexLayersOptimized
         vis.clear();
         vis.setData(List.of(p.getVertices()));
         vis.setEdges(List.of(Visualizer.toEdge(sol)));
-        //vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
-        vis.addData(List.of(out, in));
+        vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
+        //vis.addData(List.of(out, in));
     }
     
 
@@ -219,27 +226,28 @@ public class ConvexLayersOptimized
                 break;
             }
             
-            // Compute intersection with outer hull.
-            //VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            // Select random edge and compute intersection with outer hull.
+//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             // TODO: fix this case!
             int x;
             int y;
             if (i == 0) {
-                x = 4;
-                y = 0;
-                
+                x = 0;
+                y = 1;
+
             } else if (i == 1) {
                 x = 0;
                 y = 1;
-                 
+
             } else if (i == 2) {
-                x = 1;
+                x = 3;
                 y = 2;
-                
+
             } else {
                 x = 0;
                 y = 1;
             }
+            Logger.write(innerHull.size());
             i++;
             VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             Edge e = vye.toEdge();
@@ -259,10 +267,11 @@ public class ConvexLayersOptimized
                 }
                 hasLeft = (ori < 0);
             }
-            
+            Logger.write("Edge: " + e);
+            Logger.write("hasLeft: " + hasLeft);
             NearIntersection<BaseInputVertex> ni = outerHull.getPointsNearLine(e, hasLeft);
             NearIntersection.Orientation ori = ni.getOri();
-            {
+            { // Add intersection to the visualizer and reset it afterwards.
                 List<BaseInputVertex> intersect = List.of(
                         ni.getInnerNode1().getIv(),
                         ni.getInnerNode2().getIv(),
@@ -296,6 +305,7 @@ public class ConvexLayersOptimized
                 fixInnerHull(innerHull, remaining, ni, vis); // TODO
             }
             // Reset visualizer.
+            vis.redraw();
             resetVis(vis, p, innerHull, outerHull, sol);
         }
         // END ALGORITHM LOGIC
@@ -306,6 +316,7 @@ public class ConvexLayersOptimized
         vis.redraw();
         return sol;
     }
+    
     
     /**
      * The main function used to initialize the program.
@@ -319,16 +330,19 @@ public class ConvexLayersOptimized
         String folder = "challenge_1";
         String type = "uniform";
         String name = "uniform-0000015-1";
-        String path = "data/" + folder + Var.FS + type + Var.FS + name;
+        String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         File inFile = new File(path + ".instance.json");
+        //File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Problem2 problem = ProblemIO.readProblem(inFile);
         Visualizer vis = new Visualizer();
+        Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
         
+        // TODO: insert checker.
+        
         Collection<OutputEdge> sol = solver.solve(problem, vis);
-        //ProblemIO.saveSolution(outFile, sol, problem);
+        //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }
     
     
