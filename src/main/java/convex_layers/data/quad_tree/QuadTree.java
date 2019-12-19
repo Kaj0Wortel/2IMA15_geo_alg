@@ -19,7 +19,10 @@ public class QuadTree<T extends Node2D<T>>
      * ----------------------------------------------------------------------
      */
     private int size;
-    
+
+    //The quads defined by the current quad
+    private QuadNode<T> root;
+
     
     /* ----------------------------------------------------------------------
      * Inner classes.
@@ -56,6 +59,8 @@ public class QuadTree<T extends Node2D<T>>
     public void init(Collection<T> col) {
         clear();
         size = col.size();
+
+
         throw new UnsupportedOperationException(); // TODO
     }
     
