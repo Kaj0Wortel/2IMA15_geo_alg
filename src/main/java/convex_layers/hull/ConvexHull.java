@@ -3,8 +3,6 @@ package convex_layers.hull;
 import convex_layers.OutputEdge;
 import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
-import convex_layers.math.Vector;
-import convex_layers.visual.Visualizer;
 import tools.Pair;
 import tools.Var;
 import tools.data.collection.rb_tree.LinkedRBTree;
@@ -12,7 +10,6 @@ import tools.iterators.FunctionIterator;
 import tools.iterators.InverseListIterator;
 import tools.iterators.MultiIterator;
 import tools.log.Logger;
-import tools.log.StreamLogger;
 
 import java.util.*;
 
@@ -332,11 +329,8 @@ public class ConvexHull<IV extends BaseInputVertex>
                     flipped = true;
                 }
                 
-                Logger.write("(1)");
                 pair1 = getNodeAboveOneSide(right, e, true);  // Up
-                Logger.write("(2)");
                 pair2 = getNodeAboveOneSide(right, e, false); // Down
-                Logger.write("(3)");
                 
                 if (hasLeft) {
                     vyn1 = pair1.getSecond();
@@ -443,16 +437,16 @@ public class ConvexHull<IV extends BaseInputVertex>
                 if (node.getVec().y() < target) {
                     if (node.hasRight()) node = node.right();
                     else return new Pair<>(next(node), node);
+                    continue;
                 }
             } else {
                 if (node.getVec().y() > target) {
                     if (node.hasLeft()) node = node.left();
                     else return new Pair<>(node, prev(node));
+                    continue;
                 }
             }
             
-            Logger.write("HERE");
-            Logger.write("node: " + node + ", prev: " + prev(node) );
             double ori = e.relOri(node.getVec());
             if ((up && ori < 0) || (!up && ori > 0)) {
                 VectorYNode<IV> next = next(node);
