@@ -131,9 +131,7 @@ public class ConvexLayersOptimized
         do {
             if (prev != null) {
                 sol.add(new OutputEdge(prev.getIv(), cur.getIv()));
-                vis.redraw();
             }
-            vis.redraw();
             prev = cur;
             cur = (ni.isClockwise() != first
                     ? innerHull.clockwise(cur)
@@ -145,9 +143,7 @@ public class ConvexLayersOptimized
             );
             
             innerHull.remove(prev.getIv());
-            vis.redraw();
             outerHull.add(prev.getIv());
-            vis.redraw();
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
             vis.redraw();
             
@@ -206,7 +202,7 @@ public class ConvexLayersOptimized
         vis.redraw();
         
         // BEGIN ALGORITHM LOGIC
-        int i = 0; // TODO: remove.
+//        int i = 0; // TODO: remove.
         while (!innerHull.isEmpty()) {
             if (innerHull.size() == 1) {
                 BaseInputVertex iv = innerHull.get(0);
@@ -217,7 +213,6 @@ public class ConvexLayersOptimized
             
             // Select random edge and compute intersection with outer hull.
             VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
-            // TODO: fix this case!
 //            int x;
 //            int y;
 //            Logger.write(i);
@@ -328,7 +323,8 @@ public class ConvexLayersOptimized
         String folder = "challenge_1";
         String type = "uniform";
         //String name = "uniform-0000015-1";
-        String name = "uniform-0000040-1";
+        //String name = "uniform-0000040-1";
+        String name = "uniform-0000070-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");

@@ -57,6 +57,7 @@ public class Visualizer {
     private static final Stroke GRID_STROKE = new BasicStroke(3);
     private static final double EMPTY_RATIO = 0.05;
     private static final Font DEFAULT_FONT = FontLoader.getFont("Cousine-Bold.ttf", 25);
+    
     // Function key constants.
     private static final Key NEXT_KEY = Key.RIGHT;
     private static final Key FAST_NEXT_KEY = Key.RIGHT.setMask(Key.CTRL_MASK);
@@ -65,6 +66,7 @@ public class Visualizer {
     private static final Key FIRST_KEY = Key.HOME;
     private static final Key LAST_KEY = Key.END;
     private static final Key SAVE_KEY = Key.S.setMask(Key.CTRL_MASK);
+    private static final Key DEL_KEY = Key.D.setMask(Key.CTRL_MASK);
     
     /** The default directory for saving images.. */
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "user_runs" + Var.FS);
@@ -78,8 +80,11 @@ public class Visualizer {
      * ----------------------------------------------------------------------
      */
     // Swing GUI variables.
+    /** The frame used for the visualizer. */
     private final JFrame frame;
+    /** The canvas being drawn on. */
     private final Canvas canvas;
+    /** The label showing the image count. */
     private final JLabel label;
     
     // Concurrent variables.
@@ -144,6 +149,8 @@ public class Visualizer {
                     setImg(Integer.MAX_VALUE);
                 } else if (SAVE_KEY.equals(eKey)) {
                     new Thread(() -> save(), "save-thread").start();
+                } else if (DEL_KEY.equals(eKey)) {
+                    deleteAll();
                 }
             }
         };
@@ -157,12 +164,26 @@ public class Visualizer {
         });
     }
     
+    /**
+     * Creates a new visualizer from the given point and edge sets.
+     * 
+     * @param points The initial point set.
+     * @param edges  The initial edge set.
+     */
     public Visualizer(List<Iterable<Vector>> points, List<Iterable<Edge>> edges) {
         this();
         this.points = points;
         this.edges = edges;
     }
     
+    /**
+     * Creates a new visualizer from the given data.
+     * 
+     * @param points      The initial point set.
+     * @param pointColors The colors of the points.
+     * @param edges       The initial edge set.
+     * @param edgeColors  The colors of the edges.
+     */
     public Visualizer(List<Iterable<Vector>> points, List<Paint> pointColors,
                       List<Iterable<Edge>> edges, List<Paint> edgeColors) {
         this(points, edges);
@@ -195,6 +216,20 @@ public class Visualizer {
             lock.unlock();
         }
         SwingUtilities.invokeLater(() -> canvas.repaint());
+    }
+
+    /**
+     * Deletes all generated images.
+     */
+    private void deleteAll() {
+        lock.lock();
+        try {
+            imgs.clear();
+            imgsIndex = -1;
+            
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -296,7 +331,6 @@ public class Visualizer {
      * Redraws the image on the canvas.
      */
     public synchronized void redraw() {
-        //MultiTool.sleepThread(1000);
         Logger.write("Draw image " + (imgs.size() + 1));
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
             Runtime r = Runtime.getRuntime();
