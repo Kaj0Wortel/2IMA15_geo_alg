@@ -268,7 +268,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             
             if (bt.relOriRounded(e.v1()) * bt.distance(e.v1()) > bt.relOriRounded(e.v2()) * bt.distance(e.v2())) {
                 // When both points of line lie:
-                // - in separate sides, ensure v1 is in the left part (line points to the 'left')
+                // - in separate sides, ensure v1 is in the left part (line points to the 'right')
                 // - in the 'left' side, ensure the line points towards the middle line (line points to the 'right')
                 // - in the 'right' side, ensure the line points away from the middle line (line points to the 'right')
                 e = new Edge(e.v2(), e.v1());
