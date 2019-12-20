@@ -257,27 +257,14 @@ public class ConvexLayersOptimized
 //            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
             Edge e = vye.toEdge();
-            boolean hasLeft;
-            {
-                double ori = 0;
-                // The remaining points always lie within the inner hull.
-                for (BaseInputVertex iv : remaining) {// TODO: replace remaining -> search
-                    ori = e.relOri(iv.getV());
-                    if (ori != 0) break;
-                }
-                // Iterate over the hull, and try to find an vertex which lies on either side.
-                if (ori == 0) {
-                    for (BaseInputVertex iv : innerHull) {
-                        ori = e.relOri(iv.getV());
-                        if (ori != 0) break;
-                    }
-                }
-                hasLeft = (ori < 0);
+            NearIntersection<BaseInputVertex> ni;
+            { // Find the intersections with the outer hull
+                boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
+                Logger.write("Edge: " + e);
+                Logger.write("hull is on the left side: " + hullOnLeftSide);
+                ni = outerHull.getPointsNearLine(vye, hullOnLeftSide);
             }
-            Logger.write("Edge: " + e);
-            Logger.write("hasLeft: " + hasLeft);
-            NearIntersection<BaseInputVertex> ni = outerHull.getPointsNearLine(vye, hasLeft);
-            { // Add intersection to the visualizer and reset it afterwards.
+            { // Add intersections to the visualizer and reset it afterwards.
                 List<BaseInputVertex> intersect = List.of(
                         ni.getN1().getIv(),
                         ni.getN2().getIv(),

@@ -21,7 +21,7 @@ public class BaseInputVertex
      */
     /** The ID of the vertex. */
     private final long id;
-    /** The x-coordinate of the vertex. */
+    /** The vertex. */
     private final Vector v;
     
     

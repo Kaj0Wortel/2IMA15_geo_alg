@@ -34,7 +34,7 @@ public class NearIntersection<IV extends BaseInputVertex> {
     /** The second point of the line on the inner hull. */
     protected final VectorYNode<IV> innerVec2;
     
-    protected final boolean hasLeft;
+    protected final boolean hullOnLeftSide;
     
     
     /* ----------------------------------------------------------------------
