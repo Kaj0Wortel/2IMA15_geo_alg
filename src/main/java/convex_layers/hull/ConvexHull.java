@@ -224,7 +224,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param vye     The edge to get the intersection of.
-     * @param hasLeft Whether the given edge has nodes of it's convex hull on the left of it.
+     * @param hullOnLeftSide Whether the given edge has nodes of it's convex hull on the left of it.
      * 
      * @return A {@link NearIntersection} with the points.
      * 
@@ -232,7 +232,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @throws IllegalArgumentException If the line created from the given edge
      *     intersects the top/bottom of the hull.
      */
-    public NearIntersection<IV> getPointsNearLine(VectorYEdge<IV> vye, boolean hasLeft) {
+    public NearIntersection<IV> getPointsNearLine(VectorYEdge<IV> vye, boolean hullOnLeftSide) {
         if (isEmpty()) throw new IllegalStateException("This function cannot be called on an empty hull.");
         
         VectorYNode<IV> vyn1, vyn2, vyn3, vyn4;
@@ -247,12 +247,14 @@ public class ConvexHull<IV extends BaseInputVertex>
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
         if (relOriTop == 0) {
+            // Top vertex lies on the line
             // Note: should not occur since no 3 points on one line.
             // TODO: edge case: edge goes through top.
             Logger.write("through top", Logger.Type.ERROR);
             throw new IllegalArgumentException();
             
         } else if (relOriBot == 0) {
+            // Bottom vertex lies on the line
             // Note: should not occur since no 3 points on one line.
             // TODO: edge case: edge goes through bottom.
             Logger.write("through bottom", Logger.Type.ERROR);
@@ -260,20 +262,24 @@ public class ConvexHull<IV extends BaseInputVertex>
             
         } else if (relOriTop * relOriBot < 0) {
             Logger.write("BOTH");
-            // Line goes through both the left and right side.
+            // Line goes through both the left and right side of the hull.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
             Edge bt = getBottomTopEdge();
             
             if (bt.relOriRounded(e.v1()) * bt.distance(e.v1()) > bt.relOriRounded(e.v2()) * bt.distance(e.v2())) {
+                // When both points of line lie:
+                // - in separate sides, ensure v1 is in the left part (line points to the 'right')
+                // - in the 'left' side, ensure the line points towards the middle line (line points to the 'right')
+                // - in the 'right' side, ensure the line points away from the middle line (line points to the 'right')
                 e = new Edge(e.v2(), e.v1());
-                hasLeft = !hasLeft;
+                hullOnLeftSide = !hullOnLeftSide;
                 Logger.write("FLIP");
                 flipped = true;
             }
             pair1 = getNodeAboveBothSides(left, e);
             pair2 = getNodeAboveBothSides(right, e);
 
-            if (hasLeft) {
+            if (hullOnLeftSide) {
                 vyn1 = pair1.getFirst();
                 vyn2 = pair1.getSecond();
                 vyn3 = pair2.getSecond();
@@ -298,13 +304,13 @@ public class ConvexHull<IV extends BaseInputVertex>
                 // Set direction of e to upwards, if needed.
                 if (e.y1() > e.y2()) {
                     e = new Edge(e.v2(), e.v1());
-                    hasLeft = !hasLeft;
+                    hullOnLeftSide = !hullOnLeftSide;
                     Logger.write("FLIP");
                 } else flipped = true;
                 pair1 = getNodeAboveOneSide(left, e, true);  // Up
                 pair2 = getNodeAboveOneSide(left, e, false); // Down
 
-                if (hasLeft) {
+                if (hullOnLeftSide) {
                     vyn1 = pair1.getSecond();
                     vyn2 = pair1.getFirst();
                     vyn3 = pair2.getSecond();
@@ -324,7 +330,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                 // Set direction of e to downwards, if needed.
                 if (e.y1() < e.y2()) {
                     e = new Edge(e.v2(), e.v1());
-                    hasLeft = !hasLeft;
+                    hullOnLeftSide = !hullOnLeftSide;
                     Logger.write("FLIP");
                     flipped = true;
                 }
@@ -332,7 +338,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                 pair1 = getNodeAboveOneSide(right, e, true);  // Up
                 pair2 = getNodeAboveOneSide(right, e, false); // Down
                 
-                if (hasLeft) {
+                if (hullOnLeftSide) {
                     vyn1 = pair1.getSecond();
                     vyn2 = pair1.getFirst();
                     vyn3 = pair2.getSecond();
@@ -349,7 +355,7 @@ public class ConvexHull<IV extends BaseInputVertex>
         }
         
         Logger.write("VYEdge   : " + vye);
-        Logger.write("hasLeft  : " + hasLeft);
+        Logger.write("hasLeft  : " + hullOnLeftSide);
         Logger.write("clockwise: " + clockwise);
         Logger.write(new Object[] {
                 "  vyn1: " + vyn1,
@@ -365,7 +371,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             v1 = vye.getIv2();
             v2 = vye.getIv1();
         }
-        return new NearIntersection<>(vyn1, vyn2, vyn3, vyn4, clockwise, v1, v2, hasLeft);
+        return new NearIntersection<>(vyn1, vyn2, vyn3, vyn4, clockwise, v1, v2, hullOnLeftSide);
     }
     
     /**
