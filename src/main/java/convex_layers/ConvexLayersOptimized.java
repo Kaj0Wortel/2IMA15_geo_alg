@@ -144,16 +144,12 @@ public class ConvexLayersOptimized
                     : new Edge(outerNode.getVec(), prev.getVec())
             );
             
-            Logger.write("prev: " + prev);
-            Logger.write("cur: " + cur);
             innerHull.remove(prev.getIv());
             vis.redraw();
             outerHull.add(prev.getIv());
             vis.redraw();
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
             vis.redraw();
-            Logger.write("edge: " + e);
-            Logger.write("ori: " + e.relOri(cur.getVec()));
             
         } while (prev != cur && e.relOri(cur.getVec()) <= 0 && !innerHull.isEmpty());
         sol.add(new OutputEdge(prev.getIv(), outerNode.getIv()));
@@ -220,60 +216,58 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             // TODO: fix this case!
-            int x;
-            int y;
-            Logger.write(i);
-            if (i == 0) {
-                x = 5;
-                y = 6;
-
-            } else if (i == 1) {
-                x = 7;
-                y = 8;
-
-            } else if (i == 2) {
-                x = 0;
-                y = 1;
-
-            } else if (i == 3) {
-                x = 4;
-                y = 5;
-
-            } else if (i == 4) {
-                x = 6;
-                y = 7;
-
-            } else if (i == 5) {
-                x = 5;
-                y = 6;
-
-            } else if (i == 6) {
-                x = 2;
-                y = 3;
-
-            } else if (i == 7) {
-                x = 3;
-                y = 4;
-
-            } else if (i == 8) {
-                x = 5;
-                y = 0;
-
-            } else {
-                return sol;
-            }
-            Logger.write(x + ", " + y);
-            i++;
-            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+//            int x;
+//            int y;
+//            Logger.write(i);
+//            if (i == 0) {
+//                x = 5;
+//                y = 6;
+//
+//            } else if (i == 1) {
+//                x = 7;
+//                y = 8;
+//
+//            } else if (i == 2) {
+//                x = 0;
+//                y = 1;
+//
+//            } else if (i == 3) {
+//                x = 4;
+//                y = 5;
+//
+//            } else if (i == 4) {
+//                x = 6;
+//                y = 7;
+//
+//            } else if (i == 5) {
+//                x = 5;
+//                y = 6;
+//
+//            } else if (i == 6) {
+//                x = 2;
+//                y = 3;
+//
+//            } else if (i == 7) {
+//                x = 3;
+//                y = 4;
+//
+//            } else if (i == 8) {
+//                x = 5;
+//                y = 0;
+//
+//            } else {
+//                return sol;
+//            }
+//            Logger.write(x + ", " + y);
+//            i++;
+//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
             Edge e = vye.toEdge();
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
-                Logger.write("Edge: " + e);
-                Logger.write("hull is on the left side: " + hullOnLeftSide);
                 ni = outerHull.getPointsNearLine(vye, hullOnLeftSide);
             }
             { // Add intersections to the visualizer and reset it afterwards.
