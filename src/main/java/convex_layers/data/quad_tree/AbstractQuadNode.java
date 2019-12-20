@@ -15,16 +15,27 @@ abstract class AbstractQuadNode<T extends Node2D<T>> {
     protected double maxY = Double.NEGATIVE_INFINITY;
     protected double minX = Double.POSITIVE_INFINITY;
     protected double minY = Double.POSITIVE_INFINITY;
-    protected Set<T> points = new HashSet<T>();
+    protected AbstractQuadNode<T> parent;
+    protected Set<T> points = new HashSet<>();
+    protected int depth;
 
-    AbstractQuadNode(double maxX, double maxY, double minX, double minY){
+    AbstractQuadNode(double maxX, double maxY, double minX, double minY, int depth){
         this.maxX = maxX;
         this.maxY = maxY;
         this.minX = minX;
         this.minY = minY;
+        this.depth = depth;
     }
 
     Set<T> getPoints(){
         return points;
+    }
+
+    AbstractQuadNode<T> getParent(){
+        return parent;
+    }
+
+    int getDepth(){
+        return depth;
     }
 }

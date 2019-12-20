@@ -16,8 +16,8 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
 
 
 
-    QuadNode(double maxX, double maxY, double minX, double minY, Collection<T> col) {
-        super(maxX, maxY, minX, minY);
+    QuadNode(double maxX, double maxY, double minX, double minY, int depth, AbstractQuadNode<T> parent,Collection<T> col) {
+        super(maxX, maxY, minX, minY, depth);
         if(col instanceof HashSet){
             points = ((Set<T>) col);
         } else {
@@ -25,11 +25,15 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
                 points.add(p);
             }
         }
+        this.parent = parent;
+
+        System.out.println("Some node: " + points.toString());
+        System.out.println(depth);
         buildTree(col);
     }
 
 
-    QuadNode(Collection<T> col){
+    QuadNode(int depth,AbstractQuadNode<T> parent, Collection<T> col){
         super();
         for(T p : col){
             if(p.getX()>this.maxX){
@@ -46,6 +50,9 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
             }
             points.add(p);
         }
+        this.depth = depth;
+        System.out.println("Some node: " + points.toString());
+        System.out.println(depth);
         buildTree(col);
     }
 
@@ -72,33 +79,34 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
             }
         }
 
+
         //construct leaves of this QuadNode
         if(northEast.size() > 1){
-            NE = new QuadNode<T>(northEast);
+            NE = new QuadNode<T>(maxX, maxY, minX/2, minY/2, depth+1,this, northEast);
         } else {
-            NE = new QuadLeaf<T>(northEast);
+            NE = new QuadLeaf<T>(depth+1,this, northEast);
         }
 
         if(northWest.size() > 1){
-            NW = new QuadNode<T>(northWest);
+            NW = new QuadNode<T>(maxX/2, maxY, minX, minY/2, depth+1,this,northWest);
         } else {
-            NW = new QuadLeaf<T>(northWest);
+            NW = new QuadLeaf<T>(depth+1,this,northWest);
         }
 
         if(southEast.size() > 1){
-            SE = new QuadNode<T>(southEast);
+            SE = new QuadNode<T>(maxX, maxY/2, minX/2, minY, depth+1,this,southEast);
         } else {
-            SE = new QuadLeaf<T>(southEast);
+            SE = new QuadLeaf<T>(depth+1,this,southEast);
         }
 
         if(southWest.size() > 1){
-            SW = new QuadNode<T>(southWest);
+            SW = new QuadNode<T>(maxX/2, maxY/2, minX, minY, depth+1,this,southWest);
         } else {
-            SW = new QuadLeaf<T>(southWest);
+            SW = new QuadLeaf<T>(depth+1,this,southWest);
         }
     }
 
-    public Collection<T> GetPoints(){
+    public Set<T> GetPoints(){
         return points;
     }
 }
