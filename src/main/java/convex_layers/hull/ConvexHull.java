@@ -332,8 +332,11 @@ public class ConvexHull<IV extends BaseInputVertex>
                     flipped = true;
                 }
                 
+                Logger.write("(1)");
                 pair1 = getNodeAboveOneSide(right, e, true);  // Up
+                Logger.write("(2)");
                 pair2 = getNodeAboveOneSide(right, e, false); // Down
+                Logger.write("(3)");
                 
                 if (hasLeft) {
                     vyn1 = pair1.getSecond();
@@ -448,6 +451,8 @@ public class ConvexHull<IV extends BaseInputVertex>
                 }
             }
             
+            Logger.write("HERE");
+            Logger.write("node: " + node + ", prev: " + prev(node) );
             double ori = e.relOri(node.getVec());
             if ((up && ori < 0) || (!up && ori > 0)) {
                 VectorYNode<IV> next = next(node);
@@ -593,6 +598,18 @@ public class ConvexHull<IV extends BaseInputVertex>
      */
     public VectorYNode<IV> clockwise(VectorYNode<IV> node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
+        
+        if (node.isLeft()) {
+            if (node.next() != null) return node.next();
+            else if (right.isEmpty()) return left.getMin();
+            else return right.getMax();
+            
+        } else {
+            if (node.prev() != null) return node.prev();
+            else if (left.isEmpty()) return right.getMax();
+            else return left.getMin();
+        }
+        /*
         Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
         if (ori < 0) {
@@ -634,7 +651,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                 throwNotPartOfThisHullException(node);
                 return null;
             }
-        }
+        }*/
     }
     
     /**
@@ -650,6 +667,20 @@ public class ConvexHull<IV extends BaseInputVertex>
      */
     public VectorYNode<IV> counterClockwise(VectorYNode<IV> node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
+        
+        if (node.isLeft()) {
+            if (node.prev() != null) return node.prev();
+            else if (right.isEmpty()) return left.getMax();
+            else return right.getMin();
+            
+        } else {
+            if (node.next() != null) return node.next();
+            else if (left.isEmpty()) return right.getMin();
+            else return left.getMax();
+        }
+        
+        
+        /*
         Edge e = getBottomTopEdge();
         double ori = e.relOri(node.getVec());
         if (ori < 0) {
@@ -691,7 +722,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                 throwNotPartOfThisHullException(node);
                 return null;
             }
-        }
+        }*/
     }
     
     /**
@@ -833,21 +864,19 @@ public class ConvexHull<IV extends BaseInputVertex>
         boolean newVerticalBound = false;
         if (vyn.getVec().y() > top.getVec().y()) {
             if (top == left.getMax()) {
-                if (vyn.getVec().x() < top.getVec().x()) {
-                    if (top.getVec().x() > getMinX().getX()) {
-                        left.remove(top);
-                        right.add(top);
-                        top.setLeft(false);
-                    }
+                Edge e = new Edge(bottom.getVec(), vyn.getVec());
+                if (e.relOri(top.getVec()) > 0) {
+                    left.remove(top);
+                    right.add(top);
+                    top.setLeft(false);
                 }
                 
             } else {
-                if (vyn.getVec().x() > top.getVec().x()) {
-                    if (top.getVec().x() < getMaxX().getX()) {
-                        right.remove(top);
-                        left.add(top);
-                        top.setLeft(true);
-                    }
+                Edge e = new Edge(bottom.getVec(), vyn.getVec());
+                if (e.relOri(top.getVec()) < 0) {
+                    right.remove(top);
+                    left.add(top);
+                    top.setLeft(true);
                 }
             }
             newVerticalBound = true;
@@ -855,21 +884,19 @@ public class ConvexHull<IV extends BaseInputVertex>
             
         } else if (vyn.getVec().y() < bottom.getVec().y()) {
             if (bottom == left.getMin()) {
-                if (vyn.getVec().x() < bottom.getVec().x()) {
-                    if (bottom.getVec().x() > getMinX().getX()) {
-                        left.remove(bottom);
-                        right.add(bottom);
-                        bottom.setLeft(false);
-                    }
+                Edge e = new Edge(vyn.getVec(), top.getVec());
+                if (e.relOri(bottom.getVec()) > 0) {
+                    left.remove(bottom);
+                    right.add(bottom);
+                    bottom.setLeft(false);
                 }
                 
             } else {
-                if (vyn.getVec().x() > bottom.getVec().x()) {
-                    if (bottom.getVec().x() < getMaxX().getX()) {
-                        right.remove(bottom);
-                        left.add(bottom);
-                        bottom.setLeft(true);
-                    }
+                Edge e = new Edge(vyn.getVec(), top.getVec());
+                if (e.relOri(bottom.getVec()) < 0) {
+                    right.remove(bottom);
+                    left.add(bottom);
+                    bottom.setLeft(true);
                 }
             }
             newVerticalBound = true;
@@ -1073,16 +1100,72 @@ public class ConvexHull<IV extends BaseInputVertex>
      */
     public boolean remove(VectorYNode<IV> vyn) {
         if (isEmpty()) return false;
-        Edge e = getBottomTopEdge();
-        double ori = e.relOri(vyn.getVec());
+        if (vyn.getHull() != this) throw new IllegalStateException();
+        //Edge e = getBottomTopEdge();
+        //double ori = e.relOri(vyn.getVec());
         
-        if (ori < 0) {
-            if (!left.remove(vyn)) return false;
-            
-        } else if (ori > 0) {
-            if (!right.remove(vyn)) return false;
+        boolean rem;
+        if (vyn.isLeft()) {
+            rem = left.remove(vyn);
+            if (!rem) rem = right.remove(vyn);
             
         } else {
+            rem = right.remove(vyn);
+            if (!rem) rem = left.remove(vyn);
+        }
+        
+        // Exit if not removed.
+        if (!rem) return false;
+        
+        // Update top and bottom.
+        if (isEmpty()) {
+            // All nodes were removed, so safe to set all to {@code null} and exit.
+            top = bottom = minX = maxX = null;
+            vyn.setHull(null);
+            return true;
+            
+        } else if (left.isEmpty()) {
+            top = right.getMax();
+            bottom = right.getMin();
+            
+        } else if (right.isEmpty()) {
+            top = left.getMax();
+            bottom = left.getMin();
+            
+        } else {
+            top = (left.getMax().getIv().getY() > right.getMax().getIv().getY()
+                    ? left.getMax()
+                    : right.getMax()
+            );
+            bottom = (left.getMin().getIv().getY() < right.getMin().getIv().getY()
+                    ? left.getMin()
+                    : right.getMin()
+            );
+        }
+        
+        // Update minX and maxX
+        if (vyn == minX) {
+            VectorYNode<IV> next = next(vyn);
+            VectorYNode<IV> prev = prev(vyn);
+            minX = (next.getVec().x() < prev.getVec().x()
+                    ? next
+                    : prev
+            );
+        }
+        if (vyn == maxX) {
+            VectorYNode<IV> next = next(vyn);
+            VectorYNode<IV> prev = prev(vyn);
+            maxX = (next.getVec().x() > prev.getVec().x()
+                    ? next
+                    : prev
+            );
+        }
+        
+        vyn.setHull(null);
+        return true;
+        
+        /*
+        else {
             if (!left.remove(vyn) && !right.remove(vyn)) return false;
             // Update top and bottom.
             if (isEmpty()) {
@@ -1127,7 +1210,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                     : prev
             );
         }
-        return true;
+        return true;*/
     }
     
     /**
@@ -1197,7 +1280,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             if (created) node.setLeft(true);
             if (left.contains(node)) return true;
         }
-        if (ori >= 0){
+        if (ori >= 0) {
             if (created) node.setLeft(false);
             return right.contains(node);
         }
