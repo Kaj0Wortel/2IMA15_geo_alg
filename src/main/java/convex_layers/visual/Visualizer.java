@@ -39,7 +39,9 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <tr><td>CTRL+S</td><td>Save images</td></tr>
  * </table>
  */
-public class Visualizer {
+public class Visualizer
+        implements Visual {
+    
     /* ----------------------------------------------------------------------
      * Constants.
      * ----------------------------------------------------------------------
@@ -326,10 +328,8 @@ public class Visualizer {
             lock.unlock();
         }
     }
-
-    /**
-     * Redraws the image on the canvas.
-     */
+    
+    @Override
     public synchronized void redraw() {
         Logger.write("Draw image " + (imgs.size() + 1));
         if (MultiTool.maxFreeMemory() < 100*MultiTool.MB) {
@@ -537,22 +537,12 @@ public class Visualizer {
         }
     }
     
-    /**
-     * Sets the points to be shown. <br>
-     * Each collection in the list can get a separate color by using the {@link #setPointColors(List)} function.
-     * If no color is specified, or the color is {@code null}, then the default color is used.
-     * 
-     * @param points The list of collection of points to be shown.
-     */
+    @Override
     public void setPoints(List<Iterable<Vector>> points) {
         this.points = points;
     }
-
-    /**
-     * Adds the given point list to the editor.
-     *
-     * @param pointList The extra point list to display.
-     */
+    
+    @Override
     public void addPoint(Iterable<Vector> pointList) {
         if (!(points instanceof ArrayList)) {
             if (points == null) points = new ArrayList<>();
@@ -561,34 +551,17 @@ public class Visualizer {
         points.add(pointList);
     }
     
-    /**
-     * Sets the colors of the point collections. <br>
-     * The n'th element in the list corresponds to the color of the n'th collection of points.
-     * The amount of colors doesn't have to match the total number of collections of points.
-     * The {@code null} value denotes the default color.
-     * 
-     * @param pointColors The colors of the points.
-     */
+    @Override
     public void setPointColors(List<Paint> pointColors) {
         this.pointColors = pointColors;
     }
     
-    /**
-     * Sets the edges to be shown. <br>
-     * Each collection in the list can get a separate color by using the {@link #setEdgeColors(List)} function.
-     * If no color is specified, or the color is {@code null}, then the default color is used.
-     *
-     * @param edges The list of collection of edges to be shown.
-     */
+    @Override
     public void setEdges(List<Iterable<Edge>> edges) {
         this.edges = edges;
     }
     
-    /**
-     * Adds the given edge list to the editor.
-     * 
-     * @param edgeList The extra edge list to display.
-     */
+    @Override
     public void addEdge(Iterable<Edge> edgeList) {
         if (!(edges instanceof ArrayList)) {
             if (edges == null) edges = new ArrayList<>();
@@ -597,32 +570,17 @@ public class Visualizer {
         edges.add(edgeList);
     }
     
-    /**
-     * Sets the colors of the edge collections. <br>
-     * The n'th element in the list corresponds to the color of the n'th collection of edges.
-     * The amount of colors doesn't have to match the total number of collections of edges.
-     * The {@code null} value denotes the default color.
-     *
-     * @param edgeColors The colors of the edges.
-     */
+    @Override
     public void setEdgeColors(List<Paint> edgeColors) {
         this.edgeColors = edgeColors;
     }
-
-    /**
-     * Sets the labels to be shown.
-     *
-     * @param labelList The list of collection of labels to be shown.
-     */
+    
+    @Override
     public void setLabels(List<Iterable<String>> labelList) {
         labels = labelList;
     }
     
-    /**
-     * Adds the given label list to the editor.
-     *
-     * @param edgeList The extra edge list to display.
-     */
+    @Override
     public void addLabel(Iterable<String> labelList) {
         if (!(labels instanceof ArrayList)) {
             if (labels == null) labels = new ArrayList<>();
@@ -630,187 +588,31 @@ public class Visualizer {
         }
         labels.add(labelList);
     }
-
-    /**
-     * Clears all current data and sets the new data.
-     * 
-     * @param data The data to be set for the visualizer.
-     */
+    
+    @Override
     public void setData(List<Iterable<? extends BaseInputVertex>> data) {
         clear();
         addData(data);
     }
-
-    /**
-     * Adds the given data to the current data.
-     * 
-     * @param data The data to be added.
-     */
+    
+    @Override
     public void addData(List<Iterable<? extends BaseInputVertex>> data) {
         for (Iterable<? extends BaseInputVertex> d : data) {
-            Iterable<Vector> vecIt = toVec(d);
+            Iterable<Vector> vecIt = Visual.toVec(d);
             addPoint(vecIt);
-            addEdge(connectEdges(vecIt));
-            addLabel(toLabel(d));
+            addEdge(Visual.connectEdges(vecIt));
+            addLabel(Visual.toLabel(d));
         }
     }
     
-
-    /**
-     * Converts a collection of {@link BaseInputVertex} to a collection of {@link Vector}. <br>
-     * This function clones the data, which implies that the data <b>won't</b> be modified when the
-     * original collection is modified.
-     * 
-     * @param in The collection to be converted.
-     * @return The underlying data of the input collection.
-     * 
-     * @see #toVec(Iterable) 
-     */
-    public static Iterable<Vector> cloneToVec(Iterable<? extends BaseInputVertex> in) {
-        List<Vector> out = new ArrayList<>();
-        for (BaseInputVertex iv : in) {
-            out.add(iv.getV().clone());
-        }
-        return out;
-    }
-
-    /**
-     * Converts a collection of {@link BaseInputVertex} to a collection of {@link Vector}. <br>
-     * This function does not clone the data, which implies that the data <b>will</b> be updated
-     * when the original collection is modified.
-     *
-     * @param in The collection to be converted.
-     * 
-     * @return The underlying data of the input collection.
-     *
-     * @see #cloneToVec(Iterable)
-     */
-    public static Iterable<Vector> toVec(final Iterable<? extends BaseInputVertex> in) {
-        return () -> new Iterator<Vector>() {
-            private final Iterator<? extends BaseInputVertex> it = in.iterator();
-            
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public Vector next() {
-                return it.next().getV();
-            }
-        };
-    }
-
-    /**
-     * Converts a collection of {@link BaseInputVertex} to a collection of labels. <br>
-     * This function does not clone the data, which implies that the data <b>will</b> be updated
-     * when the original collection is modified.
-     * 
-     * @param in The collection to be converted.
-     * 
-     * @return The labels matching the given input vertices.
-     */
-    public static Iterable<String> toLabel(final Iterable<? extends BaseInputVertex> in) {
-        return () -> new Iterator<String>() {
-            private final Iterator<? extends BaseInputVertex> it = in.iterator();
-            
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-            
-            @Override
-            public String next() {
-                return Long.toString(it.next().getId());
-            }
-        };
-    }
-    
-    /**
-     * Converts a collection of {@link OutputEdge} to a collection of {@link Edge}. <br>
-     * This function clones the data, which implies that the data <b>won't</b> be modified when the
-     * original collection is modified.
-     *
-     * @param in The collection to be converted.
-     * @return The underlying data of the input collection.
-     * 
-     * @see #toEdge(Iterable)
-     */
-    public static Iterable<Edge> cloneToEdge(Iterable<OutputEdge> in) {
-        List<Edge> out = new ArrayList<>();
-        for (OutputEdge e : in) {
-            out.add(new Edge(e.getV1().getV().clone(), e.getV2().getV().clone()));
-        }
-        return out;
-    }
-    
-    /**
-     * Converts a collection of {@link OutputEdge} to a collection of {@link Edge}. <br>
-     * This function does not clone the data, which implies that the data <b>will</b> be updated
-     * when the original collection is modified.
-     *
-     * @param in The collection to be converted.
-     * 
-     * @return The underlying data of the input collection.
-     * 
-     * @see #cloneToEdge(Iterable)
-     */
-    public static Iterable<Edge> toEdge(final Iterable<OutputEdge> in) {
-        return () -> new Iterator<>() {
-            private final Iterator<OutputEdge> it = in.iterator();
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public Edge next() {
-                OutputEdge e = it.next();
-                return new Edge(e.getV1().getV(), e.getV2().getV());
-            }
-        };
-    }
-
-    /**
-     * Connects the vectors given in the input in the order they are given.
-     * 
-     * @param in The vectors to connect.
-     * 
-     * @return An iterable over the connections between the vectors.
-     */
-    public static Iterable<Edge> connectEdges(final Iterable<Vector> in) {
-        return () -> new Iterator<>() {
-            private final Iterator<Vector> it = in.iterator();
-            private Vector prev = (it.hasNext() ? it.next() : null);
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public Edge next() {
-                Vector cur = it.next();
-                Edge e = new Edge(prev, cur);
-                prev = cur;
-                return e;
-            }
-        };
-    }
-
-    /**
-     * Clears all point, edge and label data, but leaves the colors and images untouched.
-     */
+    @Override
     public void clear() {
         points = List.of();
         edges = List.of();
         labels = List.of();
     }
-
-    /**
-     * Clears all data except for the images.
-     */
+    
+    @Override
     public void clearAll() {
         clear();
         imgs.clear();

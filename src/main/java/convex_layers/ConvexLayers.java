@@ -1,6 +1,7 @@
 package convex_layers;
 
 import convex_layers.math.Edge;
+import convex_layers.visual.Visual;
 import convex_layers.visual.Visualizer;
 import tools.Var;
 import tools.data.array.ArrayTools;
@@ -136,8 +137,8 @@ public class ConvexLayers {
 
         // Draw the input
         if (visualize) {
-            vis.setPoints(List.of(Visualizer.toVec(remaining)));
-            vis.addLabel(Visualizer.toLabel(remaining));
+            vis.setPoints(List.of(Visual.toVec(remaining)));
+            vis.addLabel(Visual.toLabel(remaining));
             vis.redraw();
         }
 

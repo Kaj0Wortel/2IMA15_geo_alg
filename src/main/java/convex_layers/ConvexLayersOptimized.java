@@ -7,8 +7,10 @@ import convex_layers.hull.NearIntersection;
 import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
-import convex_layers.visual.Visualizer;
+import convex_layers.visual.NullVisualizer;
+import convex_layers.visual.Visual;
 
+import convex_layers.visual.Visualizer;
 import lombok.RequiredArgsConstructor;
 
 import tools.Var;
@@ -73,11 +75,11 @@ public class ConvexLayersOptimized
      * @param out  The outer convex hull.
      * @param sol  The solution set.
      */
-    private void resetVis(Visualizer vis, Problem2 p, ConvexHull<BaseInputVertex> in, ConvexHull<BaseInputVertex> out,
+    private void resetVis(Visual vis, Problem2 p, ConvexHull<BaseInputVertex> in, ConvexHull<BaseInputVertex> out,
                           Collection<OutputEdge> sol) {
         vis.clear();
         vis.setData(List.of(p.getVertices()));
-        vis.setEdges(List.of(Visualizer.toEdge(sol)));
+        vis.setEdges(List.of(Visual.toEdge(sol)));
         vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
         //vis.addData(List.of(out, in));
     }
@@ -120,7 +122,7 @@ public class ConvexLayersOptimized
     private void fixOuterHull(ConvexHull<BaseInputVertex> innerHull, ConvexHull<BaseInputVertex> outerHull,
                               Collection<OutputEdge> sol, NearIntersection<BaseInputVertex> ni,
                               VectorYNode<BaseInputVertex> begin,
-                              boolean first, Visualizer vis) {
+                              boolean first, Visual vis) {
         if (innerHull.isEmpty()) return;
         VectorYNode<BaseInputVertex> cur = begin;
         VectorYNode<BaseInputVertex> prev = null;
@@ -162,7 +164,7 @@ public class ConvexLayersOptimized
      * @param remaining The remaining nodes.
      */
     private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Collection<BaseInputVertex> remaining,
-                              Visualizer vis) {
+                              Visual vis) {
         Collection<BaseInputVertex> toRemove = new HashSet<>();
         for (BaseInputVertex iv : remaining) {
             toRemove.add(iv);
@@ -177,7 +179,7 @@ public class ConvexLayersOptimized
      * Solves the given problem and outputs it to the output file.
      */
     //public synchronized void solve(File source, File target) {
-    public synchronized Collection<OutputEdge> solve(Problem2 p, Visualizer vis) {
+    public synchronized Collection<OutputEdge> solve(Problem2 p, Visual vis) {
         // Create the solution set.
         Set<OutputEdge> sol = new HashSet<>();
 
@@ -194,7 +196,7 @@ public class ConvexLayersOptimized
             search.init(remaining);
         }
         
-        // Reset visualizer.
+        // Reset the visual.
         resetVis(vis, p, innerHull, outerHull, sol);
         
         // Add the outer hull to the solution set.
@@ -265,7 +267,7 @@ public class ConvexLayersOptimized
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
                 ni = outerHull.getPointsNearLine(vye, hullOnLeftSide);
             }
-            { // Add intersections to the visualizer and reset it afterwards.
+            { // Add intersections to the visual and reset it afterwards.
                 List<BaseInputVertex> intersect = List.of(
                         ni.getN1().getIv(),
                         ni.getN2().getIv(),
@@ -297,7 +299,7 @@ public class ConvexLayersOptimized
             if (!remaining.isEmpty()) {
                 fixInnerHull(innerHull, remaining, vis); // TODO
             }
-            // Reset visualizer.
+            // Reset Visual.
             vis.redraw();
             resetVis(vis, p, innerHull, outerHull, sol);
         }
@@ -305,7 +307,7 @@ public class ConvexLayersOptimized
         
         vis.clear();
         vis.addData(List.of(p.getVertices()));
-        vis.setEdges(List.of(Visualizer.toEdge(sol)));
+        vis.setEdges(List.of(Visual.toEdge(sol)));
         vis.redraw();
         return sol;
     }
@@ -331,7 +333,8 @@ public class ConvexLayersOptimized
         //File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Visualizer vis = new Visualizer();
+        //Visual vis = new Visualizer();
+        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
         

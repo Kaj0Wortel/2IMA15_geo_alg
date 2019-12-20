@@ -1,11 +1,10 @@
 package convex_layers.hull;
 
 import convex_layers.BaseInputVertex;
-import convex_layers.visual.Visualizer;
+import convex_layers.visual.Visual;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import tools.Var;
-import tools.log.Logger;
 
 
 /**
@@ -53,13 +52,13 @@ public class NearIntersection<IV extends BaseInputVertex> {
                 "    v2: " + innerVec2 + "," + Var.LS +
                 "]";
     }
-
+    
     /**
      * Removes all nodes in the inner part of the intersections.
      * 
      * @param hull The hull the vertices belong to.
      */
-    public void removeMiddleNodes(ConvexHull<IV> hull, Visualizer vis) {
+    public void removeMiddleNodes(ConvexHull<IV> hull, Visual vis) {
         VectorYNode<IV> node = n2;
         while (node != null && node != n3) {
             VectorYNode<IV> rem = node;

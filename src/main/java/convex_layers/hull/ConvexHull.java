@@ -763,10 +763,6 @@ public class ConvexHull<IV extends BaseInputVertex>
      */
     public VectorYNode<IV> getNode(int i) {
         if (i < 0 || i >= size()) throw new IndexOutOfBoundsException(i);
-        Logger.write("left.size(): " + left.size());
-        Logger.write("right.size(): " + right.size());
-        Logger.write("i: " + i);
-        Logger.write("i^-1: " + (right.size() - (i - left.size() + 1)));
         if (i < left.size()) return left.get(i);
         else return right.get(right.size() - (i - left.size() + 1));
     }
