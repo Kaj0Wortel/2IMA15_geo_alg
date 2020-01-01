@@ -103,6 +103,7 @@ public class VisualGenerator {
         canvas.addMouseListener(ma);
         
         KeyListener kl = new KeyAdapter() {
+            @Override
             public void keyReleased(KeyEvent e) {
                 Key eKey = new Key(e, false);
                 if (SAVE_KEY.equals(eKey)) {

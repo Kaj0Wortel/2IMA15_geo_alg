@@ -147,6 +147,7 @@ public class VisualRender
      * ----------------------------------------------------------------------
      */
     public VisualRender() {
+        openCounter.incrementAndGet();
         frame = new JFrame("Visual render");
         zp = new ZoomPanel(frame);
         frame.addComponentListener(new ComponentAdapter() {
@@ -157,13 +158,24 @@ public class VisualRender
                         frame.getWidth() - in.left - in.right,
                         frame.getHeight() - in.top - in.bottom
                 );
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setVisible(true);
             }
         });
+        
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                int amt = openCounter.decrementAndGet();
+                if (amt <= 0) {
+                    System.exit(0);
+                }
+            }
+        });
+        
         SwingUtilities.invokeLater(() -> {
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.add(zp);
             frame.setSize(500, 500);
+            frame.setVisible(true);
         });
     }
     

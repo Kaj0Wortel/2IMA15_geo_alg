@@ -1,6 +1,8 @@
 package convex_layers;
 
 import convex_layers.checker.Checker;
+import convex_layers.checker.CheckerError;
+import convex_layers.checker.ConvexChecker;
 import convex_layers.checker.MultiChecker;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
@@ -12,6 +14,7 @@ import convex_layers.math.Edge;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 
+import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
 import lombok.RequiredArgsConstructor;
 
@@ -339,7 +342,7 @@ public class ConvexLayersOptimized
         Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
-        Checker checker = new MultiChecker();
+        Checker checker = new MultiChecker(new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
         
@@ -350,7 +353,13 @@ public class ConvexLayersOptimized
         v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
         v.redraw();
         
-        checker.check(problem, sol);
+        CheckerError err = checker.check(problem, sol);
+        Logger.write(err);
+        Visual errorVis = new VisualRender();
+        errorVis.addPoint(Visual.toVec(problem.getVertices()));
+        errorVis.addLabel(Visual.toLabel(problem.getVertices()));
+        errorVis.addEdge(Visual.toEdge(sol));
+        err.draw(errorVis);
         
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }

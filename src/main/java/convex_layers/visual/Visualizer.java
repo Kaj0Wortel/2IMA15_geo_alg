@@ -96,6 +96,7 @@ public class Visualizer
      * Creates a new visualizer.
      */
     public Visualizer() {
+        openCounter.getAndIncrement();
         frame = new JFrame("testing frame");
         canvas = new Canvas(frame);
         canvas.setLocation(0, 0);
@@ -104,7 +105,7 @@ public class Visualizer
         label.setSize(100, 20);
         canvas.add(label);
         label.setLocation(0, 0);
-
+        
         KeyAdapter kl = new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 Key eKey = new Key(e);
@@ -129,8 +130,18 @@ public class Visualizer
         };
         frame.addKeyListener(kl);
         
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                int amt = openCounter.decrementAndGet();
+                if (amt <= 0) {
+                    System.exit(0);
+                }
+            }
+        });
+        
         SwingUtilities.invokeLater(() -> {
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setVisible(true);
             frame.setSize(960, 540);
             frame.repaint();

@@ -9,9 +9,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface Visual {
-
+    
+    AtomicInteger openCounter = new AtomicInteger(0);
+    
     /**
      * Redraws the image on the canvas.
      */
