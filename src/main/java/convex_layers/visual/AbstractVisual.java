@@ -8,6 +8,7 @@ import tools.font.FontLoader;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -96,11 +97,12 @@ public abstract class AbstractVisual
     }
 
     /**
+     * Redraws the current state on the given graphics object.
      * 
-     * @param g2d
-     * @param scale
-     * @param width
-     * @param height
+     * @param g2d    The graphics object to draw on.
+     * @param scale  The relative size of the elements to draw.
+     * @param width  The width of the image.
+     * @param height The height of the image.
      */
     protected synchronized void redraw(Graphics2D g2d, double scale, int width, int height) {
         minX = Integer.MAX_VALUE;
@@ -133,33 +135,33 @@ public abstract class AbstractVisual
         // Draw grid lines.
         double dx = maxX - minX;
         double dy = maxY - minY;
-        double gridX = scale * dx / 20; //(int) Math.pow(5, ((int) (Math.log(dx) / Math.log(5)) - 1));
-        double gridY = scale * dy / 20; //(int) Math.pow(5, ((int) (Math.log(dy) / Math.log(5)) - 1));
+        double gridX = dx / 20; //(int) Math.pow(5, ((int) (Math.log(dx) / Math.log(5)) - 1));
+        double gridY = dy / 20; //(int) Math.pow(5, ((int) (Math.log(dy) / Math.log(5)) - 1));
         
         g2d.setStroke(new BasicStroke((float) (GRID_STROKE_SIZE * scale)));
         for (int i = 0; i*gridX <= maxX; i++) {
             if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
             else g2d.setPaint(GRID_COLOR);
-            int x = sci(i*gridX, width, height, scale, true);
-            g2d.drawLine(x, 0, x, height);
+            double x = sc(i*gridX, width, height, scale, true);
+            g2d.draw(new Line2D.Double(x, 0, x, height));
         }
         for (int i = 1; -i*gridX >= minX; i++) {
             if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
             else g2d.setPaint(GRID_COLOR);
-            int x = sci(-i*gridX, width, height, scale, true);
-            g2d.drawLine(x, 0, x, height);
+            double x = sc(-i*gridX, width, height, scale, true);
+            g2d.draw(new Line2D.Double(x, 0, x, height));
         }
         for (int i = 0; i*gridY <= maxY; i++) {
             if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
             else g2d.setPaint(GRID_COLOR);
-            int y = sci(i*gridY, width, height, scale, false);
-            g2d.drawLine(0, y, width, y);
+            double y = sc(i*gridY, width, height, scale, false);
+            g2d.draw(new Line2D.Double(0, y, width, y));
         }
         for (int i = 1; -i*gridY >= minY; i++) {
             if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
             else g2d.setPaint(GRID_COLOR);
-            int y = sci(-i*gridY, width, height, scale, false);
-            g2d.drawLine(0, y, width, y);
+            double y = sc(-i*gridY, width, height, scale, false);
+            g2d.draw(new Line2D.Double(0, y, width, y));
         }
         
         // Draw edges.
@@ -168,12 +170,18 @@ public abstract class AbstractVisual
             if (i < edgeColors.size() && edgeColors.get(i) != null) g2d.setPaint(edgeColors.get(i));
             else g2d.setPaint(DEFAULT_EDGE_COLOR);
             for (Edge e : edges.get(i)) {
-                g2d.drawLine(
-                        sci(e.v1().x(), width, height, scale, true),
-                        sci(e.v1().y(), width, height, scale, false),
-                        sci(e.v2().x(), width, height, scale, true),
-                        sci(e.v2().y(), width, height, scale, false)
-                );
+//                g2d.drawLine(
+//                        sci(e.v1().x(), width, height, scale, true),
+//                        sci(e.v1().y(), width, height, scale, false),
+//                        sci(e.v2().x(), width, height, scale, true),
+//                        sci(e.v2().y(), width, height, scale, false)
+//                );
+                g2d.draw(new Line2D.Double(
+                        sc(e.v1().x(), width, height, scale, true),
+                        sc(e.v1().y(), width, height, scale, false),
+                        sc(e.v2().x(), width, height, scale, true),
+                        sc(e.v2().y(), width, height, scale, false)
+                ));
             }
         }
         
@@ -187,12 +195,11 @@ public abstract class AbstractVisual
 //                g2d.fillOval((int) (sci(v.x(), width, height, scale, true) - dTrans),
 //                        (int) (sc(v.y(), width, height, scale, false) - dTrans),
 //                        (int) (POINT_SIZE * scale), (int) (POINT_SIZE * scale));
-                Shape circle = new Arc2D.Double(
-                        sci(v.x(), width, height, scale, true) - dTrans,
+                g2d.fill(new Arc2D.Double(
+                        sc(v.x(), width, height, scale, true) - dTrans,
                         sc(v.y(), width, height, scale, false) - dTrans,
                         POINT_SIZE * scale, POINT_SIZE * scale, 0, 360, Arc2D.CHORD
-                );
-                g2d.fill(circle);
+                ));
             }
         }
         
@@ -201,7 +208,8 @@ public abstract class AbstractVisual
         g2d.setFont(DEFAULT_FONT.deriveFont((float) (DEFAULT_FONT.getSize() * scale)));
         {
             FontMetrics fm = g2d.getFontMetrics();
-            float dh = fm.getDescent();
+            float dh = (float) ((POINT_SIZE * scale - fm.getHeight()) / 2 + fm.getMaxAscent());
+//            float dh = fm.getHeight() / 2f;
             for (int i = 0; i < points.size(); i++) {
                 if (i < pointColors.size() && pointColors.get(i) != null) {
                     Paint p = pointColors.get(i);
@@ -219,23 +227,25 @@ public abstract class AbstractVisual
                     String label = lIt.next();
                     Vector v = vIt.next();
                     float w = fm.stringWidth(label);
-                    g2d.drawString(label, (float) sc(v.x(), width, height, scale, true) - w/2,
-                            (float) sc(v.y(), width, height, scale, false) + dh);
+                    g2d.drawString(label,
+                            (float) (sc(v.x(), width, height, scale, true) - w/2),
+                            (float) (sc(v.y(), width, height, scale, false) - dTrans + dh)
+                    );
                 }
             }
         }
     }
     
-    /**
-     * Integer casted variant of {@link #sc(double, int, int, double, boolean)}.
-     *
-     * @param point The point to convert.
-     * @param width Whether this is an x- or y-coordinate.
-     * @return The converted point, casted to an integer.
-     */
-    private int sci(double point, int w, int h, double scale, boolean width) {
-        return (int) sc(point, w, h, scale, width);
-    }
+//    /**
+//     * Integer casted variant of {@link #sc(double, int, int, double, boolean)}.
+//     *
+//     * @param point The point to convert.
+//     * @param width Whether this is an x- or y-coordinate.
+//     * @return The converted point, casted to an integer.
+//     */
+//    private int sci(double point, int w, int h, double scale, boolean width) {
+//        return (int) sc(point, w, h, scale, width);
+//    }
     
     /**
      * Converts a point to canvas coordinates relative to the minimum and maximum allowed values.

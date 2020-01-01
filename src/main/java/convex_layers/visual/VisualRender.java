@@ -45,13 +45,6 @@ public class VisualRender
         private double y = 0;
         /** The current scaling of the rendering. */
         private double zoom = 1;
-
-        // State variables during redrawing. Reading/writing should only be done by the thread
-        // currently redrawing the image.
-        private double minX = Integer.MIN_VALUE;
-        private double maxX = Integer.MAX_VALUE;
-        private double minY = Integer.MIN_VALUE;
-        private double maxY = Integer.MAX_VALUE;
         
         
         /* ----------------------------------------
@@ -68,15 +61,13 @@ public class VisualRender
                     else if (key.equalsAny(Key.RIGHT,Key.D)) panHorizontal(DEFAULT_PAN);
                     else if (key.equalsAny(Key.DOWN, Key.S)) panVertical(DEFAULT_PAN);
                     else if (key.equalsAny(Key.LEFT, Key.A)) panHorizontal(-DEFAULT_PAN);
-                    else if (key.equals(Key.MINUS)) zoom(1 / DEFAULT_ZOOM);
-                    else if (key.equals(Key.EQUAL)) zoom(DEFAULT_ZOOM);
+                    else if (key.equals(Key.MINUS)) zoom(1 / DEFAULT_ZOOM, 0.5, 0.5);
+                    else if (key.equals(Key.EQUAL)) zoom(DEFAULT_ZOOM, 0.5, 0.5);
                     else if (key.equals(Key.SPACE)) reset();
                     repaint();
                 }
             });
             frame.addMouseWheelListener((e) -> {
-                e.getUnitsToScroll();
-                e.getScrollAmount();
                 double scroll;
                 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
                     scroll = e.getUnitsToScroll();
@@ -91,7 +82,9 @@ public class VisualRender
                     scroll = 1/Math.log(scroll);
                 }
                 
-                zoom(scroll);
+                double dx = Math.min(1, Math.max(0, ((double) e.getX()) / getWidth()));
+                double dy = Math.min(1, Math.max(0, ((double) e.getY()) / getHeight()));
+                zoom(scroll, dx, dy);
                 repaint();
             });
         }
@@ -103,9 +96,7 @@ public class VisualRender
          */
         @Override
         public void setBounds(int x, int y, int width, int height) {
-            if (zoom > 1) {
-                double dw = getWidth() - width;
-                double dh = getHeight() - height;
+            if (getWidth() != 0 && getHeight() != 0) {
                 this.x = this.x * width / getWidth();
                 this.y = this.y * height / getHeight();
                 
@@ -117,27 +108,19 @@ public class VisualRender
             }
         }
         
-        private void zoom(double amt) {
+        private void zoom(double amt, double dw, double dh) {
             double oldZoom = zoom;
             zoom *= amt;
-            if (zoom > 1 && oldZoom > 1 && false) {
-                double ratioX = (this.x) / (getWidth());
-                double ratioY = (this.y) / (getHeight());
-                Logger.write(ratioX);
-                panHorizontal((zoom - oldZoom) * getWidth() * ratioX);
-                panVertical((zoom - oldZoom) * getHeight() * ratioY);
-            } else {
-                panHorizontal((zoom - oldZoom) * getWidth() / 2);
-                panVertical((zoom - oldZoom) * getHeight() / 2);
-            }
+            x += ((1 / zoom - 1 / oldZoom) * getWidth() * dw);
+            y += ((1 / zoom - 1 / oldZoom) * getHeight() * dh);
         }
         
         private void panHorizontal(double amt) {
-            x -= amt;
+            x -= amt / zoom;
         }
         
         private void panVertical(double amt) {
-            y -= amt;
+            y -= amt / zoom;
         }
         
         private void reset() {
@@ -150,8 +133,8 @@ public class VisualRender
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
-            g2d.translate(x, y);
             g2d.scale(zoom, zoom);
+            g2d.translate(x, y);
             redraw(g2d, 1/zoom, getWidth(), getHeight());
         }
         
