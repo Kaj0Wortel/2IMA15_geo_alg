@@ -187,7 +187,7 @@ public class ConvexLayersOptimized
     public synchronized Collection<OutputEdge> solve(Problem2 p, Visual vis) {
         // Create the solution set.
         Set<OutputEdge> sol = new HashSet<>();
-
+        
         // Initialize the inner and outer hulls, and the search structure for the remaining vertices..
         ConvexHull<BaseInputVertex> outerHull;
         ConvexHull<BaseInputVertex> innerHull;
@@ -329,8 +329,8 @@ public class ConvexLayersOptimized
 
         String folder = "challenge_1";
         String type = "uniform";
-        //String name = "uniform-0000015-1";
-        //String name = "uniform-0000040-1";
+//        String name = "uniform-0000015-1";
+//        String name = "uniform-0000040-1";
         String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
@@ -338,7 +338,7 @@ public class ConvexLayersOptimized
         //File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        //Visual vis = new Visualizer();
+//        Visual vis = new Visualizer();
         Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
@@ -347,12 +347,13 @@ public class ConvexLayersOptimized
         Collection<OutputEdge> sol = solver.solve(problem, vis);
         
         // TODO: tmp
-        Visual v = new Visualizer();
-        v.setEdges(List.of(Visual.toEdge(sol)));
-        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
-        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
-        v.redraw();
+//        Visual v = new Visualizer();
+//        v.setEdges(List.of(Visual.toEdge(sol)));
+//        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
+//        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
+//        v.redraw();
         
+        //sol.remove(sol.iterator().next());
         CheckerError err = checker.check(problem, sol);
         Logger.write(err);
         Visual errorVis = new VisualRender();

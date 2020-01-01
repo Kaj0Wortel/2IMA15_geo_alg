@@ -135,8 +135,8 @@ public abstract class AbstractVisual
         // Draw grid lines.
         double dx = maxX - minX;
         double dy = maxY - minY;
-        double gridX = dx / 20; //(int) Math.pow(5, ((int) (Math.log(dx) / Math.log(5)) - 1));
-        double gridY = dy / 20; //(int) Math.pow(5, ((int) (Math.log(dy) / Math.log(5)) - 1));
+        double gridX = dx * scale / 20; //(int) Math.pow(5, ((int) (Math.log(dx) / Math.log(5)) - 1));
+        double gridY = dy * scale / 20; //(int) Math.pow(5, ((int) (Math.log(dy) / Math.log(5)) - 1));
         
         g2d.setStroke(new BasicStroke((float) (GRID_STROKE_SIZE * scale)));
         for (int i = 0; i*gridX <= maxX; i++) {
@@ -257,12 +257,12 @@ public abstract class AbstractVisual
     private double sc(double point, int w, int h, double scale, boolean width) {
         if (width) {
             double d = maxX - minX;
-            double r = d * EMPTY_RATIO / scale;
+            double r = d * EMPTY_RATIO;
             return (point - minX + r) / (d + 2*r) * w;
             
         } else {
             double d = maxY - minY;
-            double r = d * EMPTY_RATIO * scale;
+            double r = d * EMPTY_RATIO;
             return h - (point - minY + r) / (d + 2*r) * h;
         }
     }

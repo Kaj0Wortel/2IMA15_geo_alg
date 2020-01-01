@@ -4,11 +4,15 @@ import convex_layers.BaseInputVertex;
 import convex_layers.InputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.Problem2;
+import convex_layers.hull.ConvexHull;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
+import convex_layers.visual.Visual;
+import convex_layers.visual.Visualizer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import tools.log.Logger;
 
 import java.util.*;
 
@@ -37,10 +41,10 @@ public class ConvexChecker
         
         @Override
         public Iterator<OutputEdge> iterator() {
-            Edge vertEdge = new Edge(biv.getV(), new Vector(biv.getX(), biv.getY() + 100));
+            Edge vertEdge = new Edge(biv.getV(), new Vector(biv.getX(), biv.getY() + 100));        
             edges.sort((e1, e2) -> {
-                BaseInputVertex other1 = (e1.getV1().equals(biv) ? e1.getV2() : e1.getV2());
-                BaseInputVertex other2 = (e2.getV1().equals(biv) ? e2.getV2() : e2.getV2());
+                BaseInputVertex other1 = (e1.getV1().equals(biv) ? e1.getV2() : e1.getV1());
+                BaseInputVertex other2 = (e2.getV1().equals(biv) ? e2.getV2() : e2.getV1());
                 if (other1.equals(other2)) return 0;
                 
                 double ori1 = vertEdge.relOri(other1.getV());
@@ -53,11 +57,11 @@ public class ConvexChecker
                     else if (diff > 0) return 1;
                     else return 0;
                 } else {
-                    Edge e = new Edge(biv.getV(), other1.getV());
-                    return e.relOriRounded(other2.getV()); 
+                    Edge e = new Edge(biv.getV(), other2.getV());
+                    int o = e.relOriRounded(other1.getV());;
+                    return o;
                 }
             });
-            
             return edges.iterator();
         }
         
@@ -76,20 +80,33 @@ public class ConvexChecker
     }
     
     @Override
+    @SuppressWarnings("ConstantConditions")
     public CheckerError check(Problem2 problem, Collection<OutputEdge> sol) {
         CheckerError err = new CheckerError();
-
+        
+        Collection<BaseInputVertex> inner = new HashSet<>(problem.getVertices());
+        Collection<BaseInputVertex> hull = ConvexHull.createConvexHull(problem.getVertices());
+        inner.removeAll(hull);
+        
         Map<BaseInputVertex, Node> nodes = new HashMap<>();
         for (BaseInputVertex biv : problem) {
             nodes.put(biv, new Node(biv));
         }
         
         for (OutputEdge e : sol) {
-            nodes.get(e.getV1()).add(e);
-            nodes.get(e.getV2()).add(e);
+            boolean in1 = inner.contains(e.getV1());
+            boolean in2 = inner.contains(e.getV2());
+            if (in1 == in2) {
+                nodes.get(e.getV1()).add(e);
+                nodes.get(e.getV2()).add(e);
+
+            } else if (in1) nodes.get(e.getV1()).add(e);
+            else nodes.get(e.getV2()).add(e);
         }
         
-        for (Node node : nodes.values()) {
+        // First check the inner nodes.
+        for (BaseInputVertex biv : inner) {
+            Node node = nodes.get(biv);
             OutputEdge first = null;
             OutputEdge prev = null;
             for (OutputEdge e : node) {
@@ -97,7 +114,7 @@ public class ConvexChecker
                     prev = first = e;
                     continue;
                 }
-                checkEdges(prev, e, node.getBiv(), err);
+                checkEdges(prev, e, biv, err);
                 prev = e;
             }
             if (first == prev) {
@@ -105,10 +122,76 @@ public class ConvexChecker
                 if (first != null) err.addEdge(first);
                 
             } else {
-                checkEdges(first, prev, node.getBiv(), err);
+                checkEdges(prev, first, biv, err);
             }
         }
+        
+        // Then check the outer nodes.
+        if (hull.size() > 3) {
+            Node first = null, second = null;
+            Node prev = null, cur = null;
+            for (BaseInputVertex biv : hull) {
+                if (first == null) {
+                    first = prev = nodes.get(biv);
+                    continue;
+                } else if (second == null) {
+                    second = cur = nodes.get(biv);
+                    continue;
+                }
+                
+                Node next = nodes.get(biv);
+                checkHull(prev, cur, next, err);
+                prev = cur;
+                cur = next;
+            }
+            checkHull(prev, cur, first, err);
+            checkHull(cur, first, second, err);
+        }
+        
         return err;
+    }
+
+    /**
+     * Checks the given nodes on the hull. <br>
+     * The nodes must have at 
+     * 
+     * @param prev The previous node on the hull.
+     * @param cur  The current node on the hull.
+     * @param next The next node on the hull.
+     * @param err  The checker error to update.
+     */
+    private void checkHull(Node prev, Node cur, Node next, CheckerError err) {
+        Iterator<OutputEdge> it = cur.iterator();
+        if (!it.hasNext()) err.addPoint(cur.getBiv());
+        OutputEdge out1 = it.next();
+        if (!it.hasNext()) err.addPoint(cur.getBiv());
+        OutputEdge out2 = it.next();
+        if (it.hasNext()) {
+            err.addPoint(cur.getBiv());
+            for (OutputEdge e : cur) {
+                err.addEdge(e);
+            }
+        }
+        OutputEdge e1 = match(out1, out2, prev.getBiv());
+        OutputEdge e2 = match(out1, out2, next.getBiv());
+
+        checkEdges(e2, e1, cur.getBiv(), err);
+    }
+
+    /**
+     * Matches the output edge with the given target vertex.
+     * It is assumed that at least one of the two edges contains the target.
+     * If both edges contain the target, then the first edge is returned.
+     * 
+     * @param e1     The first edge to compare.
+     * @param e2     The second edge to compare.
+     * @param target The target to find.
+     * 
+     * @return The edge which has the given target.
+     */
+    private OutputEdge match(OutputEdge e1, OutputEdge e2, BaseInputVertex target) {
+        if (e1.getV1().equals(target) || e1.getV2().equals(target)) return e1;
+        else return e2;
     }
 
     /**

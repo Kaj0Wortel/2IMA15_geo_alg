@@ -257,11 +257,11 @@ public class ConvexHull<IV extends BaseInputVertex>
             // Bottom vertex lies on the line
             // Note: should not occur since no 3 points on one line.
             // TODO: edge case: edge goes through bottom.
-            Logger.write("through bottom", Logger.Type.ERROR);
+//            Logger.write("through bottom", Logger.Type.ERROR);
             throw new IllegalArgumentException();
             
         } else if (relOriTop * relOriBot < 0) {
-            Logger.write("BOTH");
+//            Logger.write("BOTH");
             // Line goes through both the left and right side of the hull.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
             Edge bt = getBottomTopEdge();
@@ -273,7 +273,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                 // - in the 'right' side, ensure the line points away from the middle line (line points to the 'right')
                 e = new Edge(e.v2(), e.v1());
                 hullOnLeftSide = !hullOnLeftSide;
-                Logger.write("FLIP");
+//                Logger.write("FLIP");
                 flipped = true;
             }
             pair1 = getNodeAboveBothSides(left, e);
@@ -299,13 +299,13 @@ public class ConvexHull<IV extends BaseInputVertex>
             // of the line.
             Edge bottomTopEdge = getBottomTopEdge();
             if (bottomTopEdge.relOri(e.v1()) < 0) {
-                Logger.write("LEFT");
+//                Logger.write("LEFT");
                 // Edge goes through on the left side.
                 // Set direction of e to upwards, if needed.
                 if (e.y1() > e.y2()) {
                     e = new Edge(e.v2(), e.v1());
                     hullOnLeftSide = !hullOnLeftSide;
-                    Logger.write("FLIP");
+//                    Logger.write("FLIP");
                 } else flipped = true;
                 pair1 = getNodeAboveOneSide(left, e, true);  // Up
                 pair2 = getNodeAboveOneSide(left, e, false); // Down
@@ -325,13 +325,13 @@ public class ConvexHull<IV extends BaseInputVertex>
                 }
 
             } else {
-                Logger.write("RIGHT");
+//                Logger.write("RIGHT");
                 // Edge goes through on the right side.
                 // Set direction of e to downwards, if needed.
                 if (e.y1() < e.y2()) {
                     e = new Edge(e.v2(), e.v1());
                     hullOnLeftSide = !hullOnLeftSide;
-                    Logger.write("FLIP");
+//                    Logger.write("FLIP");
                     flipped = true;
                 }
                 
@@ -354,15 +354,15 @@ public class ConvexHull<IV extends BaseInputVertex>
             }
         }
         
-        Logger.write("VYEdge   : " + vye);
-        Logger.write("hasLeft  : " + hullOnLeftSide);
-        Logger.write("clockwise: " + clockwise);
-        Logger.write(new Object[] {
-                "  vyn1: " + vyn1,
-                "  vyn2: " + vyn2,
-                "  vyn3: " + vyn3,
-                "  vyn4: " + vyn4
-        });
+//        Logger.write("VYEdge   : " + vye);
+//        Logger.write("hasLeft  : " + hullOnLeftSide);
+//        Logger.write("clockwise: " + clockwise);
+//        Logger.write(new Object[] {
+//                "  vyn1: " + vyn1,
+//                "  vyn2: " + vyn2,
+//                "  vyn3: " + vyn3,
+//                "  vyn4: " + vyn4
+//        });
         VectorYNode<IV> v1, v2;
         if (!flipped) {
             v1 = vye.getIv1();

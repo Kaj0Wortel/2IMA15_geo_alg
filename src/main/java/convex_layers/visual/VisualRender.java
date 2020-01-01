@@ -99,10 +99,10 @@ public class VisualRender
             if (getWidth() != 0 && getHeight() != 0) {
                 this.x = this.x * width / getWidth();
                 this.y = this.y * height / getHeight();
-                
+
                 super.setBounds(x, y, width, height);
                 repaint();
-                
+
             } else {
                 super.setBounds(x, y, width, height);
             }
@@ -149,15 +149,17 @@ public class VisualRender
     public VisualRender() {
         openCounter.incrementAndGet();
         frame = new JFrame("Visual render");
+        frame.setLayout(null);
         zp = new ZoomPanel(frame);
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 Insets in = frame.getInsets();
-                zp.setBounds(in.left, in.top,
+                zp.setBounds(0, 0,
                         frame.getWidth() - in.left - in.right,
                         frame.getHeight() - in.top - in.bottom
                 );
+//                zp.setSize(frame.getWidth(), frame.getHeight());
             }
         });
         
@@ -174,7 +176,7 @@ public class VisualRender
         SwingUtilities.invokeLater(() -> {
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.add(zp);
-            frame.setSize(500, 500);
+            frame.setSize(800, 600);
             frame.setVisible(true);
         });
     }
@@ -188,9 +190,8 @@ public class VisualRender
     public void redraw() {
         frame.repaint();
     }
-
-
-    @SuppressWarnings("unchecked")
+    
+    
     public static void main(String[] args) {
         // Init logger.
         Logger.setDefaultLogger(new StreamLogger(System.out));
