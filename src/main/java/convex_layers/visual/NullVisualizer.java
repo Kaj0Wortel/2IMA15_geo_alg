@@ -24,7 +24,15 @@ public class NullVisualizer
     @Override
     public void addPoint(Iterable<Vector> pointList) {
     }
-    
+
+    @Override
+    public void addPoint(Iterable<Vector> pointList, Iterable<String> labelList) {
+    }
+
+    @Override
+    public void addPoint(Iterable<Vector> pointList, Iterable<String> labelList, Paint paint) {
+    }
+
     @Override
     public void setPointColors(List<Paint> pointColors) {
     }
@@ -36,7 +44,11 @@ public class NullVisualizer
     @Override
     public void addEdge(Iterable<Edge> edgeList) {
     }
-    
+
+    @Override
+    public void addEdge(Iterable<Edge> edgeList, Paint paint) {
+    }
+
     @Override
     public void setEdgeColors(List<Paint> edgeColors) {
     }

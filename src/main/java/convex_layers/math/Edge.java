@@ -125,7 +125,6 @@ public class Edge
         double o2 = relOriRounded(e.v2);
         double o3 = e.relOriRounded(v1);
         double o4 = e.relOriRounded(v2);
-        System.out.println(o1 + ". " + o2 + ". " + o3 + ". " + o4);
         if (o1 != o2 && o3 != o4) return true;
         return o1 == 0 && o2 == 0 && o3 == 0 && o4 == 0 &&
                 Math.min(v1.x(), v2.x()) <= Math.max(e.v1.x(), e.v2.x()) &&

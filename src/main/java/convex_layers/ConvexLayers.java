@@ -24,10 +24,7 @@ import java.util.Set;
  */
 public class ConvexLayers {
 
-    private final Visualizer vis = new Visualizer(
-            new ArrayList<>(),
-            new ArrayList<>()
-    );
+    private final Visualizer vis = new Visualizer();
     private final boolean visualize = true;
     Set<InputVertex> allVertices = new HashSet<>();
     Set<OutputEdge> solution = new HashSet<>();

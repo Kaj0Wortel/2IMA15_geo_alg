@@ -34,6 +34,23 @@ public interface Visual {
     void addPoint(Iterable<Vector> pointList);
     
     /**
+     * Adds the given point list to the editor.
+     *
+     * @param pointList The extra point list to display.
+     * @param labelList The list of labels for the points.
+     */
+    void addPoint(Iterable<Vector> pointList, Iterable<String> labelList);
+    
+    /**
+     * Adds the given point list to the editor.
+     *
+     * @param pointList The extra point list to display.
+     * @param labelList The list of labels for the points.
+     * @param paint     The color of the points to display.
+     */
+    void addPoint(Iterable<Vector> pointList, Iterable<String> labelList, Paint paint);
+    
+    /**
      * Sets the colors of the point collections. <br>
      * The n'th element in the list corresponds to the color of the n'th collection of points.
      * The amount of colors doesn't have to match the total number of collections of points.
@@ -58,6 +75,14 @@ public interface Visual {
      * @param edgeList The extra edge list to display.
      */
     void addEdge(Iterable<Edge> edgeList);
+
+    /**
+     * Adds the given edge list to the editor.
+     *
+     * @param edgeList The extra edge list to display.
+     * @param paint    The paint used to color the edges.
+     */
+    void addEdge(Iterable<Edge> edgeList, Paint paint);
     
     /**
      * Sets the colors of the edge collections. <br>
@@ -104,7 +129,7 @@ public interface Visual {
     void clear();
 
     /**
-     * Clears all data except for the images.
+     * Clears all data except for the colors.
      */
     void clearAll();
     

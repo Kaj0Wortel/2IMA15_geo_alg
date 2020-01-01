@@ -1,5 +1,7 @@
 package convex_layers;
 
+import convex_layers.checker.Checker;
+import convex_layers.checker.MultiChecker;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.hull.ConvexHull;
@@ -333,14 +335,23 @@ public class ConvexLayersOptimized
         //File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Visual vis = new Visualizer();
-        //Visual vis = new NullVisualizer();
+        //Visual vis = new Visualizer();
+        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
-        
-        // TODO: insert checker.
+        Checker checker = new MultiChecker();
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
+        
+        // TODO: tmp
+        Visual v = new Visualizer();
+        v.setEdges(List.of(Visual.toEdge(sol)));
+        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
+        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
+        v.redraw();
+        
+        checker.check(problem, sol);
+        
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }
     

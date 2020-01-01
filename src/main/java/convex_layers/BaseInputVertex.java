@@ -92,5 +92,9 @@ public class BaseInputVertex
         return getClass().getCanonicalName() + "[ID: " + id + ", vec: " + v.toString() + "]";
     }
     
+    public String toShortString() {
+        return "(ID=" + id + ",x=" + v.x() + ",y=" + v.y() + ")";
+    }
+    
     
 }

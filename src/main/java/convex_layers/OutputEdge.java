@@ -22,6 +22,11 @@ public class OutputEdge {
     private final BaseInputVertex v2;
     
     
+    public boolean hasEqualEndpointWith(OutputEdge oe) {
+        return (Objects.equals(v1, oe.v1) || Objects.equals(v2, oe.v2) ||
+                Objects.equals(v1, oe.v2) || Objects.equals(v2, oe.v1));
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof OutputEdge)) return false;
@@ -41,6 +46,10 @@ public class OutputEdge {
                 "    " + v1 + "," + Var.LS +
                 "    " + v2 + "," + Var.LS +
                 "]";
+    }
+    
+    public String toShortString() {
+        return "[v1=" + v1.toShortString() + ",v2=" + v2.toShortString() + "]";
     }
     
     

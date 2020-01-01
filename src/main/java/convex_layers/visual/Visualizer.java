@@ -40,25 +40,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * </table>
  */
 public class Visualizer
-        implements Visual {
-    
-    /* ----------------------------------------------------------------------
-     * Constants.
-     * ----------------------------------------------------------------------
-     */
-    // Constants used to tweak the visuals.
-    private static final int WIDTH = 1920;
-    private static final int HEIGHT = 1080;
-    private static final Paint DEFAULT_POINT_COLOR = new Color(0, 0, 0);
-    private static final Paint DEFAULT_EDGE_COLOR = new Color(0, 182, 255);
-    private static final Paint GRID_COLOR = new Color(200, 200, 200);
-    private static final Paint BIG_GRID_COLOR = new Color(100, 100, 100);
-    private static final Paint BACKGROUND_COLOR = new Color(255, 255, 255, 255);
-    private static final int POINT_SIZE = 40;
-    private static final Stroke EDGE_STROKE = new BasicStroke(5);
-    private static final Stroke GRID_STROKE = new BasicStroke(3);
-    private static final double EMPTY_RATIO = 0.05;
-    private static final Font DEFAULT_FONT = FontLoader.getFont("Cousine-Bold.ttf", 25);
+        extends AbstractVisual {
+    protected static final int WIDTH = 1920;
+    protected static final int HEIGHT = 1080;
     
     // Function key constants.
     private static final Key NEXT_KEY = Key.RIGHT;
@@ -92,19 +76,6 @@ public class Visualizer
     // Concurrent variables.
     private final Lock lock = new ReentrantLock();
     
-    // Data variables.
-    /** List storing the sets of points to draw. */
-    private List<Iterable<Vector>> points = List.of();
-    /** List storing the colors of the sets of points to draw. */
-    private List<Paint> pointColors = ArrayTools.asList(null, new Color(170, 158, 78), new Color(0, 255, 199),
-            new Color(201, 7, 255), new Color(255, 123, 118));
-    /** List storing the sets of edges to draw. */
-    private List<Iterable<Edge>> edges = List.of();
-    /** List storing the colors of the sets of edges to draw. */
-    private List<Paint> edgeColors = ArrayTools.asList(null, new Color(255, 0, 0), new Color(0, 152, 35),
-            new Color(86, 5, 255), new Color(100, 255, 0));
-    /** List storing the labels of the points to draw. */
-    private List<Iterable<String>> labels = List.of();
     
     // State variables during redrawing. Reading/writing should only be done by the thread
     // currently redrawing the image.
@@ -164,33 +135,6 @@ public class Visualizer
             frame.setSize(960, 540);
             frame.repaint();
         });
-    }
-    
-    /**
-     * Creates a new visualizer from the given point and edge sets.
-     * 
-     * @param points The initial point set.
-     * @param edges  The initial edge set.
-     */
-    public Visualizer(List<Iterable<Vector>> points, List<Iterable<Edge>> edges) {
-        this();
-        this.points = points;
-        this.edges = edges;
-    }
-    
-    /**
-     * Creates a new visualizer from the given data.
-     * 
-     * @param points      The initial point set.
-     * @param pointColors The colors of the points.
-     * @param edges       The initial edge set.
-     * @param edgeColors  The colors of the edges.
-     */
-    public Visualizer(List<Iterable<Vector>> points, List<Paint> pointColors,
-                      List<Iterable<Edge>> edges, List<Paint> edgeColors) {
-        this(points, edges);
-        this.pointColors = pointColors;
-        this.edgeColors = edgeColors;
     }
     
     
@@ -344,277 +288,28 @@ public class Visualizer
             }, Logger.Type.WARNING);
             return;
         }
+        
         final BufferedImage rendering = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
-        minX = Integer.MAX_VALUE;
-        maxX = Integer.MIN_VALUE;
-        minY = Integer.MAX_VALUE;
-        maxY = Integer.MIN_VALUE;
-        int index= 0;
-        for (Iterable<Vector> col : points) {
-            for (Vector vec : col) {
-                index++;
-                minX = Math.min(minX, vec.x());
-                maxX = Math.max(maxX, vec.x());
-                minY = Math.min(minY, vec.y());
-                maxY = Math.max(maxY, vec.y());
-            }
-        }
-        if (minX == Integer.MAX_VALUE) {
-            return;
-        }
-        if (maxX == minX) {
-            minX -= 50;
-            maxX += 50;
-        }
-        if (maxY == minY) {
-            minY -= 50;
-            maxY += 50;
-        }
-        
         Graphics2D g2d = rendering.createGraphics();
-        g2d.setPaint(BACKGROUND_COLOR);
-        g2d.fillRect(0, 0, WIDTH, HEIGHT);
-        
-        // Draw grid lines.
-        double dx = maxX - minX;
-        double dy = maxY - minY;
-        double gridX = dx / 20; //(int) Math.pow(5, ((int) (Math.log(dx) / Math.log(5)) - 1));
-        double gridY = dy / 20; //(int) Math.pow(5, ((int) (Math.log(dy) / Math.log(5)) - 1));
-        
-        g2d.setStroke(GRID_STROKE);
-        for (int i = 0; i*gridX <= maxX; i++) {
-            if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
-            else g2d.setPaint(GRID_COLOR);
-            int x = sci(i*gridX, true);
-            g2d.drawLine(x, 0, x, HEIGHT);
-        }
-        for (int i = 1; -i*gridX >= minX; i++) {
-            if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
-            else g2d.setPaint(GRID_COLOR);
-            int x = sci(-i*gridX, true);
-            g2d.drawLine(x, 0, x, HEIGHT);
-        }
-        for (int i = 0; i*gridY <= maxY; i++) {
-            if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
-            else g2d.setPaint(GRID_COLOR);
-            int y = sci(i*gridY, false);
-            g2d.drawLine(0, y, WIDTH, y);
-        }
-        for (int i = 1; -i*gridY >= minY; i++) {
-            if (i % 5 == 0) g2d.setPaint(BIG_GRID_COLOR);
-            else g2d.setPaint(GRID_COLOR);
-            int y = sci(-i*gridY, false);
-            g2d.drawLine(0, y, WIDTH, y);
-        }
-        
-        // Draw edges.
-        g2d.setStroke(EDGE_STROKE);
-        for (int i = 0; i < edges.size(); i++) {
-            if (i < edgeColors.size() && edgeColors.get(i) != null) g2d.setPaint(edgeColors.get(i));
-            else g2d.setPaint(DEFAULT_EDGE_COLOR);
-            for (Edge e : edges.get(i)) {
-                g2d.drawLine(sci(e.v1().x(), true), sci(e.v1().y(), false),
-                        sci(e.v2().x(), true), sci(e.v2().y(), false));
-            }
-        }
-        
-        // Draw points.
-        g2d.setStroke(new BasicStroke(1));
-        double dTrans = POINT_SIZE / 2.0;
-        for (int i = 0; i < points.size(); i++) {
-            if (i < pointColors.size() && pointColors.get(i) != null) g2d.setPaint(pointColors.get(i));
-            else g2d.setPaint(DEFAULT_POINT_COLOR);
-            for (Vector v : points.get(i)) {
-                g2d.fillOval((int) (sci(v.x(), true) - dTrans), (int) (sc(v.y(), false) - dTrans),
-                        POINT_SIZE, POINT_SIZE);
-            }
-        }
-        
-        // Draw labels.
-        g2d.setStroke(new BasicStroke(1));
-        g2d.setFont(DEFAULT_FONT);
-        {
-            FontMetrics fm = g2d.getFontMetrics();
-            int dh = fm.getDescent();//fm.getAscent() - fm.getHeight();
-            for (int i = 0; i < points.size(); i++) {
-                if (i < pointColors.size() && pointColors.get(i) != null) {
-                    Paint p = pointColors.get(i);
-                    if (p instanceof Color) {
-                        g2d.setPaint(invertColor((Color) p));
-                    } else {
-                        g2d.setPaint(p);
-                    }
-                    
-                } else g2d.setPaint(invertColor((Color) DEFAULT_POINT_COLOR));
-                
-                Iterator<String> lIt = (i < labels.size() ? labels.get(i).iterator() : labelGenerator());
-                Iterator<Vector> vIt = points.get(i).iterator();
-                while (lIt.hasNext() && vIt.hasNext()) {
-                    String label = lIt.next();
-                    Vector v = vIt.next();
-                    int width = fm.stringWidth(label);
-                    g2d.drawString(label, sci(v.x(), true) - width/2, sci(v.y(), false) + dh);
-                }
-            }
-        }
-        
+        redraw(g2d, 1, WIDTH, HEIGHT);
         g2d.dispose();
-        
+
         lock.lock();
         try {
             imgs.add(rendering);
             if (imgsIndex == imgs.size() - 2 || imgs.size() == 1) setImg(Integer.MAX_VALUE);
             else if (imgsIndex < 0) setImg(0);
             else setImg(imgsIndex);
-            
+
         } finally {
             lock.unlock();
         }
         canvas.repaint();
     }
-
-    /**
-     * @return A generator which generates labels.
-     */
-    private Iterator<String> labelGenerator() {
-        return new Iterator<>() {
-            private long i = 0;
-            @Override
-            public boolean hasNext() {
-                return true;
-            }
-            
-            @Override
-            public String next() {
-                return Long.toString(i++);
-            }
-        };
-    }
-
-    /**
-     * Inverts the given color.
-     * 
-     * @param c The color to invert.
-     * 
-     * @return The inverted color.
-     */
-    private Color invertColor(Color c) {
-        return new Color(
-                255 - c.getRed(),
-                255 - c.getGreen(),
-                255 - c.getBlue(),
-                c.getAlpha());
-    }
-
-    /**
-     * Integer casted variant of {@link #sc(double, boolean)}.
-     *
-     * @param point The point to convert.
-     * @param width Whether this is an x- or y-coordinate.
-     * @return The converted point, casted to an integer.
-     */
-    private int sci(double point, boolean width) {
-        return (int) sc(point, width);
-    }
-    
-    /**
-     * Converts a point to canvas coordinates relative to the minimum and maximum allowed values.
-     * 
-     * @param point The point to convert.
-     * @param width Whether this is an x- or y-coordinate.
-     * @return The converted point.
-     */
-    private double sc(double point, boolean width) {
-        if (width) {
-            double d = maxX - minX;
-            double r = d * EMPTY_RATIO;
-            return (point - minX + r) / (d + 2*r) * WIDTH;
-            
-        } else {
-            double d = maxY - minY;
-            double r = d * EMPTY_RATIO;
-            return HEIGHT - (point - minY + r) / (d + 2*r) * HEIGHT;
-        }
-    }
-    
-    @Override
-    public void setPoints(List<Iterable<Vector>> points) {
-        this.points = points;
-    }
-    
-    @Override
-    public void addPoint(Iterable<Vector> pointList) {
-        if (!(points instanceof ArrayList)) {
-            if (points == null) points = new ArrayList<>();
-            else points = new ArrayList<>(points);
-        }
-        points.add(pointList);
-    }
-    
-    @Override
-    public void setPointColors(List<Paint> pointColors) {
-        this.pointColors = pointColors;
-    }
-    
-    @Override
-    public void setEdges(List<Iterable<Edge>> edges) {
-        this.edges = edges;
-    }
-    
-    @Override
-    public void addEdge(Iterable<Edge> edgeList) {
-        if (!(edges instanceof ArrayList)) {
-            if (edges == null) edges = new ArrayList<>();
-            else edges = new ArrayList<>(edges);
-        }
-        edges.add(edgeList);
-    }
-    
-    @Override
-    public void setEdgeColors(List<Paint> edgeColors) {
-        this.edgeColors = edgeColors;
-    }
-    
-    @Override
-    public void setLabels(List<Iterable<String>> labelList) {
-        labels = labelList;
-    }
-    
-    @Override
-    public void addLabel(Iterable<String> labelList) {
-        if (!(labels instanceof ArrayList)) {
-            if (labels == null) labels = new ArrayList<>();
-            else labels = new ArrayList<>(labels);
-        }
-        labels.add(labelList);
-    }
-    
-    @Override
-    public void setData(List<Iterable<? extends BaseInputVertex>> data) {
-        clear();
-        addData(data);
-    }
-    
-    @Override
-    public void addData(List<Iterable<? extends BaseInputVertex>> data) {
-        for (Iterable<? extends BaseInputVertex> d : data) {
-            Iterable<Vector> vecIt = Visual.toVec(d);
-            addPoint(vecIt);
-            addEdge(Visual.connectEdges(vecIt));
-            addLabel(Visual.toLabel(d));
-        }
-    }
-    
-    @Override
-    public void clear() {
-        points = List.of();
-        edges = List.of();
-        labels = List.of();
-    }
     
     @Override
     public void clearAll() {
-        clear();
+        super.clearAll();
         imgs.clear();
     }
     
@@ -633,10 +328,12 @@ public class Visualizer
         List<Edge> edges3 = new ArrayList<>(amt);
         
         // Initialize the visualizer
-        Visualizer vis = new Visualizer(
-                ArrayTools.asList(vecs1, vecs2),
-                ArrayTools.asList(edges1, edges2, edges3)
-        );
+        Visualizer vis = new Visualizer();
+        vis.addPoint(vecs1);
+        vis.addPoint(vecs2);
+        vis.addEdge(edges1);
+        vis.addEdge(edges2);
+        vis.addEdge(edges3);
         
         // Generating test data set.
         for (int i = 0; i < amt; i++) {
