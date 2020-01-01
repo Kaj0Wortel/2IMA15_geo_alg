@@ -1,9 +1,6 @@
 package convex_layers;
 
-import convex_layers.checker.Checker;
-import convex_layers.checker.CheckerError;
-import convex_layers.checker.ConvexChecker;
-import convex_layers.checker.MultiChecker;
+import convex_layers.checker.*;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.hull.ConvexHull;
@@ -342,7 +339,7 @@ public class ConvexLayersOptimized
         Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
-        Checker checker = new MultiChecker(new ConvexChecker());
+        Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
         
