@@ -64,25 +64,27 @@ public class QuadTree<T extends Node2D<T>>
     @Override
     public void init(Collection<T> col) {
         clear();
-        System.out.println(col.toString());
         size = col.size();
         if (col.size() > 1) {
-            System.out.println("yeaaaaah");
             root = new QuadNode(0,null, col);
         } else {
-            System.out.println("it\'s rewind time");
-            root = new QuadLeaf(0,null, col);
+            root = new QuadLeaf(0,0,0,0,0,null, col);//TODO get rid of zeroes
         }
     }
     
     @Override
     public T get(Object obj) {
-        throw new UnsupportedOperationException(); // TODO
+        //TODO finish
+        if (obj instanceof Node2D) {
+            return root.get((Node2D) obj);
+        } else {
+            throw new UnsupportedOperationException("The object searched for should be of type Node2D");
+        }
     }
     
     @Override
     public boolean contains(Object obj) {
-        throw new UnsupportedOperationException(); // TODO
+        return root.getPoints().contains(obj);
     }
     
     @Override
@@ -113,22 +115,27 @@ public class QuadTree<T extends Node2D<T>>
     
     @Override
     public Collection<T> getRangeUpRight(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeDownRight(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeUpLeft(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeDownLeft(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
+    }
+
+    //TODO
+    public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax){
+        return root.getRange(xMax, yMax, xMin, yMin);
     }
 
     @SuppressWarnings("Duplicates")
@@ -146,6 +153,7 @@ public class QuadTree<T extends Node2D<T>>
                 new BaseInputVertex(0, 3, 3)
         ));
         QuadTree<BaseInputVertex> quad = new QuadTree<>(pts);
+        System.out.println("points in range are: " + quad.getRange(0.0, 1.55, 0.0, 1.55).toString());
     }
     
 }

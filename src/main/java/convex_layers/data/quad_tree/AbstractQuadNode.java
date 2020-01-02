@@ -18,6 +18,8 @@ abstract class AbstractQuadNode<T extends Node2D<T>> {
     protected AbstractQuadNode<T> parent;
     protected Set<T> points = new HashSet<>();
     protected int depth;
+    protected double middleX;
+    protected double middleY;
 
     AbstractQuadNode(double maxX, double maxY, double minX, double minY, int depth){
         this.maxX = maxX;
@@ -25,6 +27,8 @@ abstract class AbstractQuadNode<T extends Node2D<T>> {
         this.minX = minX;
         this.minY = minY;
         this.depth = depth;
+        middleX = ((maxX-minX)/2.0)+minX;
+        middleY = ((maxY-minY)/2.0)+minY;
     }
 
     Set<T> getPoints(){
@@ -38,4 +42,8 @@ abstract class AbstractQuadNode<T extends Node2D<T>> {
     int getDepth(){
         return depth;
     }
+
+    abstract T get(Node2D obj);
+
+    abstract Collection<T> getRange(double maxX, double maxY, double minX, double minY);
 }
