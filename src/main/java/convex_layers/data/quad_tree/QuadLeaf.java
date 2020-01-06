@@ -21,11 +21,6 @@ class QuadLeaf<T extends Node2D<T>> extends AbstractQuadNode {
     }
 
     @Override
-    T get(Node2D obj) {
-        return null;
-    }
-
-    @Override
     Collection<T> getRange(double maxX, double maxY, double minX, double minY) {
         Set<T> result = new HashSet<T>();
         if (minX > this.maxX || maxX <= this.minX || minY > this.maxY || maxY <= this.minY) {
@@ -37,5 +32,12 @@ class QuadLeaf<T extends Node2D<T>> extends AbstractQuadNode {
         }
         System.out.println("results: " + result.toString());
         return result;
+    }
+
+    @Override
+    AbstractQuadNode remove(Node2D node) {
+        System.out.println();
+        points.remove(node);
+        return this;
     }
 }

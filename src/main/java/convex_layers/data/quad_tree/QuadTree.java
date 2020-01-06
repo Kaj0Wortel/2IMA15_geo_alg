@@ -96,10 +96,16 @@ public class QuadTree<T extends Node2D<T>>
     public boolean add(T t) {
         throw new UnsupportedOperationException(); // TODO
     }
-    
+
+    //TODO finish method
     @Override
     public boolean remove(Object o) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!(o instanceof Node2D)){
+            throw new IllegalArgumentException("Object provided should be of type Node2D");
+        } else {
+            root.remove((Node2D) o);
+            return true;
+        }
     }
 
     @Override
@@ -143,17 +149,16 @@ public class QuadTree<T extends Node2D<T>>
         Logger.setDefaultLogger(new StreamLogger(System.out));
         ArrayList<BaseInputVertex> pts = new ArrayList<>(List.of(
                 new BaseInputVertex(0, 1, 1),
-                new BaseInputVertex(0, 2, 1),
-                new BaseInputVertex(0, 3, 1),
-                new BaseInputVertex(0, 1, 2),
                 new BaseInputVertex(0, 2, 2),
-                new BaseInputVertex(0, 3, 2),
-                new BaseInputVertex(0, 1, 3),
-                new BaseInputVertex(0, 2, 3),
-                new BaseInputVertex(0, 3, 3)
+                new BaseInputVertex(0, 3, 3),
+                new BaseInputVertex(0, 4, 4),
+                new BaseInputVertex(0, 5, 5),
+                new BaseInputVertex(0, 6, 6),
+                new BaseInputVertex(0, 7, 7),
+                new BaseInputVertex(0, 8, 8),
+                new BaseInputVertex(0, 9, 9)
         ));
         QuadTree<BaseInputVertex> quad = new QuadTree<>(pts);
-        System.out.println("points in range are: " + quad.getRange(0.0, 1.55, 0.0, 1.55).toString());
     }
     
 }
