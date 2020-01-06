@@ -39,6 +39,7 @@ public abstract class AbstractVisual
     protected static final double EMPTY_RATIO = 0.05;
     protected static final Font DEFAULT_FONT = FontLoader.getFont("Cousine-Bold.ttf", 25);
     
+    
     /* ----------------------------------------------------------------------
      * Variables.
      * ----------------------------------------------------------------------
