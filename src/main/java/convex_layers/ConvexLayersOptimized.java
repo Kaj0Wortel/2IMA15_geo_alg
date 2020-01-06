@@ -299,12 +299,12 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-            int x = coords[i++];
-            int y = coords[i++];
-            Logger.write("x: " + x + ", y: " + y);
-            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+//            int x = coords[i++];
+//            int y = coords[i++];
+//            Logger.write("x: " + x + ", y: " + y);
+//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
-//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
@@ -382,8 +382,8 @@ public class ConvexLayersOptimized
         String folder = "challenge_1";
         String type = "uniform";
 //        String name = "uniform-0000015-1";
-        String name = "uniform-0000040-1";
-//        String name = "uniform-0001000-1";
+//        String name = "uniform-0000040-1";
+        String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
