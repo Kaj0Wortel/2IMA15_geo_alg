@@ -300,12 +300,12 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-            int x = coords[i++];
-            int y = coords[i++];
-            Logger.write("x: " + x + ", y: " + y);
-            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+//            int x = coords[i++];
+//            int y = coords[i++];
+//            Logger.write("x: " + x + ", y: " + y);
+//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
-//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
