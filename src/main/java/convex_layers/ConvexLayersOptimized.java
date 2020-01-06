@@ -247,9 +247,6 @@ public class ConvexLayersOptimized
 
     /**
      * Repairs the inner hull.
-     * TODO Improve algorithm speed.
-     *   Current average time : O(n)
-     *   Improved average time: O(log(n))
      *
      * @param innerHull The inner hull.
      * @param search    The 2D range search structure to use.
@@ -260,8 +257,7 @@ public class ConvexLayersOptimized
                               MinMax minMax, Visual vis) {
         drawRect(vis, minMax);
         Collection<BaseInputVertex> toConsider = search(search, minMax);
-        vis.addPoint(Visual.toVec(toConsider));
-        vis.addLabel(Visual.toLabel(toConsider));
+        vis.addPoint(Visual.toVec(toConsider), List.of(), Color.ORANGE);
         vis.redraw();
         Collection<BaseInputVertex> toRemove = new HashSet<>();
         for (BaseInputVertex iv : toConsider) {
@@ -403,8 +399,8 @@ public class ConvexLayersOptimized
         
         String folder = "challenge_1";
         String type = "uniform";
-//        String name = "uniform-0000015-1";
-        String name = "uniform-0000040-1";
+        String name = "uniform-0000015-1";
+//        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
 //        String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;

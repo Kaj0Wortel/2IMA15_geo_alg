@@ -5,6 +5,7 @@ import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import tools.data.array.ArrayTools;
 import tools.font.FontLoader;
+import tools.log.Logger;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
@@ -13,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Abstract visualizer class which converts the input requests, sets
+ * the internal state, and provides an easy-to-use redraw function
+ * which redraws the current state.
+ */
 public abstract class AbstractVisual
         implements Visual {
     
@@ -167,15 +173,13 @@ public abstract class AbstractVisual
         // Draw edges.
         g2d.setStroke(new BasicStroke((float) (EDGE_STROKE_SIZE * scale)));
         for (int i = 0; i < edges.size(); i++) {
-            if (i < edgeColors.size() && edgeColors.get(i) != null) g2d.setPaint(edgeColors.get(i));
-            else g2d.setPaint(DEFAULT_EDGE_COLOR);
+            g2d.setPaint(DEFAULT_EDGE_COLOR);
+            if (!edgeColors.isEmpty() && edgeColors.get(i % edgeColors.size()) != null) {
+                Paint c = edgeColors.get(i % edgeColors.size());
+                if (c != null) g2d.setPaint(c);
+            }
+            
             for (Edge e : edges.get(i)) {
-//                g2d.drawLine(
-//                        sci(e.v1().x(), width, height, scale, true),
-//                        sci(e.v1().y(), width, height, scale, false),
-//                        sci(e.v2().x(), width, height, scale, true),
-//                        sci(e.v2().y(), width, height, scale, false)
-//                );
                 g2d.draw(new Line2D.Double(
                         sc(e.v1().x(), width, height, scale, true),
                         sc(e.v1().y(), width, height, scale, false),
@@ -189,12 +193,14 @@ public abstract class AbstractVisual
         g2d.setStroke(new BasicStroke((float) (1 * scale)));
         double dTrans = POINT_SIZE * scale / 2.0;
         for (int i = 0; i < points.size(); i++) {
-            if (i < pointColors.size() && pointColors.get(i) != null) g2d.setPaint(pointColors.get(i));
-            else g2d.setPaint(DEFAULT_POINT_COLOR);
+            g2d.setPaint(DEFAULT_POINT_COLOR);
+            if (!pointColors.isEmpty()) {
+                Paint c = pointColors.get(i % pointColors.size());
+                if (c != null) g2d.setPaint(c);
+            }
+            Logger.write("PAINT: " + (g2d.getPaint() == DEFAULT_POINT_COLOR));
+            Logger.write(pointColors.size());
             for (Vector v : points.get(i)) {
-//                g2d.fillOval((int) (sci(v.x(), width, height, scale, true) - dTrans),
-//                        (int) (sc(v.y(), width, height, scale, false) - dTrans),
-//                        (int) (POINT_SIZE * scale), (int) (POINT_SIZE * scale));
                 g2d.fill(new Arc2D.Double(
                         sc(v.x(), width, height, scale, true) - dTrans,
                         sc(v.y(), width, height, scale, false) - dTrans,
@@ -204,22 +210,20 @@ public abstract class AbstractVisual
         }
         
         // Draw labels.
-        g2d.setStroke(new BasicStroke((float) (1 * scale)));
+        g2d.setStroke(new BasicStroke((float) (0.95 * scale)));
         g2d.setFont(DEFAULT_FONT.deriveFont((float) (DEFAULT_FONT.getSize() * scale)));
         {
             FontMetrics fm = g2d.getFontMetrics();
             float dh = (float) ((POINT_SIZE * scale - fm.getHeight()) / 2 + fm.getMaxAscent());
-//            float dh = fm.getHeight() / 2f;
             for (int i = 0; i < points.size(); i++) {
-                if (i < pointColors.size() && pointColors.get(i) != null) {
-                    Paint p = pointColors.get(i);
-                    if (p instanceof Color) {
-                        g2d.setPaint(invertColor((Color) p));
-                    } else {
-                        g2d.setPaint(p);
+                {
+                    Paint c = null;
+                    if (!pointColors.isEmpty()) {
+                        c = pointColors.get(i % pointColors.size());
                     }
-
-                } else g2d.setPaint(invertColor((Color) DEFAULT_POINT_COLOR));
+                    if (c == null) c = DEFAULT_POINT_COLOR;
+                    g2d.setPaint(invertColor((Color) c));
+                }
 
                 Iterator<String> lIt = (i < labels.size() ? labels.get(i).iterator() : labelGenerator());
                 Iterator<Vector> vIt = points.get(i).iterator();
