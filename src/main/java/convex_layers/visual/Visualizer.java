@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <tr><td>HOME</td><td>First image</td></tr>
  *   <tr><td>END</td><td>Last image</td></tr>
  *   <tr><td>CTRL+S</td><td>Save images</td></tr>
+ *   <tr><td>CTRL+D</td><td>Delete images</td></tr>
  * </table>
  */
 public class Visualizer
@@ -54,7 +55,7 @@ public class Visualizer
     private static final Key SAVE_KEY = Key.S.setMask(Key.CTRL_MASK);
     private static final Key DEL_KEY = Key.D.setMask(Key.CTRL_MASK);
     
-    /** The default directory for saving images.. */
+    /** The default directory for saving images. */
     private static final File DEFAULT_DIR = new File(System.getProperty("user.dir") + Var.FS + "user_runs" + Var.FS);
     static {
         DEFAULT_DIR.mkdirs();

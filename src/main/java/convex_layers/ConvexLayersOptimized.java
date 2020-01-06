@@ -18,6 +18,7 @@ import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
 import lombok.*;
 
+import tools.MultiTool;
 import tools.Var;
 import tools.log.Logger;
 import tools.log.StreamLogger;
@@ -274,19 +275,14 @@ public class ConvexLayersOptimized
         vis.redraw();
         
         int i = 0; // TODO: remove.
-        int[] coords = new int[]{
+        int[] coords = new int[] {
+                0, 1,
+                6, 7,
                 5, 6,
-                7, 8,
+                5, 6,
+                5, 6,
                 0, 1,
-                7, 8,
-                2, 3,
-                9, 0,
-                0, 8,
-                1, 2,
-                3, 4,
-                0, 1,
-                1, 2,
-                0, 2
+                7, 8
         };
 
         // BEGIN ALGORITHM LOGIC
@@ -376,13 +372,14 @@ public class ConvexLayersOptimized
      * @param args The runtime arguments.
      */
     public static void main(String[] args) {
-        //MultiTool.initLogger(Var.LOG_FILE);
+//        MultiTool.initLogger(Var.LOG_FILE);
         Logger.setDefaultLogger(new StreamLogger(System.out));
 
         String folder = "challenge_1";
         String type = "uniform";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
+//        String name = "uniform-0000060-1";
         String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         

@@ -797,11 +797,17 @@ public class ConvexHull<IV extends BaseInputVertex>
     public List<IV> addAndUpdate(IV iv) {
         VectorYNode<IV> vyn = new VectorYNode<>(iv, this, true);
         List<IV> rem = new ArrayList<>();
+        
+        // Add the node.
         if (!add(vyn)) {
             rem.add(iv);
             return rem;
         }
+        
+        // If there are only three or less nodes, then always a convex hull.
         if (size() <= 3) return rem;
+        
+        // Check if the node lies inside the hull.
         {
             VectorYNode<IV> prev = counterClockwise(vyn);
             VectorYNode<IV> next = clockwise(vyn);
@@ -812,7 +818,9 @@ public class ConvexHull<IV extends BaseInputVertex>
                 return rem;
             }
         }
-
+        
+        // Check if the added node causes some points to lie inside the hull.
+        // First check counter clockwise.
         {
             VectorYNode<IV> prev = vyn;
             while (size() > 3) {
@@ -824,10 +832,10 @@ public class ConvexHull<IV extends BaseInputVertex>
                 }
                 remove(cur);
                 rem.add(cur.getIv());
-                prev = cur;
             }
         }
-
+        
+        // Then check clockwise.
         {
             VectorYNode<IV> next = vyn;
             while (size() > 3) {
@@ -839,10 +847,10 @@ public class ConvexHull<IV extends BaseInputVertex>
                 }
                 remove(cur);
                 rem.add(cur.getIv());
-                next = cur;
             }
         }
         
+        // Return the removed vertices.
         return rem;
     }
     
