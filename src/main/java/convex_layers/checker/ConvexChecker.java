@@ -1,35 +1,52 @@
 package convex_layers.checker;
 
 import convex_layers.BaseInputVertex;
-import convex_layers.InputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.Problem2;
 import convex_layers.hull.ConvexHull;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
-import convex_layers.visual.Visual;
-import convex_layers.visual.Visualizer;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import tools.log.Logger;
 
 import java.util.*;
 
-
+/**
+ * Checker implementation which checks whether the edges and points are convex. <br>
+ * Runtime:
+ * <table border="1">
+ *     <tr><th>Case</th><th>Runtime</th></tr>
+ *     <tr><td align="right">Worst case</td>{@code |V|log|V| + |E|log|E|}</tr>
+ *     <tr><td align="right">Average case</td>{@code |V|log|V| + |E|}</tr>
+ * </table>
+ * The worst case is obtained if (almost) all edges have a single point in common,
+ * which is highly unlikely due to the way the edges are generated.
+ */
 public class ConvexChecker
         implements Checker {
     
+    /* ----------------------------------------------------------------------
+     * Inner classes.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * Node class for representing the edges to take into account when checking
+     * whether the point is convex..
+     */
     @RequiredArgsConstructor
     private static class Node
             implements Iterable<OutputEdge> {
         
+        /** The vertex the edges connect to. */
         @NonNull
         @Getter
         private final BaseInputVertex biv;
+        /** The edges containing to {@link #biv} */
         @NonNull
         private final List<OutputEdge> edges = new ArrayList<>();
-
+        
+        
         /**
          * Adds the given edge to this node.
          * 
@@ -79,20 +96,30 @@ public class ConvexChecker
         
     }
     
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     @Override
     @SuppressWarnings("ConstantConditions")
     public CheckerError check(Problem2 problem, Collection<OutputEdge> sol) {
         CheckerError err = new CheckerError();
         
+        // Separate the vertices into the outer hull and the inner vertices.
         Collection<BaseInputVertex> inner = new HashSet<>(problem.getVertices());
         Collection<BaseInputVertex> hull = ConvexHull.createConvexHull(problem.getVertices());
         inner.removeAll(hull);
         
+        // Create nodes in the map for all vertices.
         Map<BaseInputVertex, Node> nodes = new HashMap<>();
         for (BaseInputVertex biv : problem) {
             nodes.put(biv, new Node(biv));
         }
         
+        // Add the edges to the corresponding nodes.
+        // Note that only edges from the outer hull to an inner node are ignored here,
+        // assuming bi-directional edges.
         for (OutputEdge e : sol) {
             boolean in1 = inner.contains(e.getV1());
             boolean in2 = inner.contains(e.getV2());
@@ -148,6 +175,7 @@ public class ConvexChecker
             checkHull(cur, first, second, err);
         }
         
+        // Return the errors.
         return err;
     }
 
