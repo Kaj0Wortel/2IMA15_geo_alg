@@ -74,19 +74,14 @@ public class QuadTree<T extends Node2D<T>>
     
     @Override
     public T get(Object obj) {
-        //TODO finish
-        if (obj instanceof Node2D) {
-            return root.get((Node2D) obj);
-        } else {
-            throw new UnsupportedOperationException("The object searched for should be of type Node2D");
-        }
+        throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public boolean contains(Object obj) {
         return root.getPoints().contains(obj);
     }
-    
+
     @Override
     public Iterator<T> iterator() {
         throw new UnsupportedOperationException(); // TODO
@@ -103,6 +98,7 @@ public class QuadTree<T extends Node2D<T>>
         if (!(o instanceof Node2D)){
             throw new IllegalArgumentException("Object provided should be of type Node2D");
         } else {
+            size -= 1;
             root.remove((Node2D) o);
             return true;
         }
