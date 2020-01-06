@@ -27,7 +27,7 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
         }
 
         this.parent = parent;
-        System.out.println("maxes " + this.depth + " :" + this.maxX + " " + this.maxY + " " + this.minX + " "+  this.minY);
+//        System.out.println("maxes " + this.depth + " :" + this.maxX + " " + this.maxY + " " + this.minX + " "+  this.minY);
         buildTree(col);
     }
 
@@ -36,7 +36,7 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
         super();
 //  TODO      System.out.println("maxes:" + this.maxX + " " + this.maxY + " " + this.minX + " "+  this.minY);
         for(T p : col){
-            System.out.println(p.toString());
+//            System.out.println(p.toString());
             if(p.getX()>this.maxX){
                 this.maxX = p.getX();
             }
@@ -126,7 +126,6 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
             System.out.println("points: " + points); */
             result.addAll(points);
         } else if(minX > this.maxX || maxX < this.minX || minY > this.maxY || maxY < this.minY){
-            System.out.println(points);
         } else {
 //         TODO   System.out.println("did recusions");
 //        TODO    System.out.println("NE: " + NE.minX + " " + NE.maxX + " " + NE.minX + " " + NE.maxY);

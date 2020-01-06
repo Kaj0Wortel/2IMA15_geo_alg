@@ -98,6 +98,7 @@ public class QuadTree<T extends Node2D<T>>
         if (!(o instanceof Node2D)){
             throw new IllegalArgumentException("Object provided should be of type Node2D");
         } else {
+            size -= 1;
             root.remove((Node2D) o);
             return true;
         }
