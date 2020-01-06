@@ -4,6 +4,7 @@ import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import tools.data.array.ArrayTools;
+import tools.data.file.FileTree;
 import tools.font.FontLoader;
 import tools.log.Logger;
 
@@ -38,6 +39,11 @@ public abstract class AbstractVisual
     protected static final double EMPTY_RATIO = 0.05;
     protected static final Font DEFAULT_FONT = FontLoader.getFont("Cousine-Bold.ttf", 25);
     
+    static {
+        System.out.println(FileTree.getLocalFileTree().exists("font\\"));
+        System.out.println(FileTree.getLocalFileTree().exists("font/"));
+        System.out.println(FileTree.getLocalFileTree().exists("font"));
+    }
     
     /* ----------------------------------------------------------------------
      * Variables.
@@ -198,8 +204,6 @@ public abstract class AbstractVisual
                 Paint c = pointColors.get(i % pointColors.size());
                 if (c != null) g2d.setPaint(c);
             }
-            Logger.write("PAINT: " + (g2d.getPaint() == DEFAULT_POINT_COLOR));
-            Logger.write(pointColors.size());
             for (Vector v : points.get(i)) {
                 g2d.fill(new Arc2D.Double(
                         sc(v.x(), width, height, scale, true) - dTrans,
