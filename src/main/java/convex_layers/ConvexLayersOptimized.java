@@ -23,9 +23,11 @@ import tools.Var;
 import tools.log.Logger;
 import tools.log.StreamLogger;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.List;
 
 /**
  * Optimized version of the convex partition problem.
@@ -152,6 +154,25 @@ public class ConvexLayersOptimized
         vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
         //vis.addData(List.of(out, in));
     }
+
+    /**
+     * Draws a rectangle for the given range.
+     * 
+     * @param vis The visualizer to draw on.
+     * @param m   The range to draw.
+     */
+    private static void drawRect(Visual vis, MinMax m) {
+        Vector v1 = new Vector(m.minX, m.minY);
+        Vector v2 = new Vector(m.maxX, m.minY);
+        Vector v3 = new Vector(m.maxX, m.maxY);
+        Vector v4 = new Vector(m.minX, m.maxY);
+        vis.addEdge(List.of(
+                new Edge(v1, v2),
+                new Edge(v2, v3),
+                new Edge(v3, v4),
+                new Edge(v4, v1)
+        ), Color.ORANGE);
+    }
     
 
     /**
@@ -236,7 +257,11 @@ public class ConvexLayersOptimized
      */
     private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Range2DSearch<BaseInputVertex> search,
                               MinMax minMax, Visual vis) {
+        drawRect(vis, minMax);
         Collection<BaseInputVertex> toConsider = search(search, minMax);
+        vis.addPoint(Visual.toVec(toConsider));
+        vis.addLabel(Visual.toLabel(toConsider));
+        vis.redraw();
         Collection<BaseInputVertex> toRemove = new HashSet<>();
         for (BaseInputVertex iv : toConsider) {
             toRemove.add(iv);
@@ -374,13 +399,13 @@ public class ConvexLayersOptimized
     public static void main(String[] args) {
 //        MultiTool.initLogger(Var.LOG_FILE);
         Logger.setDefaultLogger(new StreamLogger(System.out));
-
+        
         String folder = "challenge_1";
         String type = "uniform";
 //        String name = "uniform-0000015-1";
-//        String name = "uniform-0000040-1";
+        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-        String name = "uniform-0001000-1";
+//        String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");

@@ -6,6 +6,7 @@ import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -124,13 +125,12 @@ public interface Visual {
      * @param data The data to be added.
      */
     void addData(List<Iterable<? extends BaseInputVertex>> data);
-
-
+    
     /**
      * Clears all point, edge and label data, but leaves the colors and images untouched.
      */
     void clear();
-
+    
     /**
      * Clears all data except for the colors.
      */
