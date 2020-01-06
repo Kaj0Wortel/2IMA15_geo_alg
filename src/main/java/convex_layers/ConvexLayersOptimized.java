@@ -77,7 +77,7 @@ public class ConvexLayersOptimized
          * @param v The vector to apply.
          */
         private void apply(Vector v) {
-            Logger.write("Applying: " + v);
+//            Logger.write("Applying: " + v);
             if (minX == null) {
                 minX = maxX = v.x();
                 minY = maxY = v.y();
@@ -217,7 +217,6 @@ public class ConvexLayersOptimized
         VectorYNode<BaseInputVertex> prev = null;
         VectorYNode<BaseInputVertex> outerNode = (first ? ni.getN1() : ni.getN4());
         VectorYNode<BaseInputVertex> innerNode = (first ? ni.getN2() : ni.getN3());
-        //minMax.apply(cur.getVec());
         
         Edge e;
         do {
@@ -281,7 +280,7 @@ public class ConvexLayersOptimized
         ConvexHull<BaseInputVertex> innerHull;
         Range2DSearch<BaseInputVertex> search = create2DSearch();
         {
-            Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: move inwards.
+            Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices());
             outerHull = ConvexHull.createConvexHull(remaining);
             remaining.removeAll(outerHull);
             innerHull = ConvexHull.createConvexHull(remaining);
@@ -399,10 +398,11 @@ public class ConvexLayersOptimized
         
         String folder = "challenge_1";
         String type = "uniform";
-        String name = "uniform-0000015-1";
-//        String name = "uniform-0000040-1";
+//        String name = "uniform-0000015-1";
+        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
 //        String name = "uniform-0001000-1";
+//        String name = "uniform-0010000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
@@ -412,7 +412,7 @@ public class ConvexLayersOptimized
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(QuadTree.class);
+        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
