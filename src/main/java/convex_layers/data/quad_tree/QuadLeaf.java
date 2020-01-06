@@ -23,14 +23,15 @@ class QuadLeaf<T extends Node2D<T>> extends AbstractQuadNode {
     @Override
     Collection<T> getRange(double maxX, double maxY, double minX, double minY) {
         Set<T> result = new HashSet<T>();
-        if (minX > this.maxX || maxX <= this.minX || minY > this.maxY || maxY <= this.minY) {
-            System.out.println("looool");
-            System.out.println(points);
-        } else {
-            return points;
-
+        if (points.size() > 0) {
+            if (minX > this.maxX || maxX <= this.minX || minY > this.maxY || maxY <= this.minY) {
+            } else {
+                Node2D p = (Node2D) points.iterator().next();
+                if (minX <= p.getX() && p.getX() <= maxX && minY <= p.getY() && p.getY() <= maxY) {
+                    return points;
+                }
+            }
         }
-        System.out.println("results: " + result.toString());
         return result;
     }
 
