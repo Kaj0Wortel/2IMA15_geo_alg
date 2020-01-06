@@ -1,6 +1,8 @@
 package convex_layers;
 
 import convex_layers.checker.*;
+import convex_layers.data.IgnoreRangeSearch;
+import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.hull.ConvexHull;
@@ -8,12 +10,13 @@ import convex_layers.hull.NearIntersection;
 import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
+import convex_layers.math.Vector;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import tools.Var;
 import tools.log.Logger;
@@ -31,8 +34,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ConvexLayersOptimized
             implements Solver {
+    
     /* ----------------------------------------------------------------------
-     * Variables.
+     * Constants.
      * ----------------------------------------------------------------------
      */
     /** Folder storing the user generated data. */
@@ -46,6 +50,52 @@ public class ConvexLayersOptimized
     /** The class of the 2D search structure to use. */
     @SuppressWarnings("rawtypes")
     private final Class<? extends Range2DSearch> searchClass;
+    
+    
+    /* ----------------------------------------------------------------------
+     * Inner classes.
+     * ----------------------------------------------------------------------
+     */
+    @Getter
+    @RequiredArgsConstructor
+    private static class MinMax {
+        private final boolean unboundedLeft;
+        private final boolean unboundedBottom;
+        private Double minX;
+        private Double maxX;
+        private Double minY;
+        private Double maxY;
+        
+        
+        /**
+         * Updates the minimum and maximum values used in the range to search for.
+         * 
+         * @param v The vector to apply.
+         */
+        private void apply(Vector v) {
+            Logger.write("Applying: " + v);
+            if (minX == null) {
+                minX = maxX = v.x();
+                minY = maxY = v.y();
+                
+            } else {
+                if (v.x() < minX) minX = v.x();
+                if (v.x() > maxX) maxX = v.x();
+                if (v.y() < minY) minY = v.y();
+                if (v.y() > maxY) maxY = v.y();
+            }
+        }
+        
+        @Override
+        public String toString() {
+            return getClass().getCanonicalName() + "[" + Var.LS +
+                    "    x: [" + minX + "," + maxX + "]," + Var.LS +
+                    "    y: [" + minY + "," + maxY + "]" + Var.LS +
+                    "]";
+        }
+        
+        
+    }
     
     
     /* ----------------------------------------------------------------------
@@ -66,6 +116,22 @@ public class ConvexLayersOptimized
             System.exit(-1);
             return null;
         }
+    }
+    
+    /**
+     * Searches in the given 2D range search structure using the given ranges in {@link MinMax}.
+     * 
+     * @param search The 2D range search structure.
+     * @param minMax The ranges to search for.
+     * 
+     * @param <T>    The type of nodes.
+     * 
+     * @return The nodes in the specified range.
+     */
+    private static <T extends Node2D<T>> Collection<T> search(Range2DSearch<T> search, MinMax minMax) {
+        Logger.write(minMax);
+        return search.getRange(minMax.minX, minMax.maxX, minMax.minY, minMax.maxY,
+                minMax.unboundedLeft, minMax.unboundedBottom);
     }
     
     /**
@@ -117,19 +183,18 @@ public class ConvexLayersOptimized
      * @param outerHull The current outer hull.
      * @param sol       The current solution collection.
      * @param ni        The intersection to process.
-     * @param begin     The starting edge of the intersection.
      * @param first     Whether to process the first or second point of the intersection.
      * @param vis       The visualizer.
      */
     private void fixOuterHull(ConvexHull<BaseInputVertex> innerHull, ConvexHull<BaseInputVertex> outerHull,
-                              Collection<OutputEdge> sol, NearIntersection<BaseInputVertex> ni,
-                              VectorYNode<BaseInputVertex> begin,
+                              Collection<OutputEdge> sol, NearIntersection<BaseInputVertex> ni, MinMax minMax,
                               boolean first, Visual vis) {
         if (innerHull.isEmpty()) return;
-        VectorYNode<BaseInputVertex> cur = begin;
+        VectorYNode<BaseInputVertex> cur = (first ? ni.getInnerVec1() : ni.getInnerVec2());
         VectorYNode<BaseInputVertex> prev = null;
         VectorYNode<BaseInputVertex> outerNode = (first ? ni.getN1() : ni.getN4());
         VectorYNode<BaseInputVertex> innerNode = (first ? ni.getN2() : ni.getN3());
+        //minMax.apply(cur.getVec());
         
         Edge e;
         do {
@@ -149,6 +214,7 @@ public class ConvexLayersOptimized
             innerHull.remove(prev.getIv());
             outerHull.add(prev.getIv());
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
+            minMax.apply(cur.getVec());
             vis.redraw();
             
         } while (prev != cur && e.relOri(cur.getVec()) <= 0 && !innerHull.isEmpty());
@@ -161,20 +227,23 @@ public class ConvexLayersOptimized
      * TODO Improve algorithm speed.
      *   Current average time : O(n)
      *   Improved average time: O(log(n))
-     * 
+     *
      * @param innerHull The inner hull.
-     * @param remaining The remaining nodes.
+     * @param search    The 2D range search structure to use.
+     * @param minMax    The data needed for the search.
+     * @param vis       The visualizer used to display the progress.
      */
-    private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Collection<BaseInputVertex> remaining,
-                              Visual vis) {
+    private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Range2DSearch<BaseInputVertex> search,
+                              MinMax minMax, Visual vis) {
+        Collection<BaseInputVertex> toConsider = search(search, minMax);
         Collection<BaseInputVertex> toRemove = new HashSet<>();
-        for (BaseInputVertex iv : remaining) {
+        for (BaseInputVertex iv : toConsider) {
             toRemove.add(iv);
             List<BaseInputVertex> del = innerHull.addAndUpdate(iv);
             toRemove.removeAll(del);
             if (del.size() != 1 || del.get(0) != iv) vis.redraw();
         }
-        remaining.removeAll(toRemove);
+        search.removeAll(toRemove);
     }
     
     /**
@@ -188,8 +257,8 @@ public class ConvexLayersOptimized
         ConvexHull<BaseInputVertex> outerHull;
         ConvexHull<BaseInputVertex> innerHull;
         Range2DSearch<BaseInputVertex> search = create2DSearch();
-        Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: move inwards. v
         {
+            Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: move inwards.
             outerHull = ConvexHull.createConvexHull(remaining);
             remaining.removeAll(outerHull);
             innerHull = ConvexHull.createConvexHull(remaining);
@@ -204,21 +273,21 @@ public class ConvexLayersOptimized
         addHullToSol(sol, outerHull);
         vis.redraw();
         
-//        int i = 0; // TODO: remove.
-//        int[] coords = new int[]{
-//                5, 6,
-//                7, 8,
-//                0, 1,
-//                7, 8,
-//                2, 3,
-//                9, 0,
-//                0, 8,
-//                1, 2,
-//                3, 4,
-//                0, 1,
-//                1, 2,
-//                0, 2
-//        };
+        int i = 0; // TODO: remove.
+        int[] coords = new int[]{
+                5, 6,
+                7, 8,
+                0, 1,
+                7, 8,
+                2, 3,
+                9, 0,
+                0, 8,
+                1, 2,
+                3, 4,
+                0, 1,
+                1, 2,
+                0, 2
+        };
 
         // BEGIN ALGORITHM LOGIC
         while (!innerHull.isEmpty()) {
@@ -230,12 +299,12 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-//            int x = coords[i++];
-//            int y = coords[i++];
-//            Logger.write("x: " + x + ", y: " + y);
-//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
+            int x = coords[i++];
+            int y = coords[i++];
+            Logger.write("x: " + x + ", y: " + y);
+            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
-            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+//            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
@@ -254,24 +323,38 @@ public class ConvexLayersOptimized
                 vis.redraw();
                 resetVis(vis, p, innerHull, outerHull, sol);
             }
+
+            // Generate the bounding box to search for during the inner hull repair phase.
+            boolean unboundedLeft;
+            boolean unboundedBottom;
+            {
+                Vector v = ni.getInnerVec1().getVec();
+                Edge e = innerHull.getBottomTopEdge();
+                unboundedLeft = e.relOri(v) <= 0;
+                e = new Edge(innerHull.getMinX().getV(), innerHull.getMaxX().getV());
+                unboundedBottom = e.relOri(v) >= 0;
+            }
+            MinMax minMax = new MinMax(unboundedLeft, unboundedBottom);
             
             // For the inner part, add the output edges, add the two vertices from the inner hull
             // to the outer hull, and remove all unneeded nodes from the outer hull.
-            VectorYNode<BaseInputVertex> first = ni.getInnerVec1();
-            VectorYNode<BaseInputVertex> second = ni.getInnerVec2();
-            sol.add(new OutputEdge(first.getIv(), second.getIv()));
+//            VectorYNode<BaseInputVertex> first = ni.getInnerVec1();
+//            VectorYNode<BaseInputVertex> second = ni.getInnerVec2();
+            sol.add(new OutputEdge(ni.getInnerVec1().getIv(), ni.getInnerVec2().getIv()));
             vis.redraw();
             
             ni.removeMiddleNodes(outerHull, vis);
             vis.redraw();
             
             // Fix the outer hull.
-            fixOuterHull(innerHull, outerHull, sol, ni, first, true, vis);
-            fixOuterHull(innerHull, outerHull, sol, ni, second, false, vis);
+            minMax.apply(ni.getInnerVec1().getVec());
+            minMax.apply(ni.getInnerVec2().getVec());
+            fixOuterHull(innerHull, outerHull, sol, ni, minMax, true, vis);
+            fixOuterHull(innerHull, outerHull, sol, ni, minMax, false, vis);
             
             // Fix the inner hull.
-            if (!remaining.isEmpty()) {
-                fixInnerHull(innerHull, remaining, vis); // TODO
+            if (!search.isEmpty()) {
+                fixInnerHull(innerHull, search, minMax, vis); // TODO
             }
             // Reset Visual.
             vis.redraw();
@@ -310,7 +393,7 @@ public class ConvexLayersOptimized
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);

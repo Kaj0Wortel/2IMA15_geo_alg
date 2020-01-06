@@ -285,13 +285,13 @@ public class ConvexHull<IV extends BaseInputVertex>
                 vyn2 = pair1.getSecond();
                 vyn3 = pair2.getSecond();
                 vyn4 = pair2.getFirst();
-                clockwise = false; // TODO
+                clockwise = false;
             } else {
                 vyn1 = pair1.getSecond();
                 vyn2 = pair1.getFirst();
                 vyn3 = pair2.getFirst();
                 vyn4 = pair2.getSecond();
-                clockwise = true; // TODO
+                clockwise = true;
             }
             
         } else {
