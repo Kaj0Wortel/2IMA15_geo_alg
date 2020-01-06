@@ -5,6 +5,7 @@ import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
+import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;
 import convex_layers.hull.VectorYEdge;
@@ -393,7 +394,7 @@ public class ConvexLayersOptimized
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
+        Solver solver = new ConvexLayersOptimized(QuadTree.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
