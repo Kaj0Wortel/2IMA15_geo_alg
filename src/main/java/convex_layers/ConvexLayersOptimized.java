@@ -180,7 +180,6 @@ public class ConvexLayersOptimized
     /**
      * Solves the given problem and outputs it to the output file.
      */
-    //public synchronized void solve(File source, File target) {
     public synchronized Collection<OutputEdge> solve(Problem2 p, Visual vis) {
         // Create the solution set.
         Set<OutputEdge> sol = new HashSet<>();
@@ -205,8 +204,23 @@ public class ConvexLayersOptimized
         addHullToSol(sol, outerHull);
         vis.redraw();
         
-        // BEGIN ALGORITHM LOGIC
 //        int i = 0; // TODO: remove.
+//        int[] coords = new int[]{
+//                5, 6,
+//                7, 8,
+//                0, 1,
+//                7, 8,
+//                2, 3,
+//                9, 0,
+//                0, 8,
+//                1, 2,
+//                3, 4,
+//                0, 1,
+//                1, 2,
+//                0, 2
+//        };
+
+        // BEGIN ALGORITHM LOGIC
         while (!innerHull.isEmpty()) {
             if (innerHull.size() == 1) {
                 BaseInputVertex iv = innerHull.get(0);
@@ -216,54 +230,12 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
-//            int x;
-//            int y;
-//            Logger.write(i);
-//            if (i == 0) {
-//                x = 5;
-//                y = 6;
-//
-//            } else if (i == 1) {
-//                x = 7;
-//                y = 8;
-//
-//            } else if (i == 2) {
-//                x = 0;
-//                y = 1;
-//
-//            } else if (i == 3) {
-//                x = 4;
-//                y = 5;
-//
-//            } else if (i == 4) {
-//                x = 6;
-//                y = 7;
-//
-//            } else if (i == 5) {
-//                x = 5;
-//                y = 6;
-//
-//            } else if (i == 6) {
-//                x = 2;
-//                y = 3;
-//
-//            } else if (i == 7) {
-//                x = 3;
-//                y = 4;
-//
-//            } else if (i == 8) {
-//                x = 5;
-//                y = 0;
-//
-//            } else {
-//                return sol;
-//            }
-//            Logger.write(x + ", " + y);
-//            i++;
+//            int x = coords[i++];
+//            int y = coords[i++];
+//            Logger.write("x: " + x + ", y: " + y);
 //            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
             
-            Edge e = vye.toEdge();
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
@@ -327,16 +299,16 @@ public class ConvexLayersOptimized
         String folder = "challenge_1";
         String type = "uniform";
 //        String name = "uniform-0000015-1";
-//        String name = "uniform-0000040-1";
-        String name = "uniform-0001000-1";
+        String name = "uniform-0000040-1";
+//        String name = "uniform-0001000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
-        //File inFile = new File(GEN_DATA + "0000_0017.json");
+//        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-//        Visual vis = new Visualizer();
-        Visual vis = new NullVisualizer();
+        Visual vis = new Visualizer();
+//        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());

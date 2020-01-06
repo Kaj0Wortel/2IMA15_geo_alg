@@ -1,5 +1,6 @@
 package convex_layers.hull;
 
+import convex_layers.InputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
@@ -1430,55 +1431,45 @@ public class ConvexHull<IV extends BaseInputVertex>
      * such that angles are convex. <br>
      * The given vertex should be strictly inside this hull, i.e. it should not lie on the hull.
      * 
-     * @apiNote Runs in {@code O(log(n))} time. Expected running time is {@code O(1)}.
+     * @apiNote Runs in {@code O(n} time. Expected running time is {@code O(size())}.
+     *     This is a 2-approximation algorithm.
      * 
-     * @param iv The vertex to find the edges for.
+     * @param center The center vertex to find the connecting edges for.
      * 
      * @return A collection of all edges  
      */
-    public Collection<OutputEdge> getInnerPointConnections(IV iv) {
+    public Collection<OutputEdge> getInnerPointConnections(IV center) {
         if (isEmpty()) {
             throw new IllegalStateException();
         }
-        Collection<OutputEdge> out = new ArrayList<>(3);
-        out.add(new OutputEdge(top.getIv(), iv));
-        out.add(new OutputEdge(iv, bottom.getIv()));
         
-        double ori = getBottomTopEdge().relOri(iv.getV());
-        Edge topEdge;
-        Edge botEdge;
-        VectorYNode<IV> node;
-        if (ori < 0) {
-            node = left.getRoot();
-            topEdge = new Edge(iv.getV(), top.getVec());
-            botEdge = new Edge(bottom.getVec(), iv.getV());
-            
-        } else if (ori > 0) {
-            node = right.getRoot();
-            topEdge = new Edge(top.getVec(), iv.getV());
-            botEdge = new Edge(iv.getV(), bottom.getVec());
-            
-        } else {
-            return out;
+        Collection<OutputEdge> out = new HashSet<>();
+        
+        Iterator<IV> it = iterator();
+        IV lastIv = get(size() - 1);
+        out.add(new OutputEdge(center, lastIv));
+        Edge e = new Edge(center.getV(), lastIv.getV());
+        
+        IV prev = null;
+        while (it.hasNext()) {
+            IV iv = it.next();
+            double ori = e.relOri(iv.getV());
+            if (ori <= 0) {
+                if (prev == null) {
+                    throw new IllegalStateException("Point lies outside the hull!");
+                }
+                out.add(new OutputEdge(center, prev));
+                e = new Edge(center.getV(), prev.getV());
+            }
+            prev = iv;
         }
-        while (node != null) {
-            if (node == top) {
-                node = node.right();
-                continue;
+        
+        double ori = e.relOri(lastIv.getV());
+        if (ori <= 0) {
+            if (prev == null) {
+                throw new IllegalStateException("Point lies outside the hull!");
             }
-            if (node == bottom) {
-                node = node.left();
-                continue;
-            }
-            double oriTop = topEdge.relOri(node.getVec());
-            double oriBot = botEdge.relOri(node.getVec());
-            if (oriTop <= 0 && oriBot <= 0) {
-                out.add(new OutputEdge(node.getIv(), iv));
-                break;
-                
-            } else if (oriTop > 0 && oriBot <= 0) node = node.right();
-            else if (oriTop <= 0 && oriBot > 0) node = node.left();
-            else throw new IllegalStateException();
+            out.add(new OutputEdge(center, prev));
         }
         
         return out;
