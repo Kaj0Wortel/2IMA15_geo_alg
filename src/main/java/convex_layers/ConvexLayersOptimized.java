@@ -1,6 +1,7 @@
 package convex_layers;
 
 import convex_layers.checker.*;
+import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
@@ -11,6 +12,7 @@ import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
+import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
