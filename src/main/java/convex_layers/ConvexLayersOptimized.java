@@ -431,8 +431,13 @@ public class ConvexLayersOptimized
         errorVis.addEdge(Visual.toEdge(sol));
         err.draw(errorVis);
 
+        double scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
+        Logger.write("Score lower bound: " + scoreLowerBound);
+
         double score = ScoreCalculator.calculateScore(problem, sol);
         Logger.write("Score: " + score);
+
+        Logger.write("That's " + (score / scoreLowerBound) + " as much as the lower bound.");
         
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }
