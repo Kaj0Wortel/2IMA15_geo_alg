@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f2f8e640-2c73-4b5a-9194-9a3050cc11c1" name="Default Changelist" comment="Added a comment">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/Evaluator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/ScoreCalculator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="DefaultGradleProjectSettings">
+    <option name="isMigrated" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1TvS2e8DOqvAW8mD7uymM7RPUf7" />
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../serpentine-snakeeyes" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/java" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.ConvexLayersOptimized">
+    <configuration name="ConvexHull" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="convex_layers.hull.ConvexHull" />
+      <module name="2IMA15_geo_alg" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="convex_layers.hull.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ConvexLayersOptimized" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="convex_layers.ConvexLayersOptimized" />
+      <module name="2IMA15_geo_alg" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="convex_layers.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Evaluator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="convex_layers.evaluate.Evaluator" />
+      <module name="2IMA15_geo_alg" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="convex_layers.evaluate.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KDTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="convex_layers.data.kd_tree.KDTree" />
+      <module name="2IMA15_geo_alg" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="convex_layers.data.kd_tree.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Visualizer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="convex_layers.visual.Visualizer" />
+      <module name="convex_layers" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="convex_layers.visual.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list />
+            </option>
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2">
+        <option name="MakeProject" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="run" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list />
+            </option>
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2">
+        <option name="MakeProject" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Visualizer" />
+      <item itemvalue="Application.ConvexLayersOptimized" />
+      <item itemvalue="Application.ConvexHull" />
+      <item itemvalue="Application.KDTree" />
+      <item itemvalue="Maven.run" />
+      <item itemvalue="Application.Evaluator" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ConvexLayersOptimized" />
+        <item itemvalue="Application.Evaluator" />
+        <item itemvalue="Application.KDTree" />
+        <item itemvalue="Application.ConvexHull" />
+        <item itemvalue="Application.Visualizer" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f2f8e640-2c73-4b5a-9194-9a3050cc11c1" name="Default Changelist" comment="" />
+      <created>1574338869924</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1574338869924</updated>
+      <workItem from="1574338873442" duration="474000" />
+      <workItem from="1574469479053" duration="65000" />
+      <workItem from="1574523870246" duration="331000" />
+      <workItem from="1575028370048" duration="1072000" />
+      <workItem from="1575029799070" duration="3959000" />
+      <workItem from="1575634444442" duration="820000" />
+      <workItem from="1576238952815" duration="7554000" />
+      <workItem from="1576428578085" duration="1098000" />
+      <workItem from="1576436400500" duration="1531000" />
+      <workItem from="1576588405287" duration="160000" />
+      <workItem from="1576762160178" duration="3985000" />
+      <workItem from="1576842612905" duration="5868000" />
+      <workItem from="1576848868432" duration="15000" />
+      <workItem from="1576848900098" duration="2458000" />
+      <workItem from="1578337942741" duration="1524000" />
+      <workItem from="1578478144408" duration="62000" />
+      <workItem from="1578484848819" duration="2894000" />
+    </task>
+    <task id="LOCAL-00001" summary="Fix from merge">
+      <created>1575031030475</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1575031030475</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Formatting">
+      <created>1576239544421</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1576239544421</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fix bug of when 1 node left">
+      <created>1576437684250</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1576437684250</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Fix bug in hull displaying">
+      <created>1576588532468</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1576588532468</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Simplify detection of on which side of line the hull is">
+      <created>1576846188367</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1576846188367</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Rename hasLeft to hullOnLeftSide + commenting">
+      <created>1576850642293</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1576850642293</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Fix comment">
+      <created>1576850960879</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1576850960879</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added a comment">
+      <created>1578338427579</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1578338427579</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Fix from merge" />
+    <MESSAGE value="Formatting" />
+    <MESSAGE value="Fix bug of when 1 node left" />
+    <MESSAGE value="Fix bug in hull displaying" />
+    <MESSAGE value="Simplify detection of on which side of line the hull is" />
+    <MESSAGE value="Rename hasLeft to hullOnLeftSide + commenting" />
+    <MESSAGE value="Fix comment" />
+    <MESSAGE value="Added a comment" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a comment" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized" timestamp="1578485280479">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized/0.0.1920.1040@0.0.1920.1040" timestamp="1578485280479" />
+    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1576849408850">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576849408850" />
+    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1576848880552">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576848880552" />
+    <state x="558" y="117" key="CommitChangelistDialog2" timestamp="1578485014286">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="558" y="117" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578485014286" />
+    <state x="718" y="236" key="DetectedRootsChooserDialog" timestamp="1576851368401">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="718" y="236" key="DetectedRootsChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576851368401" />
+    <state x="738" y="264" key="FileChooserDialogImpl" timestamp="1578484957704">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="738" y="264" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578484957704" />
+    <state width="1874" height="272" key="GridCell.Tab.0.bottom" timestamp="1578487799289">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1874" height="272" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
+    <state width="1874" height="272" key="GridCell.Tab.0.center" timestamp="1578487799288">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1874" height="272" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
+    <state width="1874" height="272" key="GridCell.Tab.0.left" timestamp="1578487799288">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1874" height="272" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
+    <state width="1874" height="272" key="GridCell.Tab.0.right" timestamp="1578487799289">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1874" height="272" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
+    <state x="444" y="96" key="SettingsEditor" timestamp="1578484958444">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="444" y="96" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1578484958444" />
+    <state x="556" y="256" key="Vcs.Push.Dialog.v2" timestamp="1578487488971">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="556" y="256" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578487488971" />
+    <state x="641" y="346" key="com.intellij.ide.util.TipDialog" timestamp="1578478188598">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="641" y="346" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578478188598" />
+    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog" timestamp="1578338143577">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578338143577" />
+    <state x="620" y="237" key="run.anything.popup" timestamp="1576849999046">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="620" y="237" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1576849999046" />
+  </component>
+</project>
