@@ -37,7 +37,9 @@ class QuadLeaf<T extends Node2D<T>> extends AbstractQuadNode {
 
     @Override
     AbstractQuadNode remove(Node2D node) {
-        System.out.println();
+        if (!(points.contains(node))){
+            throw new IllegalStateException("point not part of leaf");
+        }
         points.remove(node);
         return this;
     }
