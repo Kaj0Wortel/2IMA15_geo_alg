@@ -424,7 +424,7 @@ public class ConvexLayersOptimized
 //        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
 //        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
 //        v.redraw();
-        
+        Logger.write("==========  SOLUTION  GENERATED  ==========");
         //sol.remove(sol.iterator().next());
         CheckerError err = checker.check(problem, sol);
         Logger.write(err);
