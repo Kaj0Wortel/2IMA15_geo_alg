@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f2f8e640-2c73-4b5a-9194-9a3050cc11c1" name="Default Changelist" comment="Added a comment">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/Evaluator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/ScoreCalculator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" afterDir="false" />
+    <list default="true" id="09797643-e703-4ecd-ad3d-1fbbfaf0e37c" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +41,10 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayers.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/main/java/convex_layers/visual/Visualizer.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="MavenImportPreferences">
     <option name="importingSettings">
@@ -197,8 +199,8 @@
       <item itemvalue="Application.ConvexLayersOptimized" />
       <item itemvalue="Application.ConvexHull" />
       <item itemvalue="Application.KDTree" />
-      <item itemvalue="Maven.run" />
       <item itemvalue="Application.Evaluator" />
+      <item itemvalue="Maven.run" />
     </list>
     <recent_temporary>
       <list>
@@ -407,5 +409,9 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="620" y="237" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1576849999046" />
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1578492199414">
+      <screen x="0" y="0" width="1920" height="1042" />
+    </state>
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1042@0.0.1920.1042" timestamp="1578492199414" />
   </component>
 </project>

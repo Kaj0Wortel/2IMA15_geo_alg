@@ -48,36 +48,42 @@ public class KDTree<T extends Node2D<T>>
     @RequiredArgsConstructor
     protected static class Node<T extends Node2D<T>>
             implements Node2D<Node<T>> {
-        /**
-         * The data of the node
-         */
+        
+        /** The data of the node. */
         private T data;
-        /**
-         * The parent of this node.
-         */
+        /** The parent of this node. */
         private Node<T> parent;
-        /**
-         * The left child of the node.
-         */
+        /** The left child of the node. */
         private Node<T> left;
-        /**
-         * The right child of the node.
-         */
+        /** The right child of the node. */
         private Node<T> right;
-        /**
-         * The dimension this node splits on.
-         */
+        /** The dimension this node splits on. */
         private boolean xSplit;
+        /** The x-value to search for. */
+        private final double x;
+        /** The y-value to search for. */
+        private final double y;
 
-        @Override
-        public double getX() {
-            return data.getX();
-        }
 
-        @Override
-        public double getY() {
-            return data.getY();
+        /**
+         * Creates a new node.
+         * 
+         * @param data   The initial data of the node.
+         * @param parent The initial parent of the node.
+         * @param left   The initial left child of the node.
+         * @param right  The initial right child of the node.
+         * @param xSplit The split value of the x of this node.
+         */
+        public Node(T data, Node<T> parent, Node<T> left, Node<T> right, boolean xSplit) {
+            this.data = data;
+            this.parent = parent;
+            this.left = left;
+            this.right = right;
+            this.xSplit = xSplit;
+            this.x = data.getX();
+            this.y = data.getY();
         }
+        
 
         @Override
         public int hashCode() {
@@ -86,8 +92,9 @@ public class KDTree<T extends Node2D<T>>
 
         @Override
         @SuppressWarnings("rawtypes")
-        public boolean equals(Object obj) { // TODO
-            return false;
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Node)) return false;
+            return ((Node) obj).data.equals(data); 
         }
 
         @Override
@@ -100,7 +107,11 @@ public class KDTree<T extends Node2D<T>>
                     "    right : " + (right == null ? "null" : right.data) + Var.LS +
                     "]";
         }
+        
+        
     }
+    
+    
     /* ----------------------------------------------------------------------
      * Constructors.
      * ----------------------------------------------------------------------
@@ -134,11 +145,11 @@ public class KDTree<T extends Node2D<T>>
 
         List<T> colX = new ArrayList<>(col);
         Comparator<T> xCompare = Comparator.comparingDouble(Node2D::getX);
-        Collections.sort(colX, xCompare);
+        colX.sort(xCompare);
 
         List<T> colY = new ArrayList<>(col);
         Comparator<T> yCompare = Comparator.comparingDouble(Node2D::getY);
-        Collections.sort(colY, yCompare);
+        colY.sort(yCompare);
 
 
         root = buildKDTree(colX, colY ,0);
@@ -152,7 +163,7 @@ public class KDTree<T extends Node2D<T>>
         if (colX.size() == 1) {
             // return tree of only one leaf
             T leaf = colX.get(0);
-            return new Node(leaf, null, null , null, depth % 2 == 0);
+            return new Node<T>(leaf, null, null , null, depth % 2 == 0);
         }
 
         List<T> P1x = new ArrayList<>();
@@ -179,8 +190,8 @@ public class KDTree<T extends Node2D<T>>
         }
         P1x.remove(median);
         P1y.remove(median);
-        Node left = buildKDTree(P1x, P1y, depth + 1);
-        Node right = buildKDTree(P2x, P2y, depth + 1);
+        Node<T> left = buildKDTree(P1x, P1y, depth + 1);
+        Node<T> right = buildKDTree(P2x, P2y, depth + 1);
         medianNode.setLeft(left);
         medianNode.setRight(right);
         if (left != null) {
@@ -217,12 +228,13 @@ public class KDTree<T extends Node2D<T>>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean remove(Object obj) {
         if (!(obj instanceof Node2D)) return false;
         T t = (T) obj;
         return remove(root, t);
     }
-
+    
     private boolean remove(Node<T> current, T t) {
         while (current != null) {
             if (current.getX() == t.getX() && current.getY() == t.getY()) {
