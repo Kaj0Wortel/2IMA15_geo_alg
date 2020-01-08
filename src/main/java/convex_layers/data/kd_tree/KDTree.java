@@ -226,9 +226,15 @@ public class KDTree<T extends Node2D<T>>
     private boolean remove(Node<T> current, T t) {
         while (current != null) {
             if (current.getX() == t.getX() && current.getY() == t.getY()) {
+                // last node
+                if (size == 1) {
+                    root = null;
+                    size--;
+                    return true;
+                }
                 // remove leaf
                 if (current.getLeft() == null && current.getRight() == null) {
-                    if (current.getParent().getLeft().getData().equals(current.getData())) {
+                    if (current.getParent().getLeft() != null && current.getParent().getLeft().getData().equals(current.getData())) {
                         current.getParent().setLeft(null);
                     } else {
                         current.getParent().setRight(null);
