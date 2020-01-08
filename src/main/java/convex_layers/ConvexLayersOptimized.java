@@ -1,34 +1,32 @@
 package convex_layers;
 
 import convex_layers.checker.*;
-import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
-import convex_layers.data.quad_tree.QuadTree;
+import convex_layers.evaluate.ScoreCalculator;
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;
 import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
-import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
-
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
-import lombok.*;
-
-import tools.MultiTool;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import tools.Var;
 import tools.log.Logger;
 import tools.log.StreamLogger;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Optimized version of the convex partition problem.
@@ -432,6 +430,9 @@ public class ConvexLayersOptimized
         errorVis.addLabel(Visual.toLabel(problem.getVertices()));
         errorVis.addEdge(Visual.toEdge(sol));
         err.draw(errorVis);
+
+        double score = ScoreCalculator.calculateScore(problem, sol);
+        Logger.write("Score: " + score);
         
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }
