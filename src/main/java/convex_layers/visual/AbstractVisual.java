@@ -4,9 +4,7 @@ import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import tools.data.array.ArrayTools;
-import tools.data.file.FileTree;
 import tools.font.FontLoader;
-import tools.log.Logger;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
