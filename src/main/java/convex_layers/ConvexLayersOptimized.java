@@ -133,7 +133,7 @@ public class ConvexLayersOptimized
      * @return The nodes in the specified range.
      */
     private static <T extends Node2D<T>> Collection<T> search(Range2DSearch<T> search, MinMax minMax) {
-        Logger.write(minMax);
+        //Logger.write(minMax);
         return search.getRange(minMax.minX, minMax.maxX, minMax.minY, minMax.maxY,
                 minMax.unboundedLeft, minMax.unboundedBottom);
     }
@@ -400,20 +400,20 @@ public class ConvexLayersOptimized
         String folder = "challenge_1";
         String type = "uniform";
 //        String name = "uniform-0000015-1";
-        String name = "uniform-0000040-1";
+//        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
 //        String name = "uniform-0001000-1";
-//        String name = "uniform-0010000-1";
+        String name = "uniform-0010000-1";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Visual vis = new Visualizer();
-//        Visual vis = new NullVisualizer();
+//        Visual vis = new Visualizer();
+        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
