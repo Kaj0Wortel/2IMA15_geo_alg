@@ -333,12 +333,13 @@ public class ConvexLayersOptimized
                         ni.getN4().getIv(),
                         ni.getN1().getIv()
                 );
-                vis.addData(List.of(intersect));
-                vis.addEdge(List.of(vye.toEdge()));
+                vis.addPoint(Visual.toVec(intersect), Visual.toLabel(intersect), null);
+                vis.addEdge(Visual.connectEdges(Visual.toVec(intersect)), null);
+                vis.addEdge(List.of(vye.toEdge()), null);
                 vis.redraw();
                 resetVis(vis, p, innerHull, outerHull, sol);
             }
-
+            
             // Generate the bounding box to search for during the inner hull repair phase.
             boolean unboundedLeft;
             boolean unboundedBottom;
