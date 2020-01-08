@@ -118,19 +118,19 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
     Collection<T> getRange(double maxX, double maxY, double minX, double minY) {
         Set<T> result = new HashSet<T>();
         if(maxX >= this.maxX && maxY>=this.maxY && minX <= this.minX && minY <= this.minY){
-        /* TODO    System.out.println("this maxX: " + this.maxX  + " maxX: " + maxX);
-            System.out.println("this minX: " + this.minX  + " minX: " + minX);
-            System.out.println("this maxY: " + this.maxY  + " maxY: " + maxY);
-            System.out.println("this minY: " + this.minY  + " minY: " + minY);
-            System.out.println("depth: " + depth);
-            System.out.println("points: " + points); */
+//      TODO      System.out.println("this maxX: " + this.maxX  + " maxX: " + maxX);
+//            System.out.println("this minX: " + this.minX  + " minX: " + minX);
+//            System.out.println("this maxY: " + this.maxY  + " maxY: " + maxY);
+//            System.out.println("this minY: " + this.minY  + " minY: " + minY);
+//            System.out.println("depth: " + depth);
+//            System.out.println("points: " + points);
             result.addAll(points);
         } else if(minX > this.maxX || maxX < this.minX || minY > this.maxY || maxY < this.minY){
         } else {
 //         TODO   System.out.println("did recusions");
-//        TODO    System.out.println("NE: " + NE.minX + " " + NE.maxX + " " + NE.minX + " " + NE.maxY);
+//            System.out.println("NE: " + NE.minX + " " + NE.maxX + " " + NE.minX + " " + NE.maxY);
             result.addAll(NE.getRange(maxX, maxY, minX, minY));
-//        TODO    System.out.println("NW: " + NW.minX + " " + NW.maxX + " " + NW.minX + " " + NW.maxY);
+//       TODO     System.out.println("NW: " + NW.minX + " " + NW.maxX + " " + NW.minX + " " + NW.maxY);
             result.addAll(NW.getRange(maxX, maxY, minX, minY));
 //        TODO    System.out.println("SE: " + SE.minX + " " + SE.maxX + " " + SE.minX + " " + SE.maxY);
             result.addAll(SE.getRange(maxX, maxY, minX, minY));
@@ -146,7 +146,7 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
     @Override
     AbstractQuadNode remove(Node2D node) {
         points.remove(node);
-        if (points.size() <= 0){
+        if (points.size() <= 1){
             return new QuadLeaf<T>(maxX, maxY, minX, minY, depth, parent, points);
         }
         if(NE.points.contains(node)){
