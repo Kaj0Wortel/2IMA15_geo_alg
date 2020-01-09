@@ -232,12 +232,18 @@ public class KDTree<T extends Node2D<T>>
     public boolean remove(Object obj) {
         if (!(obj instanceof Node2D)) return false;
         T t = (T) obj;
-        return remove(root, t);
+        boolean remove1 = remove(root, t);
+        int size1 = size;
+        boolean remove2 = remove(root, t);
+        if (!remove1 || remove2) {
+            System.out.println(t.toString() + " " + remove1 + " " + remove2 + " " + size1 + " " + size);
+        }
+        return remove1;
     }
     
     private boolean remove(Node<T> current, T t) {
         while (current != null) {
-            if (current.getX() == t.getX() && current.getY() == t.getY()) {
+            if (current.getData().getX() == t.getX() && current.getData().getY() == t.getY()) {
                 // last node
                 if (size == 1) {
                     root = null;
@@ -255,12 +261,12 @@ public class KDTree<T extends Node2D<T>>
                     return true;
                 // recursively remove from right subtree
                 } else if (current.getLeft() == null) {
-                    T toRemove = find(current.getRight(), false, current.xSplit);
+                    T toRemove = findLeaf(current.getRight());
                     current.setData(toRemove);
                     return remove(current.getRight(), toRemove);
                 // recursively remove from left subtree
                 } else {
-                    T toRemove = find(current.getLeft(), true, current.xSplit);
+                    T toRemove = findLeaf(current.getLeft());
                     current.setData(toRemove);
                     return remove(current.getLeft(), toRemove);
                 }
@@ -283,121 +289,19 @@ public class KDTree<T extends Node2D<T>>
         return false;
     }
 
-    private T find(Node<T> current, boolean max, boolean x) {
-        if (max && x) {
-            return findMaxX(current);
-        } else if (!max && x) {
-            return findMinX(current);
-        } else if (max && !x) {
-            return findMaxY(current);
-        } else {
-            return findMinY(current);
-        }
-    }
-
-    private T findMaxX(Node<T> current) {
-        T best = current.getData();
-        if (current.isXSplit()) {
-            if (current.getRight() != null) {
-                T temp = findMaxX(current.getRight());
-                if (temp.getX() >= best.getX()) {
-                    best = temp;
-                }
-            }
-        } else {
-            if (current.getLeft() != null) {
-                T temp = findMaxX(current.getLeft());
-                if (temp.getX() >= best.getX()) {
-                    best = temp;
-                }
-            }
-            if (current.getRight() != null) {
-                T temp = findMaxX(current.getRight());
-                if (temp.getX() >= best.getX()) {
-                    best = temp;
-                }
+    private T findLeaf(Node<T> current) {
+        while (current != null) {
+            if (current.getLeft() == null && current.getRight() == null) {
+                return current.getData();
+            } else if (current.getLeft() == null) {
+                current = current.getRight();
+            } else {
+                current = current.getLeft();
             }
         }
-        return best;
+        return null;
     }
-
-    private T findMinX(Node<T> current) {
-        T best = current.getData();
-        if (current.isXSplit()) {
-            if (current.getLeft() != null) {
-                T temp = findMinX(current.getLeft());
-                if (temp.getX() <= best.getX()) {
-                    best = temp;
-                }
-            }
-        } else {
-            if (current.getLeft() != null) {
-                T temp = findMinX(current.getLeft());
-                if (temp.getX() <= best.getX()) {
-                    best = temp;
-                }
-            }
-            if (current.getRight() != null) {
-                T temp = findMinX(current.getRight());
-                if (temp.getX() <= best.getX()) {
-                    best = temp;
-                }
-            }
-        }
-        return best;
-    }
-
-    private T findMaxY(Node<T> current) {
-        T best = current.getData();
-        if (!current.isXSplit()) {
-            if (current.getRight() != null) {
-                T temp = findMaxY(current.getRight());
-                if (temp.getY() >= best.getY()) {
-                    best = temp;
-                }
-            }
-        } else {
-            if (current.getLeft() != null) {
-                T temp = findMaxY(current.getLeft());
-                if (temp.getY() >= best.getY()) {
-                    best = temp;
-                }
-            }
-            if (current.getRight() != null) {
-                T temp = findMaxY(current.getRight());
-                if (temp.getY() >= best.getY()) {
-                    best = temp;
-                }
-            }
-        }
-        return best;
-    }
-
-    private T findMinY(Node<T> current) {
-        T best = current.getData();
-        if (!current.isXSplit()) {
-            if (current.getLeft() != null) {
-                T temp = findMinY(current.getLeft());
-                if (temp.getY() <= best.getY()) {
-                    best = temp;
-                }
-            }
-        } else {
-            if (current.getLeft() != null) {
-                T temp = findMinY(current.getLeft());
-                if (temp.getY() <= best.getY()) {
-                    best = temp;
-                }
-            }
-            if (current.getRight() != null) {
-                T temp = findMinY(current.getRight());
-                if (temp.getY() <= best.getY()) {
-                    best = temp;
-                }
-            }
-        }
-        return best;
-    }
+    
     
     @Override
     public void clear() {
@@ -440,7 +344,7 @@ public class KDTree<T extends Node2D<T>>
 
         }
         // check if current node is in the range
-        if (xMin <= node.getX() && node.getX() <= xMax && yMin <= node.getY() && node.getY() <= yMax ) {
+        if (xMin <= node.getData().getX() && node.getData().getX() <= xMax && yMin <= node.getData().getY() && node.getData().getY() <= yMax) {
             found.add(node.getData());
         }
 
