@@ -4,6 +4,9 @@ import convex_layers.*;
 import convex_layers.checker.*;
 import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Range2DSearch;
+import convex_layers.data.prior_tree.PriorTree;
+import convex_layers.data.prior_tree.PriorTreeSearch;
+import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import convex_layers.visual.VisualRender;
@@ -13,7 +16,9 @@ import tools.log.Logger;
 import tools.log.StreamLogger;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 
 public class Evaluator {
 
@@ -25,6 +30,8 @@ public class Evaluator {
     boolean visualizeOutput = true;
     boolean saveSolution = true;
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss.SSS");
+
     public void evaluate() {
         String folder = "challenge_1";
         String type = "uniform";
@@ -32,15 +39,24 @@ public class Evaluator {
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-        String name = "uniform-0001000-1";
+//        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
 //        String name = "euro-night-0010000";
-        String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
 
-        File inFile = new File(path + ".instance.json");
-        File outFile = new File(path + ".solution.json");
-        Problem2 problem = ProblemIO.readProblem(inFile);
-        evaluate(problem, IgnoreRangeSearch.class, outFile);
+        String[] names = {
+            "uniform-0010000-1"
+        };
+
+        for (String name : names) {
+
+            String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
+
+            File inFile = new File(path + ".instance.json");
+            File outFile = new File(path + ".solution.json");
+            Problem2 problem = ProblemIO.readProblem(inFile);
+            Class<? extends Range2DSearch> search = QuadTree.class;
+            evaluate(problem, search, outFile);
+        }
     }
 
     public void evaluate(Problem2 problem, Class<? extends Range2DSearch> search, File outFile) {
@@ -52,10 +68,10 @@ public class Evaluator {
 
         Logger.write("========== Solving problem " + problem.getName() + " ==========");
         long startTime = System.currentTimeMillis();
-        Logger.write("Started at time " + startTime);
+        Logger.write("Started at time " + DATE_FORMAT.format(new Date(startTime)));
         Collection<OutputEdge> sol = solver.solve(problem, vis);
         long endTime = System.currentTimeMillis();
-        Logger.write("End time: " + endTime);
+        Logger.write("End time: " + DATE_FORMAT.format(new Date(endTime)));
 
         CheckerError error = new CheckerError();
         if (checkValidity) {
