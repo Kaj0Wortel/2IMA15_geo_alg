@@ -1,6 +1,7 @@
 package convex_layers;
 
 import convex_layers.checker.*;
+import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.prior_tree.PriorTreeSearch;
@@ -11,6 +12,7 @@ import convex_layers.hull.VectorYEdge;
 import convex_layers.hull.VectorYNode;
 import convex_layers.math.Edge;
 import convex_layers.math.Vector;
+import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
@@ -131,7 +133,7 @@ public class ConvexLayersOptimized
      * @return The nodes in the specified range.
      */
     private static <T extends Node2D<T>> Collection<T> search(Range2DSearch<T> search, MinMax minMax) {
-        Logger.write(minMax);
+        //Logger.write(minMax);
         return search.getRange(minMax.minX, minMax.maxX, minMax.minY, minMax.maxY,
                 minMax.unboundedLeft, minMax.unboundedBottom);
     }
@@ -397,21 +399,23 @@ public class ConvexLayersOptimized
         
         String folder = "challenge_1";
         String type = "uniform";
+//        String type = "images";
 //        String name = "uniform-0000015-1";
-        String name = "uniform-0000040-1";
+//        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-//        String name = "uniform-0001000-1";
+        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
+//        String name = "euro-night-0010000";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Visual vis = new Visualizer();
-//        Visual vis = new NullVisualizer();
+//        Visual vis = new Visualizer();
+        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
@@ -422,7 +426,7 @@ public class ConvexLayersOptimized
 //        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
 //        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
 //        v.redraw();
-        
+        Logger.write("==========  SOLUTION  GENERATED  ==========");
         //sol.remove(sol.iterator().next());
         CheckerError err = checker.check(problem, sol);
         Logger.write(err);

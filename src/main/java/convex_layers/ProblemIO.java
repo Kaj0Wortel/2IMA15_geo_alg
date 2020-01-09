@@ -61,7 +61,7 @@ public final class ProblemIO {
             int id = point.getInt("i");
             double x = point.getDouble("x");
             double y = point.getDouble("y");
-            Logger.write("id: " + id + ", x: " + x + ", y : " + y);
+//            Logger.write("id: " + id + ", x: " + x + ", y : " + y);
             vertices.add(new BaseInputVertex(id, x, y));
         }
 
