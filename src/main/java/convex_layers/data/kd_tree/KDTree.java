@@ -249,74 +249,51 @@ public class KDTree<T extends Node2D<T>>
     public boolean remove(Object obj) {
         if (!(obj instanceof Node2D)) return false;
         T t = (T) obj;
-        boolean remove1 = remove(root, t);
-        int size1 = size;
-        boolean remove2 = remove(root, t);
-        //if (!remove1 || remove2) {
-            System.out.println(t.toString() + " " + remove1 + " " + remove2 + " " + size1 + " " + size);
-        //}
-        return remove1;
+        return remove(root, t);
     }
     
     private boolean remove(Node<T> current, T t) {
         while (current != null) {
-            if (current.getData().getX() == t.getX() && current.getData().getY() == t.getY()) {
+            if (t.equals(current.getData())) {
                 // last node
                 if (size == 1) {
                     root = null;
                     size--;
                     return true;
-                }
-                // remove leaf
-                if (current.getLeft() == null && current.getRight() == null) {
-                    if (current.getParent().getLeft() != null && current.getParent().getLeft().getData().equals(current.getData())) {
-                        current.getParent().setLeft(null);
-                    } else {
-                        current.getParent().setRight(null);
-                    }
-                    size--;
-                    return true;
-                // recursively remove from right subtree
-                } else if (current.getLeft() == null) {
-                    T toRemove = findLeaf(current.getRight());
-                    current.setData(toRemove);
-                    return remove(current.getRight(), toRemove);
-                // recursively remove from left subtree
                 } else {
-                    T toRemove = findLeaf(current.getLeft());
-                    current.setData(toRemove);
-                    return remove(current.getLeft(), toRemove);
+                    return removeLeaf(current);
                 }
+            } else if ((current.isXSplit() && t.getX() <= current.getX()) || (!current.isXSplit() && t.getY() <= current.getY())) {
+                current = current.getLeft();
             } else {
-                if (current.isXSplit()) {
-                    if (t.getX() <= current.getX()) {
-                        current = current.getLeft();
-                    } else {
-                        current = current.getRight();
-                    }
-                } else {
-                    if (t.getY() <= current.getY()) {
-                        current = current.getLeft();
-                    } else {
-                        current = current.getRight();
-                    }
-                }
+                current = current.getRight();
             }
         }
         return false;
     }
 
-    private T findLeaf(Node<T> current) {
+    private boolean removeLeaf(Node<T> root) {
+        Node<T> current = root;
         while (current != null) {
             if (current.getLeft() == null && current.getRight() == null) {
-                return current.getData();
+                if (current.getParent().getLeft() != null && current.getParent().getLeft().equals(current)) {
+                    current.getParent().setLeft(null);
+                } else {
+                    current.getParent().setRight(null);
+                }
+
+                if (!current.getData().equals(root.getData())) {
+                    root.setData(current.getData());
+                }
+                size--;
+                return true;
             } else if (current.getLeft() == null) {
                 current = current.getRight();
             } else {
                 current = current.getLeft();
             }
         }
-        return null;
+        return false;
     }
 
     
@@ -332,33 +309,14 @@ public class KDTree<T extends Node2D<T>>
     }
 
     private Collection<T> range(double xMin, double xMax, double yMin, double yMax) {
-        return traverseTree(root, xMin, xMax, yMin, yMax, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        return traverseTree(root, xMin, xMax, yMin, yMax);
     }
 
-    private Collection<T> traverseTree(Node<T> node, double xMin, double xMax, double yMin, double yMax, double curMinX, double curMaxX, double curMinY, double curMaxY) {
+    private Collection<T> traverseTree(Node<T> node, double xMin, double xMax, double yMin, double yMax) {
         List<T> found = new ArrayList<>();
 
         if (node == null) {
             return found;
-        }
-        // we know that all nodes in the subtree are in the range
-        if (xMin <= curMinX && curMaxX <= xMax && yMin <= curMinY && curMaxY <= yMax) {
-            Stack<Node<T>> stack = new Stack<>();
-            stack.add(node);
-            found.add(node.getData());
-            while (!stack.empty()) {
-                Node<T> n = stack.pop();
-                found.add(n.getData());
-
-                if (n.getLeft() != null) {
-                    stack.push(n.getLeft());
-                }
-                if (n.getRight() != null) {
-                    stack.push(n.getRight());
-                }
-            }
-            return found;
-
         }
         // check if current node is in the range
         if (xMin <= node.getData().getX() && node.getData().getX() <= xMax && yMin <= node.getData().getY() && node.getData().getY() <= yMax) {
@@ -367,21 +325,21 @@ public class KDTree<T extends Node2D<T>>
 
         if (node.isXSplit()) {
             if (xMin <= node.getX() && xMax <= node.getX()) {
-                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax, curMinX, node.getX(), curMinY, curMaxY));
+                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax));
             } else if (xMin > node.getX() && xMax > node.getX()) {
-                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax, node.getX(), curMaxX, curMinY, curMaxY));
+                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax));
             } else if (xMin <= node.getX() && xMax > node.getX()) {
-                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax, curMinX, node.getX(), curMinY, curMaxY));
-                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax, node.getX(), curMaxX, curMinY, curMaxY));
+                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax));
+                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax));
             }
         } else {
             if (yMin <= node.getY() && yMax <= node.getY()) {
-                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax, curMinX, curMaxX, curMinY, node.getY()));
+                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax));
             } else if (yMin > node.getY() && yMax > node.getY()) {
-                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax, curMinX, curMaxX, node.getY(), curMaxY));
+                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax));
             } else if (yMin <= node.getY() && yMax > node.getY()) {
-                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax, curMinX, curMaxX, curMinY, node.getY()));
-                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax, curMinX, curMaxX, node.getY(), curMaxY));
+                found.addAll(traverseTree(node.getLeft(), xMin, xMax, yMin, yMax));
+                found.addAll(traverseTree(node.getRight(), xMin, xMax, yMin, yMax));
             }
         }
         return found;
@@ -426,7 +384,9 @@ public class KDTree<T extends Node2D<T>>
         tree.print(tree.root);
         Collection test = tree.getRange(1, 9, 2, 2, true, true);
         Logger.write(test.toString());
+        Logger.write(tree.contains(new BaseInputVertex(0L, 2, 2)));
         tree.remove(new BaseInputVertex(0L, 2, 2));
+        Logger.write(tree.contains(new BaseInputVertex(0L, 2, 2)));
         tree.print(tree.root);
         Collection test2 = tree.getRange(1, 9, 2, 2, true, true);
         Logger.write(test2.toString());
