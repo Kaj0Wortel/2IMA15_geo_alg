@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09797643-e703-4ecd-ad3d-1fbbfaf0e37c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +91,7 @@
       <recent name="$PROJECT_DIR$/src/main/java" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.All tests">
+  <component name="RunManager" selected="Application.ConvexLayersOptimized">
     <configuration name="ConvexHull" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="convex_layers.hull.ConvexHull" />
       <module name="2IMA15_geo_alg" />
@@ -232,8 +231,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.IgnoreRangeSearchTest" />
         <item itemvalue="Application.ConvexLayersOptimized" />
+        <item itemvalue="JUnit.IgnoreRangeSearchTest" />
         <item itemvalue="Application.Evaluator" />
         <item itemvalue="Application.KDTree" />
         <item itemvalue="Application.ConvexHull" />
@@ -280,7 +279,7 @@
       <workItem from="1578478144408" duration="62000" />
       <workItem from="1578484848819" duration="2894000" />
       <workItem from="1578518783287" duration="24000" />
-      <workItem from="1578575078964" duration="5595000" />
+      <workItem from="1578575078964" duration="5665000" />
     </task>
     <task id="LOCAL-00001" summary="Fix from merge">
       <created>1575031030475</created>
@@ -421,26 +420,26 @@
     </state>
     <state x="738" y="264" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578484957704" />
     <state x="738" y="265" key="FileChooserDialogImpl/0.0.1920.1042@0.0.1920.1042" timestamp="1578580181515" />
-    <state width="1874" height="273" key="GridCell.Tab.0.bottom" timestamp="1578579606636">
+    <state width="1874" height="273" key="GridCell.Tab.0.bottom" timestamp="1578580755508">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state width="1874" height="272" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
-    <state width="1874" height="273" key="GridCell.Tab.0.bottom/0.0.1920.1042@0.0.1920.1042" timestamp="1578579606636" />
-    <state width="1874" height="273" key="GridCell.Tab.0.center" timestamp="1578579606636">
+    <state width="1874" height="273" key="GridCell.Tab.0.bottom/0.0.1920.1042@0.0.1920.1042" timestamp="1578580755508" />
+    <state width="1874" height="273" key="GridCell.Tab.0.center" timestamp="1578580755508">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state width="1874" height="272" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
-    <state width="1874" height="273" key="GridCell.Tab.0.center/0.0.1920.1042@0.0.1920.1042" timestamp="1578579606636" />
-    <state width="1874" height="273" key="GridCell.Tab.0.left" timestamp="1578579606635">
+    <state width="1874" height="273" key="GridCell.Tab.0.center/0.0.1920.1042@0.0.1920.1042" timestamp="1578580755508" />
+    <state width="1874" height="273" key="GridCell.Tab.0.left" timestamp="1578580755507">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state width="1874" height="272" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
-    <state width="1874" height="273" key="GridCell.Tab.0.left/0.0.1920.1042@0.0.1920.1042" timestamp="1578579606635" />
-    <state width="1874" height="273" key="GridCell.Tab.0.right" timestamp="1578579606636">
+    <state width="1874" height="273" key="GridCell.Tab.0.left/0.0.1920.1042@0.0.1920.1042" timestamp="1578580755507" />
+    <state width="1874" height="273" key="GridCell.Tab.0.right" timestamp="1578580755508">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state width="1874" height="272" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
-    <state width="1874" height="273" key="GridCell.Tab.0.right/0.0.1920.1042@0.0.1920.1042" timestamp="1578579606636" />
+    <state width="1874" height="273" key="GridCell.Tab.0.right/0.0.1920.1042@0.0.1920.1042" timestamp="1578580755508" />
     <state x="444" y="96" width="1032" height="848" key="SettingsEditor" timestamp="1578575389171">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>

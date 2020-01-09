@@ -30,6 +30,9 @@ public class ConvexHull<IV extends BaseInputVertex>
     private static long SEED = new Random().nextLong();
     //private static long SEED = 0L;
     private static Random RAN = new Random(SEED);
+    static {
+        System.out.println("Seed: " + SEED);
+    }
     
     
     /* ----------------------------------------------------------------------
