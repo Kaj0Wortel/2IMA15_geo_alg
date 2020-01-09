@@ -1,6 +1,5 @@
 package convex_layers.hull;
 
-import convex_layers.InputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
@@ -27,9 +26,9 @@ public class ConvexHull<IV extends BaseInputVertex>
      * Constants.
      * ----------------------------------------------------------------------
      */
-    private static long SEED = new Random().nextLong();
+    public static long SEED = new Random().nextLong();
     //private static long SEED = 0L;
-    private static Random RAN = new Random(SEED);
+    private Random random = new Random(SEED);
     static {
         System.out.println("Seed: " + SEED);
     }
@@ -699,7 +698,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @return A random edge from the hull.
      */
     public VectorYEdge<IV> getRandomEdge() {
-        VectorYNode<IV> node = getNode(RAN.nextInt(size()));
+        VectorYNode<IV> node = getNode(random.nextInt(size()));
         return new VectorYEdge<>(node, clockwise(node));
     }
     

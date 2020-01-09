@@ -17,6 +17,8 @@ public class RunProperties {
     public long endTime;
     public CheckerError error = new CheckerError();;
     public Class<Range2DSearch> searchClass;
+    public long seed;
+    public Exception exception = null;
 
     public long getRunTime() {
         return endTime - startTime;
@@ -27,7 +29,7 @@ public class RunProperties {
     }
 
     public boolean hasErrors() {
-        return error.hasErrors();
+        return exception != null || error.hasErrors();
     }
 
     public double getScoreRation() {

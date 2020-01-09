@@ -2,8 +2,12 @@ package convex_layers.evaluate;
 
 import convex_layers.*;
 import convex_layers.checker.*;
+import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Range2DSearch;
+import convex_layers.data.kd_tree.KDTree;
+import convex_layers.data.prior_tree.PriorTree;
 import convex_layers.data.quad_tree.QuadTree;
+import convex_layers.hull.ConvexHull;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import convex_layers.visual.VisualRender;
@@ -17,6 +21,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Random;
 
 public class Evaluator {
 
@@ -30,6 +35,11 @@ public class Evaluator {
     boolean saveSolution = false;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss.SSS");
+
+    // Put Seeds that give an error in here so we have a list of them for fixing
+    private static final long[] ERROR_SEEDS = {
+            7930711523825690689L
+    };
 
     public void evaluate() {
         String folder = "challenge_1";
@@ -46,27 +56,45 @@ public class Evaluator {
             "uniform-0010000-1"
         };
         Class<Range2DSearch>[] searches = new Class[] {
-                QuadTree.class
+//                KDTree.class,
+//                IgnoreRangeSearch.class,
+                QuadTree.class,
+//                PriorTree.class,
         };
 
         for (String name : names) {
             for (Class<Range2DSearch> search : searches) {
+                for (int i = 0; i < 100; i ++) {
 
-                String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
+                    String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
 
-                File inFile = new File(path + ".instance.json");
-                File outFile = new File(path + ".solution.json");
-                Problem2 problem = ProblemIO.readProblem(inFile);
-                RunProperties properties = evaluate(problem, search, outFile);
-                System.out.println("Errors: " + properties.hasErrors());
+                    File inFile = new File(path + ".instance.json");
+                    File outFile = new File(path + ".solution.json");
+                    Problem2 problem = ProblemIO.readProblem(inFile);
+                    RunProperties properties = evaluate(problem, search, outFile);
+                    System.out.println("Errors: " + properties.hasErrors());
+                    if (properties.hasErrors()) {
+                        System.out.println("Seed or error: " + properties.seed);
+                        return;
+                    }
+                }
             }
         }
+        System.out.println("********** Evaluation finished **********");
     }
 
     public RunProperties evaluate(Problem2 problem, Class<Range2DSearch> search, File outFile) {
+        long seed = new Random().nextLong();
+        return evaluate(problem, search, outFile, seed);
+    }
+
+    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch> search, File outFile, long seed) {
+        ConvexHull.SEED = seed;
+
         RunProperties properties = new RunProperties();
         properties.problem = problem;
         properties.searchClass = search;
+        properties.seed = ConvexHull.SEED;
 
         Logger.setDefaultLogger(logger);
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
@@ -75,11 +103,17 @@ public class Evaluator {
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
 
         Logger.write("========== Solving problem " + problem.getName() + " ==========");
-        properties.startTime = System.currentTimeMillis();
-        Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)));
-        properties.solution = solver.solve(problem, vis);
-        properties.endTime = System.currentTimeMillis();
-        Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)));
+        try {
+            properties.startTime = System.currentTimeMillis();
+            Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)));
+            properties.solution = solver.solve(problem, vis);
+            properties.endTime = System.currentTimeMillis();
+            Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)));
+        } catch (Exception e) {
+            properties.exception = e;
+            e.printStackTrace();
+            return properties;
+        }
 
         properties.error = new CheckerError();
         if (checkValidity) {
@@ -105,7 +139,7 @@ public class Evaluator {
 
         if (visualizeOutput) {
             Logger.write("========== Drawing picture ==========");
-            drawPicture(problem, properties.solution, properties.error);
+            drawPicture(properties.problem, properties.solution, properties.error);
         }
 
         if (saveSolution) {
