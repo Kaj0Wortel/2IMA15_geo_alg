@@ -102,7 +102,7 @@ public class QuadTree<T extends Node2D<T>>
                 return false;
             }
             size -= 1;
-            root.remove((Node2D) o);
+            root = root.remove((Node2D) o);
             return true;
         }
     }
@@ -140,6 +140,7 @@ public class QuadTree<T extends Node2D<T>>
 
     //TODO
     public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax){
+        System.out.println(root.getRange(xMax, yMax, xMin, yMin));
         return root.getRange(xMax, yMax, xMin, yMin);
     }
 
