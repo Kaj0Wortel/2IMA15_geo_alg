@@ -397,7 +397,7 @@ public class ConvexLayersOptimized
      */
     public static void main(String[] args) {
 //        MultiTool.initLogger(Var.LOG_FILE);
-        //Logger.setDefaultLogger(new StreamLogger(System.out));
+        Logger.setDefaultLogger(new StreamLogger(System.out));
         
         String folder = "challenge_1";
         String type = "uniform";
@@ -405,7 +405,8 @@ public class ConvexLayersOptimized
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-        String name = "uniform-0001000-1";
+        String name = "uniform-0000100-1";
+//        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
 //        String name = "euro-night-0010000";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
@@ -414,8 +415,8 @@ public class ConvexLayersOptimized
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-//        Visual vis = new Visualizer();
-        Visual vis = new NullVisualizer();
+        Visual vis = new Visualizer();
+//        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
@@ -443,7 +444,7 @@ public class ConvexLayersOptimized
 
         double score = ScoreCalculator.calculateScore(problem, sol);
         Logger.write("Score: " + score);
-
+        
         Logger.write("That's " + (score / scoreLowerBound) + " as much as the lower bound.");
         
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.

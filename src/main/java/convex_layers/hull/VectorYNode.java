@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import tools.data.collection.rb_tree.LinkedRBKey;
+import tools.log.Logger;
+
+import java.util.Objects;
 
 /**
  * Linked red black tree key node class for sorting vertices on y-coordinate.
@@ -70,20 +73,35 @@ public class VectorYNode<IV extends BaseInputVertex>
             if (hull.getMinX() == null || hull.getMaxX() == null) return 0;
             Vector split = (isLeft ? hull.getMinX() : hull.getMaxX()).getV();
             double xDiff = getVec().x() - vyn.getVec().x();
-            if (getVec().x() < split.x() == isLeft) {
-                if (xDiff < 0) return Math.max(1, (int) xDiff);
-                else if (xDiff > 0) return Math.min(-1, (int) xDiff);
+            if (xDiff == 0) return 0;
+            int rtn = (xDiff < 0
+                    ? Math.min(-1, (int) xDiff)
+                    : Math.max(1, (int) xDiff)
+            );
 
-            } else if (getVec().x() > split.x() == isLeft) {
-                if (xDiff < 0) return Math.min(-1, (int) xDiff);
-                else if (xDiff > 0) return Math.max(1, (int) xDiff);
+            if (getVec().y() < split.y() == isLeft || vyn.getVec().y() < split.y() == isLeft) {
+                return -rtn;
+
+            } else if (getVec().y() > split.y() == isLeft || vyn.getVec().y() > split.y() == isLeft) {
+                return rtn;
+
+            } else {
+                if (getVec().y() == hull.getBottom().getY()) {
+                    return (isLeft ? -rtn : rtn);
+
+                } else if (getVec().y() == hull.getTop().getY()) {
+                    return (isLeft ? -rtn : rtn);
+
+                } else {
+                    return 0;
+                }
             }
         }
-        return 0;
+        throw new IllegalStateException("Invalid y-coordinate difference: " + yDiff);
     }
-
-
-    @SuppressWarnings("unchecked")@Override
+    
+    @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object obj) {
         if (!(obj instanceof VectorYNode)) return false;
         return iv.equals(((VectorYNode<IV>) obj).iv);
