@@ -8,3 +8,5 @@ target/*
 log/*
 *.log
 *.fuse
+.idea/workspace.xml
+.idea/compiler.xml
