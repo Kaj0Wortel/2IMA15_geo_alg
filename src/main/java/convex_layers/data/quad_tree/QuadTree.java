@@ -140,7 +140,6 @@ public class QuadTree<T extends Node2D<T>>
 
     //TODO
     public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax){
-        System.out.println(root.getRange(xMax, yMax, xMin, yMin));
         return root.getRange(xMax, yMax, xMin, yMin);
     }
 
