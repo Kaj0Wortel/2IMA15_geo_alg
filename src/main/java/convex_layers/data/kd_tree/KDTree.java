@@ -207,14 +207,31 @@ public class KDTree<T extends Node2D<T>>
     @SuppressWarnings("unchecked")
     public T get(Object obj) {
         if (!(obj instanceof Node2D)) return null;
-        Node2D<T> node = (Node2D<T>) obj;
+        T t = (T) obj;
+        Node<T> current = root;
+        while(current != null) {
+            if (t.equals(current.getData())) {
+                return current.getData();
+            } else if ((current.isXSplit() && t.getX() <= current.getX()) || (!current.isXSplit() && t.getY() <= current.getY())) {
+                current = current.getLeft();
+            } else {
+                current = current.getRight();
+            }
+        }
+        return null;
 
-        throw new UnsupportedOperationException(); // TODO
     }
     
     @Override
     public boolean contains(Object obj) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!(obj instanceof Node2D)) return false;
+        T t = (T) obj;
+        T answer = get(t);
+        if (answer == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
     
     @Override
@@ -235,9 +252,9 @@ public class KDTree<T extends Node2D<T>>
         boolean remove1 = remove(root, t);
         int size1 = size;
         boolean remove2 = remove(root, t);
-        if (!remove1 || remove2) {
+        //if (!remove1 || remove2) {
             System.out.println(t.toString() + " " + remove1 + " " + remove2 + " " + size1 + " " + size);
-        }
+        //}
         return remove1;
     }
     
@@ -301,7 +318,7 @@ public class KDTree<T extends Node2D<T>>
         }
         return null;
     }
-    
+
     
     @Override
     public void clear() {
