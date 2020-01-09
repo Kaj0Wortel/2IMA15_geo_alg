@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09797643-e703-4ecd-ad3d-1fbbfaf0e37c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/test/java/convex_layers/data/IgnoreRangeSearchTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/convex_layers/data/KDTreeTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/convex_layers/data/PriorTreeSearchTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/convex_layers/data/QuadTreeTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/convex_layers/data/Range2DSearchTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +68,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit4" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit4" value="" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/test/java/convex_layers" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/resources/src.zip!/" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="project.structure.last.edited" value="Project" />
@@ -285,7 +280,7 @@
       <workItem from="1578478144408" duration="62000" />
       <workItem from="1578484848819" duration="2894000" />
       <workItem from="1578518783287" duration="24000" />
-      <workItem from="1578575078964" duration="4668000" />
+      <workItem from="1578575078964" duration="5595000" />
     </task>
     <task id="LOCAL-00001" summary="Fix from merge">
       <created>1575031030475</created>
@@ -416,15 +411,16 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="558" y="117" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578485014286" />
-    <state x="718" y="236" key="DetectedRootsChooserDialog" timestamp="1576851368401">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="718" y="236" key="DetectedRootsChooserDialog" timestamp="1578580201926">
+      <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state x="718" y="236" key="DetectedRootsChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576851368401" />
-    <state x="738" y="265" key="FileChooserDialogImpl" timestamp="1578576437035">
+    <state x="718" y="236" key="DetectedRootsChooserDialog/0.0.1920.1042@0.0.1920.1042" timestamp="1578580201926" />
+    <state x="738" y="265" key="FileChooserDialogImpl" timestamp="1578580181515">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
     <state x="738" y="264" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578484957704" />
-    <state x="738" y="265" key="FileChooserDialogImpl/0.0.1920.1042@0.0.1920.1042" timestamp="1578576437035" />
+    <state x="738" y="265" key="FileChooserDialogImpl/0.0.1920.1042@0.0.1920.1042" timestamp="1578580181515" />
     <state width="1874" height="273" key="GridCell.Tab.0.bottom" timestamp="1578579606636">
       <screen x="0" y="0" width="1920" height="1042" />
     </state>
