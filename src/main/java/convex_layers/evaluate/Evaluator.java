@@ -2,10 +2,7 @@ package convex_layers.evaluate;
 
 import convex_layers.*;
 import convex_layers.checker.*;
-import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Range2DSearch;
-import convex_layers.data.kd_tree.KDTree;
-import convex_layers.data.prior_tree.PriorTree;
 import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.hull.ConvexHull;
 import convex_layers.visual.NullVisualizer;
@@ -15,7 +12,6 @@ import convex_layers.visual.Visualizer;
 import tools.Var;
 import tools.log.Logger;
 import tools.log.NullLogger;
-import tools.log.StreamLogger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -41,6 +37,7 @@ public class Evaluator {
             7930711523825690689L
     };
 
+    @SuppressWarnings("unchecked")
     public void evaluate() {
         String folder = "challenge_1";
         String type = "uniform";
@@ -55,7 +52,7 @@ public class Evaluator {
         String[] names = {
             "uniform-0010000-1"
         };
-        Class<Range2DSearch>[] searches = new Class[] {
+        Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[] {
 //                KDTree.class,
 //                IgnoreRangeSearch.class,
                 QuadTree.class,
@@ -63,9 +60,8 @@ public class Evaluator {
         };
 
         for (String name : names) {
-            for (Class<Range2DSearch> search : searches) {
+            for (Class<Range2DSearch<BaseInputVertex>> search : searches) {
                 for (int i = 0; i < 100; i ++) {
-
                     String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
 
                     File inFile = new File(path + ".instance.json");
@@ -83,12 +79,13 @@ public class Evaluator {
         System.out.println("********** Evaluation finished **********");
     }
 
-    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch> search, File outFile) {
+    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch<BaseInputVertex>> search, File outFile) {
         long seed = new Random().nextLong();
         return evaluate(problem, search, outFile, seed);
     }
 
-    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch> search, File outFile, long seed) {
+    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch<BaseInputVertex>> search,
+                                  File outFile, long seed) {
         ConvexHull.SEED = seed;
 
         RunProperties properties = new RunProperties();

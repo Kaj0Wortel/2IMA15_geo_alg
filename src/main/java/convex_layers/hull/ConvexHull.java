@@ -27,8 +27,8 @@ public class ConvexHull<IV extends BaseInputVertex>
      * Constants.
      * ----------------------------------------------------------------------
      */
-    private static long SEED = new Random().nextLong();
-//    private static long SEED = -9148243359782670445L;
+    public static long SEED = new Random().nextLong();
+//    public static long SEED = -9148243359782670445L;
     private static Random RAN = new Random(SEED);
     static {
         System.out.println("Seed: " + SEED + "L");

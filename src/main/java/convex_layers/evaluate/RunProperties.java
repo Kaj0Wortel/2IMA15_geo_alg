@@ -1,5 +1,6 @@
 package convex_layers.evaluate;
 
+import convex_layers.BaseInputVertex;
 import convex_layers.OutputEdge;
 import convex_layers.Problem2;
 import convex_layers.checker.CheckerError;
@@ -15,8 +16,8 @@ public class RunProperties {
     public Collection<OutputEdge> solution;
     public long startTime;
     public long endTime;
-    public CheckerError error = new CheckerError();;
-    public Class<Range2DSearch> searchClass;
+    public CheckerError error = new CheckerError();
+    public Class<Range2DSearch<BaseInputVertex>> searchClass;
     public long seed;
     public Exception exception = null;
 
