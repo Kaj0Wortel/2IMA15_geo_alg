@@ -102,7 +102,7 @@ public class QuadTree<T extends Node2D<T>>
                 return false;
             }
             size -= 1;
-            root.remove((Node2D) o);
+            root = root.remove((Node2D) o);
             return true;
         }
     }

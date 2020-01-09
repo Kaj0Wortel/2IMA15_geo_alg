@@ -401,11 +401,14 @@ public class ConvexLayersOptimized
         
         String folder = "challenge_1";
         String type = "uniform";
+//        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-//        String name = "uniform-0001000-1";
         String name = "uniform-0000100-1";
+//        String name = "uniform-0001000-1";
+//        String name = "uniform-0010000-1";
+//        String name = "euro-night-0010000";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");

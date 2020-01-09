@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09797643-e703-4ecd-ad3d-1fbbfaf0e37c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/Evaluator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/RunProperties.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/ProblemIO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/ProblemIO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/data/quad_tree/QuadTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/data/quad_tree/QuadTree.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
