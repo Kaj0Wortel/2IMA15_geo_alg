@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f2f8e640-2c73-4b5a-9194-9a3050cc11c1" name="Default Changelist" comment="Added a comment">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/Evaluator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/convex_layers/evaluate/ScoreCalculator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +29,42 @@
   <component name="DefaultGradleProjectSettings">
     <option name="isMigrated" value="true" />
   </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="309" selection-start-line="309" selection-end-line="309" />
+              <folding>
+                <element signature="e#7462#7463#0" expanded="true" />
+                <element signature="e#7576#7577#0" expanded="true" />
+                <element signature="e#9479#9480#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="343">
+              <caret line="417" column="67" selection-start-line="417" selection-start-column="67" selection-end-line="417" selection-end-column="67" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-524">
+              <caret line="254" column="18" selection-start-line="254" selection-start-column="18" selection-end-line="254" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -37,12 +73,24 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayers.java" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/src/main/java/convex_layers/visual/Visualizer.java" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java" />
+        <option value="$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java" />
+      </list>
+    </option>
   </component>
   <component name="MavenImportPreferences">
     <option name="importingSettings">
@@ -51,9 +99,90 @@
       </MavenImportingSettings>
     </option>
   </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="683" />
+    <option name="y" value="-10" />
+    <option name="width" value="766" />
+    <option name="height" value="1000" />
+  </component>
   <component name="ProjectId" id="1TvS2e8DOqvAW8mD7uymM7RPUf7" />
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="false" id="Update" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="PackagesPane" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="convex_layers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="convex_layers" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="convex_layers" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="kd_tree" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="convex_layers" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Geometric Algorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="convex_layers" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="quad_tree" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -61,6 +190,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../serpentine-snakeeyes" />
@@ -75,6 +205,18 @@
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/java" />
     </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
   </component>
   <component name="RunManager" selected="Application.ConvexLayersOptimized">
     <configuration name="ConvexHull" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -92,7 +234,7 @@
     </configuration>
     <configuration name="ConvexLayersOptimized" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="convex_layers.ConvexLayersOptimized" />
-      <module name="2IMA15_geo_alg" />
+      <module name="Geometric Algorithms" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="convex_layers.*" />
@@ -117,8 +259,10 @@
       </method>
     </configuration>
     <configuration name="KDTree" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="11" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="convex_layers.data.kd_tree.KDTree" />
-      <module name="2IMA15_geo_alg" />
+      <module name="Geometric Algorithms" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="convex_layers.data.kd_tree.*" />
@@ -197,14 +341,14 @@
       <item itemvalue="Application.ConvexLayersOptimized" />
       <item itemvalue="Application.ConvexHull" />
       <item itemvalue="Application.KDTree" />
-      <item itemvalue="Maven.run" />
       <item itemvalue="Application.Evaluator" />
+      <item itemvalue="Maven.run" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ConvexLayersOptimized" />
-        <item itemvalue="Application.Evaluator" />
         <item itemvalue="Application.KDTree" />
+        <item itemvalue="Application.Evaluator" />
         <item itemvalue="Application.ConvexHull" />
         <item itemvalue="Application.Visualizer" />
       </list>
@@ -249,6 +393,7 @@
       <workItem from="1578337942741" duration="1524000" />
       <workItem from="1578478144408" duration="62000" />
       <workItem from="1578484848819" duration="2894000" />
+      <workItem from="1578497285410" duration="6753000" />
     </task>
     <task id="LOCAL-00001" summary="Fix from merge">
       <created>1575031030475</created>
@@ -306,8 +451,60 @@
       <option name="project" value="LOCAL" />
       <updated>1578338427579</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fixed remove bug with right subtree">
+      <created>1578561432059</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1578561432059</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Implemented get and contains">
+      <created>1578576457885</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1578576457885</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="6753000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Image Layers" />
+      <window_info id="Designer" />
+      <window_info id="UI Designer" />
+      <window_info id="Capture Tool" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Messages" weight="0.32936078" />
+      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" />
+      <window_info anchor="bottom" id="Version Control" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32936078" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="right" id="Palette" />
+      <window_info anchor="right" id="Theme Preview" />
+      <window_info anchor="right" id="Maven" />
+      <window_info anchor="right" id="Capture Analysis" />
+      <window_info anchor="right" id="Palette&#9;" />
+      <window_info anchor="right" id="Database" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -328,8 +525,28 @@
         <entry key="MAIN">
           <value>
             <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
               <option name="COLUMN_ORDER" />
             </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
           </value>
         </entry>
       </map>
@@ -344,68 +561,70 @@
     <MESSAGE value="Rename hasLeft to hullOnLeftSide + commenting" />
     <MESSAGE value="Fix comment" />
     <MESSAGE value="Added a comment" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a comment" />
+    <MESSAGE value="Fixed remove bug with right subtree" />
+    <MESSAGE value="Implemented get and contains" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented get and contains" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized" timestamp="1578485280479">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized/0.0.1920.1040@0.0.1920.1040" timestamp="1578485280479" />
-    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1576849408850">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576849408850" />
-    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1576848880552">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576848880552" />
-    <state x="558" y="117" key="CommitChangelistDialog2" timestamp="1578485014286">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="558" y="117" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1578485014286" />
-    <state x="718" y="236" key="DetectedRootsChooserDialog" timestamp="1576851368401">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="718" y="236" key="DetectedRootsChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1576851368401" />
-    <state x="738" y="264" key="FileChooserDialogImpl" timestamp="1578484957704">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="738" y="264" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1578484957704" />
-    <state width="1874" height="272" key="GridCell.Tab.0.bottom" timestamp="1578487799289">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1874" height="272" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
-    <state width="1874" height="272" key="GridCell.Tab.0.center" timestamp="1578487799288">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1874" height="272" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
-    <state width="1874" height="272" key="GridCell.Tab.0.left" timestamp="1578487799288">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1874" height="272" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799288" />
-    <state width="1874" height="272" key="GridCell.Tab.0.right" timestamp="1578487799289">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1874" height="272" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1578487799289" />
-    <state x="444" y="96" key="SettingsEditor" timestamp="1578484958444">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="444" y="96" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1578484958444" />
-    <state x="556" y="256" key="Vcs.Push.Dialog.v2" timestamp="1578487488971">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="556" y="256" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1578487488971" />
-    <state x="641" y="346" key="com.intellij.ide.util.TipDialog" timestamp="1578478188598">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="641" y="346" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578478188598" />
-    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog" timestamp="1578338143577">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1578338143577" />
-    <state x="620" y="237" key="run.anything.popup" timestamp="1576849999046">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="620" y="237" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1576849999046" />
+    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized" />
+    <state x="655" y="179" width="608" height="688" key="#ConvexLayersOptimized/0.0.1920.1040@0.0.1920.1040" />
+    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog" />
+    <state x="692" y="307" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040@0.0.1920.1040" />
+    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" />
+    <state x="644" y="246" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1920.1040@0.0.1920.1040" />
+    <state x="558" y="117" key="CommitChangelistDialog2" />
+    <state x="558" y="117" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" />
+    <state x="718" y="236" key="DetectedRootsChooserDialog" />
+    <state x="718" y="236" key="DetectedRootsChooserDialog/0.0.1920.1040@0.0.1920.1040" />
+    <state x="738" y="264" key="FileChooserDialogImpl" />
+    <state x="738" y="264" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" />
+    <state width="1874" height="272" key="GridCell.Tab.0.bottom" />
+    <state width="1874" height="272" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" />
+    <state width="1874" height="272" key="GridCell.Tab.0.center" />
+    <state width="1874" height="272" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" />
+    <state width="1874" height="272" key="GridCell.Tab.0.left" />
+    <state width="1874" height="272" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" />
+    <state width="1874" height="272" key="GridCell.Tab.0.right" />
+    <state width="1874" height="272" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" />
+    <state x="444" y="96" key="SettingsEditor" />
+    <state x="444" y="96" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" />
+    <state x="556" y="256" key="Vcs.Push.Dialog.v2" />
+    <state x="556" y="256" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" />
+    <state x="641" y="346" key="com.intellij.ide.util.TipDialog" />
+    <state x="641" y="346" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" />
+    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog" />
+    <state x="730" y="234" key="git4idea.branch.GitSmartOperationDialog/0.0.1920.1040@0.0.1920.1040" />
+    <state x="620" y="237" key="run.anything.popup" />
+    <state x="620" y="237" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" />
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup" />
+    <state x="623" y="229" width="672" height="678" key="search.everywhere.popup/0.0.1920.1042@0.0.1920.1042" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/hull/ConvexHull.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-524">
+          <caret line="254" column="18" selection-start-line="254" selection-start-column="18" selection-end-line="254" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/data/kd_tree/KDTree.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="309" selection-start-line="309" selection-end-line="309" />
+          <folding>
+            <element signature="e#7462#7463#0" expanded="true" />
+            <element signature="e#7576#7577#0" expanded="true" />
+            <element signature="e#9479#9480#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/convex_layers/ConvexLayersOptimized.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="343">
+          <caret line="417" column="67" selection-start-line="417" selection-start-column="67" selection-end-line="417" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
   </component>
 </project>
