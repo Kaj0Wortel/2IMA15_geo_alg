@@ -656,7 +656,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @return A random edge from the hull.
      */
     public VectorYEdge<IV> getRandomEdge() {
-        VectorYNode<IV> node = getNode(random.nextInt(size()));
+        VectorYNode<IV> node = getNode(RAN.nextInt(size()));
         return new VectorYEdge<>(node, clockwise(node));
     }
     
