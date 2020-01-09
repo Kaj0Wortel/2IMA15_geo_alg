@@ -2,10 +2,7 @@ package convex_layers.evaluate;
 
 import convex_layers.*;
 import convex_layers.checker.*;
-import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Range2DSearch;
-import convex_layers.data.prior_tree.PriorTree;
-import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
@@ -13,6 +10,7 @@ import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
 import tools.Var;
 import tools.log.Logger;
+import tools.log.NullLogger;
 import tools.log.StreamLogger;
 
 import java.io.File;
@@ -23,12 +21,13 @@ import java.util.Date;
 public class Evaluator {
 
     Visual errorVis = new VisualRender();
-    Logger logger = new StreamLogger(System.out);
-    boolean checkValidity = true;
+//    Logger logger = new StreamLogger(System.out);
+    Logger logger = NullLogger.getInstance();
+    boolean checkValidity = false;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
-    boolean visualizeOutput = true;
-    boolean saveSolution = true;
+    boolean visualizeOutput = false;
+    boolean saveSolution = false;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss.SSS");
 
@@ -46,20 +45,29 @@ public class Evaluator {
         String[] names = {
             "uniform-0010000-1"
         };
+        Class<Range2DSearch>[] searches = new Class[] {
+                QuadTree.class
+        };
 
         for (String name : names) {
+            for (Class<Range2DSearch> search : searches) {
 
-            String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
+                String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
 
-            File inFile = new File(path + ".instance.json");
-            File outFile = new File(path + ".solution.json");
-            Problem2 problem = ProblemIO.readProblem(inFile);
-            Class<? extends Range2DSearch> search = QuadTree.class;
-            evaluate(problem, search, outFile);
+                File inFile = new File(path + ".instance.json");
+                File outFile = new File(path + ".solution.json");
+                Problem2 problem = ProblemIO.readProblem(inFile);
+                RunProperties properties = evaluate(problem, search, outFile);
+                System.out.println("Errors: " + properties.hasErrors());
+            }
         }
     }
 
-    public void evaluate(Problem2 problem, Class<? extends Range2DSearch> search, File outFile) {
+    public RunProperties evaluate(Problem2 problem, Class<Range2DSearch> search, File outFile) {
+        RunProperties properties = new RunProperties();
+        properties.problem = problem;
+        properties.searchClass = search;
+
         Logger.setDefaultLogger(logger);
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
 
@@ -67,50 +75,50 @@ public class Evaluator {
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
 
         Logger.write("========== Solving problem " + problem.getName() + " ==========");
-        long startTime = System.currentTimeMillis();
-        Logger.write("Started at time " + DATE_FORMAT.format(new Date(startTime)));
-        Collection<OutputEdge> sol = solver.solve(problem, vis);
-        long endTime = System.currentTimeMillis();
-        Logger.write("End time: " + DATE_FORMAT.format(new Date(endTime)));
+        properties.startTime = System.currentTimeMillis();
+        Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)));
+        properties.solution = solver.solve(problem, vis);
+        properties.endTime = System.currentTimeMillis();
+        Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)));
 
-        CheckerError error = new CheckerError();
+        properties.error = new CheckerError();
         if (checkValidity) {
             Logger.write("==========  Checking validity  ==========");
-            error = checker.check(problem, sol);
-            Logger.write("Errors: " + error.hasErrors());
-            if (error.hasErrors()) {
+            properties.error = checker.check(problem, properties.solution);
+            Logger.write("Errors: " + properties.hasErrors());
+            if (properties.hasErrors()) {
                 Logger.write("NB: Warning! Solution has errors!");
             }
         }
 
         if (calculateProperties) {
             Logger.write("========== Score / properties ==========");
-            double scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
-            Logger.write("Score lower bound: " + scoreLowerBound);
-            double score = ScoreCalculator.calculateScore(problem, sol);
-            Logger.write("Score: " + score);
-            double scoreRation = score / scoreLowerBound;
-            Logger.write("That's " + scoreRation + " as much as the lower bound.");
+            properties.scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
+            Logger.write("Score lower bound: " + properties.scoreLowerBound);
+            properties.score = ScoreCalculator.calculateScore(problem, properties.solution);
+            Logger.write("Score: " + properties.score);
+            Logger.write("That's " + properties.getScoreRation() + " as much as the lower bound.");
 
-            long runTime = endTime - startTime;
-            double runSeconds = runTime / 1000.0;
+            double runSeconds = properties.getRunSeconds() / 1000.0;
             Logger.write("Running time (s): " + runSeconds);
         }
 
         if (visualizeOutput) {
             Logger.write("========== Drawing picture ==========");
-            drawPicture(problem, sol, error);
+            drawPicture(problem, properties.solution, properties.error);
         }
 
         if (saveSolution) {
             Logger.write("========== Saving solution ==========");
-            if (error.hasErrors()) {
+            if (properties.hasErrors()) {
                 Logger.write("Not writing solution to file since there are errors in the solution!");
             } else {
-                ProblemIO.saveSolution(outFile, sol, problem);
+                ProblemIO.saveSolution(outFile, properties.solution, problem);
             }
         }
         Logger.write("========== ========== ==========");
+
+        return properties;
     }
 
     private void drawPicture(Problem2 problem, Collection<OutputEdge> solution, CheckerError error) {
