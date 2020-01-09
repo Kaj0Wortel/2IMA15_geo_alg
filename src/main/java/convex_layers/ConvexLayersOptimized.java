@@ -4,7 +4,9 @@ import convex_layers.checker.*;
 import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
+import convex_layers.data.kd_tree.KDTree;
 import convex_layers.data.prior_tree.PriorTreeSearch;
+import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.evaluate.ScoreCalculator;
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;
@@ -395,7 +397,7 @@ public class ConvexLayersOptimized
      */
     public static void main(String[] args) {
 //        MultiTool.initLogger(Var.LOG_FILE);
-        Logger.setDefaultLogger(new StreamLogger(System.out));
+        //Logger.setDefaultLogger(new StreamLogger(System.out));
         
         String folder = "challenge_1";
         String type = "uniform";
