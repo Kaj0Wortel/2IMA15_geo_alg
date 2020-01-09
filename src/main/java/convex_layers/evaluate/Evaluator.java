@@ -6,12 +6,14 @@ import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.kd_tree.KDTree;
 import convex_layers.data.prior_tree.PriorTree;
+import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.hull.ConvexHull;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
+import tools.Pair;
 import tools.Var;
 import tools.log.Logger;
 import tools.log.NullLogger;
@@ -19,15 +21,15 @@ import tools.log.StreamLogger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 
 public class Evaluator {
 
+    String FOLDER = "challenge_1";
+
     Visual errorVis = new VisualRender();
-//    Logger logger = new StreamLogger(System.out);
-    Logger logger = NullLogger.getInstance();
+    Logger logger = new StreamLogger(System.out);
+//    Logger logger = NullLogger.getInstance();
     boolean checkValidity = false;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
@@ -41,9 +43,29 @@ public class Evaluator {
             7930711523825690689L
     };
 
+    public List<Pair<Problem2, File>> getProblemsInFolder(String type) {
+        String[] names = {
+                "uniform-0010000-1"
+        };
+        List<Pair<Problem2, File>> pairs = new ArrayList<>();
+        for (String name : names) {
+            pairs.add(getProblem(type, name));
+        }
+        return pairs;
+    }
+
+    public Pair<Problem2, File> getProblem(String type, String name) {
+        String path = "data" + Var.FS + FOLDER + Var.FS + type + Var.FS + name;
+
+        File inFile = new File(path + ".instance.json");
+        File outFile = new File(path + ".solution.json");
+        Problem2 problem = ProblemIO.readProblem(inFile);
+        return new Pair<>(problem, outFile);
+    }
+
     public void evaluate() {
-        String folder = "challenge_1";
-        String type = "uniform";
+        Logger.setDefaultLogger(logger);
+        System.out.println("Evaluator started");
 //        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
@@ -53,24 +75,26 @@ public class Evaluator {
 //        String name = "euro-night-0010000";
 
         String[] names = {
-            "uniform-0010000-1"
+            "uniform-0100000-1"
         };
         Class<Range2DSearch>[] searches = new Class[] {
-//                KDTree.class,
-//                IgnoreRangeSearch.class,
+                KDTree.class,
                 QuadTree.class,
-//                PriorTree.class,
+                PriorTreeSearch.class,
+                IgnoreRangeSearch.class,
         };
 
         for (String name : names) {
             for (Class<Range2DSearch> search : searches) {
-                for (int i = 0; i < 100; i ++) {
+                for (int i = 0; i < 1; i ++) {
+                    System.out.println("Hi!");
 
-                    String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
+                    Pair<Problem2, File> prob = getProblem("uniform", name);
+                    Problem2 problem = prob.getFirst();
+                    File outFile = prob.getSecond();
 
-                    File inFile = new File(path + ".instance.json");
-                    File outFile = new File(path + ".solution.json");
-                    Problem2 problem = ProblemIO.readProblem(inFile);
+                    System.out.println("Running");
+
                     RunProperties properties = evaluate(problem, search, outFile);
                     System.out.println("Errors: " + properties.hasErrors());
                     if (properties.hasErrors()) {
@@ -133,7 +157,7 @@ public class Evaluator {
             Logger.write("Score: " + properties.score);
             Logger.write("That's " + properties.getScoreRation() + " as much as the lower bound.");
 
-            double runSeconds = properties.getRunSeconds() / 1000.0;
+            double runSeconds = properties.getRunSeconds();
             Logger.write("Running time (s): " + runSeconds);
         }
 
@@ -164,7 +188,6 @@ public class Evaluator {
     }
 
     public static void main(String[] args) {
-        System.out.println("Evaluator started");
         new Evaluator().evaluate();
     }
 
