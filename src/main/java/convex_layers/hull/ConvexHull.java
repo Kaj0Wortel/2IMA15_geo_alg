@@ -22,6 +22,18 @@ import java.util.*;
  */
 public class ConvexHull<IV extends BaseInputVertex>
             implements Collection<IV> {
+
+    /* ----------------------------------------------------------------------
+     * Constants.
+     * ----------------------------------------------------------------------
+     */
+//    private static long SEED = new Random().nextLong();
+    private static long SEED = -9148243359782670445L;
+    private static Random RAN = new Random(SEED);
+    static {
+        System.out.println("Seed: " + SEED + "L");
+    }
+    
     
     /* ----------------------------------------------------------------------
      * Variables.
@@ -679,51 +691,6 @@ public class ConvexHull<IV extends BaseInputVertex>
             else if (left.isEmpty()) return right.getMin();
             else return left.getMax();
         }
-        
-        
-        /*
-        Edge e = getBottomTopEdge();
-        double ori = e.relOri(node.getVec());
-        if (ori < 0) {
-            if (node.prev() != null) return node.prev();
-            else if (right.isEmpty()) return left.getMax();
-            else return right.getMin();
-            
-        } else if (ori > 0) {
-            if (node.next() != null) return node.next();
-            else if (left.isEmpty()) return right.getMin();
-            else return left.getMax();
-            
-        } else {
-            VectorYNode<IV> rtn;
-            if (node == top) {
-                if (top == left.getMax()) {
-                    if (left.size() == 1) rtn = right.getMin();
-                    else rtn = node.prev();
-                } else rtn = left.getMax();
-                
-            } else if (node == bottom) {
-                if (bottom == right.getMin()) {
-                    if (right.size() == 1) rtn = left.getMax();
-                    else rtn = node.next();
-                } else rtn = right.getMin();
-                
-            } else {
-                throwNotPartOfThisHullException(node);
-                return null;
-            }
-            
-            if (rtn != null) return rtn;
-            // Handle cases where either of the two sides is empty.
-            if (left.size() == 0 ^ right.size() == 0) {
-                if (node == top) return bottom;
-                else return top;
-                
-            } else {
-                throwNotPartOfThisHullException(node);
-                return null;
-            }
-        }*/
     }
     
     /**
@@ -732,19 +699,19 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @return A random edge from the hull.
      */
     public VectorYEdge<IV> getRandomEdge() {
-        VectorYNode<IV> node = getNode(Var.RAN.nextInt(size()));
-        return new VectorYEdge<IV>(node, clockwise(node));
+        VectorYNode<IV> node = getNode(RAN.nextInt(size()));
+        return new VectorYEdge<>(node, clockwise(node));
     }
     
     /**
      * Returns the input vertex at the given index. The indices are order from the minimal
      * to the maximal vertex of the left tree, an then from the maximal to the minimal
      * vertex of the right tree.
-     *
+     * 
      * @apiNote This function runs in {@code O(log(n))}.
-     *
+     * 
      * @param i The input vertex to get.
-     *
+     * 
      * @return The input vertex at the given index.
      */
     public IV get(int i) {
@@ -755,9 +722,9 @@ public class ConvexHull<IV extends BaseInputVertex>
      * Returns the node at the given index. The indices are order from the minimal
      * to the maximal node of the left tree, an then from the maximal to the minimal
      * node of the right tree.
-     *
+     * 
      * @apiNote This function runs in {@code O(log(n))}.
-     *
+     * 
      * @param i The node to get.
      *
      * @return The node at the given index.
@@ -770,7 +737,7 @@ public class ConvexHull<IV extends BaseInputVertex>
     
     /**
      * Adds a vertex to the hull.
-     *
+     * 
      * @apiNote Runs in {@code O(log(n))}.
      * 
      * @param iv The vertex to add.
