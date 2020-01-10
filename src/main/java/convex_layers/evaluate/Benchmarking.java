@@ -6,6 +6,7 @@ import convex_layers.data.Range2DSearch;
 import convex_layers.data.kd_tree.KDTree;
 import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.data.quad_tree.QuadTree;
+import convex_layers.hull.ConvexHull;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import lombok.NonNull;
@@ -60,6 +61,8 @@ public class Benchmarking {
         Arrays.sort(IN_FILES, (f1, f2) -> String.CASE_INSENSITIVE_ORDER.compare(f1.getName(), f2.getName()));
     }
     
+    private static final Visual VIS = new NullVisualizer();
+    
     /** The current run. */
     private static int RUN = 0;
     
@@ -96,10 +99,12 @@ public class Benchmarking {
      */
     /**
      * Sets-up the problem for the current run.
+     * Additionally sets a new seed for the convex hull.
      */
     @Setup
     public void setup() {
         problem = loadProblem(RUN);
+        ConvexHull.SEED = Var.RAN.nextLong();
     }
     
     /**
@@ -143,7 +148,7 @@ public class Benchmarking {
     private void execute(Class<? extends Range2DSearch> searchClass) {
         Logger.setDefaultLogger(null);
         try {
-            new ConvexLayersOptimized(searchClass).solve(problem.getFirst(), new NullVisualizer());
+            new ConvexLayersOptimized(searchClass).solve(problem.getFirst(), VIS);
             
         } catch (Exception e) {
             Logger.setDefaultLogger(ERROR_LOGGER);
@@ -206,6 +211,7 @@ public class Benchmarking {
      * 
      * @throws RunnerException If the runner threw an exception.
      */
+    @SuppressWarnings({"ConstantConditions", "unused"})
     public static void benchmark()
             throws RunnerException {
         ChainedOptionsBuilder opt = new OptionsBuilder()
@@ -223,7 +229,7 @@ public class Benchmarking {
                 .measurementIterations(1)
                 ;
         
-        int amt = 1;// files.length;
+        int amt = IN_FILES.length;
         for (int i = 0; i < amt; i++) {
             runFile(opt, i);
         }
@@ -232,17 +238,16 @@ public class Benchmarking {
     /**
      * Runs all files in the input directory.
      */
-    @SuppressWarnings({"rawtypes", "ConstantConditions"})
+    @SuppressWarnings({"rawtypes", "ConstantConditions", "unused"})
     public static void runAll() {
         Class<? extends Range2DSearch> searchClass = KDTree.class;
-        Visual vis = new NullVisualizer();
         for (int i = 0; i < IN_FILES.length; i++) {
             Logger.setDefaultLogger(null);
             Pair<Problem2, File> p = loadProblem(i);
             try {
                 System.out.println("Solving " + IN_FILES[i].getName());
                 Collection<OutputEdge> sol = new ConvexLayersOptimized(searchClass)
-                        .solve(p.getFirst(), vis);
+                        .solve(p.getFirst(), VIS);
                 ProblemIO.saveSolution(p.getSecond(), sol, p.getFirst());
 
             } catch (Exception e) {

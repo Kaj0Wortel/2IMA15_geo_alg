@@ -3,7 +3,6 @@ package convex_layers.hull;
 import convex_layers.OutputEdge;
 import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
-import tools.MultiTool;
 import tools.Pair;
 import tools.Var;
 import tools.data.collection.rb_tree.LinkedRBTree;
@@ -27,8 +26,10 @@ public class ConvexHull<IV extends BaseInputVertex>
      * Constants.
      * ----------------------------------------------------------------------
      */
-//    public static long SEED = new Random().nextLong();
-    public static long SEED = -9148243359782670445L;
+    /** The seed used to randomly select an edge */
+    public static long SEED = new Random().nextLong();
+//    public static long SEED = -9148243359782670445L;
+    /** The random generator used to randomly select an edge. */
     private static Random RAN = new Random(SEED);
     static {
         System.out.println("Seed: " + SEED + "L");
