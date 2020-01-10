@@ -10,3 +10,5 @@ log/*
 *.fuse
 .idea/workspace.xml
 .idea/compiler.xml
+data/benchmark/*
+data/sol/*
