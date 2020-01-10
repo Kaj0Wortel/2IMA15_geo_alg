@@ -27,8 +27,8 @@ public class ConvexHull<IV extends BaseInputVertex>
      * Constants.
      * ----------------------------------------------------------------------
      */
-    public static long SEED = new Random().nextLong();
-//    public static long SEED = -9148243359782670445L;
+//    public static long SEED = new Random().nextLong();
+    public static long SEED = -9148243359782670445L;
     private static Random RAN = new Random(SEED);
     static {
         System.out.println("Seed: " + SEED + "L");
@@ -1075,7 +1075,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         }
         
         // Update minX and maxX
-        /*
         if (vyn.equals(minX)) {
             VectorYNode<IV> next = clockwise(vyn);
             VectorYNode<IV> prev = counterClockwise(vyn);
@@ -1091,8 +1090,7 @@ public class ConvexHull<IV extends BaseInputVertex>
                     ? next
                     : prev
             );
-        }*/
-        updateMinMaxX();
+        }
         
         vyn.setHull(null);
         return true;
