@@ -23,10 +23,10 @@ import java.util.*;
 
 public class Evaluator {
     
-    String FOLDER = "challenge_1";
+    private static final String FOLDER = "challenge_1";
     
-    Visual errorVis = new VisualRender();
-    Logger logger = new StreamLogger(System.out);
+    private Visual errorVis = new VisualRender();
+    private Logger logger = new StreamLogger(System.out);
 //    Logger logger = NullLogger.getInstance();
     boolean checkValidity = false;
     boolean calculateProperties = true;
@@ -52,7 +52,7 @@ public class Evaluator {
         return pairs;
     }
     
-    public Pair<Problem2, File> getProblem(String type, String name) {
+    public static Pair<Problem2, File> getProblem(String type, String name) {
         String path = "data" + Var.FS + FOLDER + Var.FS + type + Var.FS + name;
 
         File inFile = new File(path + ".instance.json");
@@ -97,7 +97,7 @@ public class Evaluator {
                     RunProperties properties = evaluate(problem, search, outFile);
                     System.out.println("Errors: " + properties.hasErrors());
                     if (properties.hasErrors()) {
-                        System.out.println("Seed or error: " + properties.seed);
+                        System.out.println("Seed of error: " + properties.seed);
                         return;
                     }
                 }
@@ -126,17 +126,22 @@ public class Evaluator {
         Solver solver = new ConvexLayersOptimized(search);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
-        Logger.write("========== Solving problem " + problem.getName() + " ==========");
+        Logger.write("========== Solving problem " + problem.getName() + " using "
+                + search.getName() +  " ==========");
         try {
             properties.startTime = System.currentTimeMillis();
             Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)));
+            Logger.setDefaultLogger(null);
+            
             properties.solution = solver.solve(problem, vis);
+            
+            Logger.setDefaultLogger(new StreamLogger(System.out));
             properties.endTime = System.currentTimeMillis();
             Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)));
             
         } catch (Exception e) {
             properties.exception = e;
-            e.printStackTrace();
+            Logger.write(e);
             return properties;
         }
         
