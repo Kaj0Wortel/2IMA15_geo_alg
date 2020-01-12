@@ -5,6 +5,7 @@ import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
 import convex_layers.data.kd_tree.KDTree;
+import convex_layers.data.prior_tree.PriorTree;
 import convex_layers.data.prior_tree.PriorTreeSearch;
 import convex_layers.data.quad_tree.QuadTree;
 import convex_layers.evaluate.ScoreCalculator;
@@ -405,21 +406,21 @@ public class ConvexLayersOptimized
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-1";
-        String name = "uniform-0000100-1";
+//        String name = "uniform-0000100-1";
 //        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
-//        String name = "euro-night-0010000";
+        String name = "uniform-0100000-2";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
         
         File inFile = new File(path + ".instance.json");
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
         
-        Visual vis = new Visualizer();
-//        Visual vis = new NullVisualizer();
+//        Visual vis = new Visualizer();
+        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
-        Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
+        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Checker checker = new NullChecker();//new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Collection<OutputEdge> sol = solver.solve(problem, vis);
         
@@ -438,10 +439,10 @@ public class ConvexLayersOptimized
         errorVis.addLabel(Visual.toLabel(problem.getVertices()));
         errorVis.addEdge(Visual.toEdge(sol));
         err.draw(errorVis);
-
+        
         double scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
         Logger.write("Score lower bound: " + scoreLowerBound);
-
+        
         double score = ScoreCalculator.calculateScore(problem, sol);
         Logger.write("Score: " + score);
         

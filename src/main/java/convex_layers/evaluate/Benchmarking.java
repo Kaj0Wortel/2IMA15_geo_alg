@@ -11,6 +11,7 @@ import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
 import lombok.NonNull;
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -20,10 +21,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import org.openjdk.jmh.runner.options.WarmupMode;
 import tools.Pair;
 import tools.Var;
-import tools.log.FileLogger;
-import tools.log.Logger;
-import tools.log.MultiLogger;
-import tools.log.StreamLogger;
+import tools.log.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-//@Warmup(iterations = 1, time = 200, timeUnit = TimeUnit.MILLISECONDS)
-//@Measurement(iterations = 1, time = 200, timeUnit = TimeUnit.MILLISECONDS)
+@Warmup(iterations = 2, time = 1_000, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 2, time = 1_000, timeUnit = TimeUnit.MILLISECONDS)
 @Threads(value = 2)
 @Fork(value = 1)
 public class Benchmarking {
@@ -64,7 +62,7 @@ public class Benchmarking {
     private static final Visual VIS = new NullVisualizer();
     
     /** The current run. */
-    private static int RUN = 0;
+    private static int RUN = 81; // A value between 0 and 81.
     
     /** The logger used to log errors. */
     private static final Logger ERROR_LOGGER;
@@ -99,11 +97,24 @@ public class Benchmarking {
      */
     /**
      * Sets-up the problem for the current run.
-     * Additionally sets a new seed for the convex hull.
      */
-    @Setup
-    public void setup() {
+    @Setup(value = Level.Trial)
+    public void benchmarkSetup() {
+//        System.out.println("HERE---------------------------------------");
+    }
+    
+    @Setup(value = Level.Iteration)
+    public void iterationSetup() {
+//        System.out.println("HERE+++++++++++++++++++++++++++++++++++++++++");
         problem = loadProblem(RUN);
+    }
+    
+    /**
+     * Sets a new seed for the convex hull.
+     */
+    @Setup(value = Level.Invocation)
+    public void runSetup() {
+//        System.out.println("HERE==========================================");
         ConvexHull.SEED = Var.RAN.nextLong();
     }
     
@@ -111,32 +122,32 @@ public class Benchmarking {
      * Executes the algorithm using the {@link KDTree} class.
      */
     @Benchmark
-    public void kdTree() {
-        execute(KDTree.class);
+    public void kdTree(Blackhole bh) {
+        execute(KDTree.class, bh);
     }
     
     /**
      * Executes the algorithm using the {@link PriorTreeSearch} class.
      */
     @Benchmark
-    public void priorTree() {
-        execute(PriorTreeSearch.class);
+    public void priorTree(Blackhole bh) {
+        execute(PriorTreeSearch.class, bh);
     }
     
     /**
      * Executes the algorithm using the {@link QuadTree} class.
      */
     @Benchmark
-    public void quadTree() {
-        execute(QuadTree.class);
+    public void quadTree(Blackhole bh) {
+        execute(QuadTree.class, bh);
     }
     
     /**
      * Executes the algorithm using the {@link IgnoreRangeSearch} class.
      */
     @Benchmark
-    public void noRangeSearch() {
-        if (RUN <= 54) execute(IgnoreRangeSearch.class);
+    public void noRangeSearch(Blackhole bh) {
+        if (RUN <= 54) execute(IgnoreRangeSearch.class, bh);
     }
     
     /**
@@ -145,15 +156,16 @@ public class Benchmarking {
      * @param searchClass The 2D range search class used in the algorithm.
      */
     @SuppressWarnings("rawtypes")
-    private void execute(Class<? extends Range2DSearch> searchClass) {
-        Logger.setDefaultLogger(null);
+    private void execute(Class<? extends Range2DSearch> searchClass, Blackhole bh) {
+        Logger.setDefaultLogger(NullLogger.getInstance());
         try {
-            new ConvexLayersOptimized(searchClass).solve(problem.getFirst(), VIS);
+            Collection<OutputEdge> sol = new ConvexLayersOptimized(searchClass).solve(problem.getFirst(), VIS);
+            bh.consume(sol);
             
         } catch (Exception e) {
             Logger.setDefaultLogger(ERROR_LOGGER);
             Logger.write(e);
-            Logger.setDefaultLogger(null);
+            Logger.setDefaultLogger(NullLogger.getInstance());
         }
     }
     
@@ -189,18 +201,18 @@ public class Benchmarking {
     private static void runFile(ChainedOptionsBuilder opt, int i)
             throws RunnerException {
         if (i <= 28) { // 100-2
-            opt.warmupIterations(20).measurementIterations(50);
+            opt.warmupBatchSize(20).measurementBatchSize(50);
         } else if (i <= 46) { // 1000-2
-            opt.warmupIterations(10).measurementIterations(25);
+            opt.warmupBatchSize(10).measurementBatchSize(25);
         } else if (i <= 54) { // 5000-2
-            opt.warmupIterations(5).measurementIterations(20);
+            opt.warmupBatchSize(5).measurementBatchSize(20);
         } else if (i == 64) { // 10000-2
-            opt.warmupIterations(2).measurementIterations(10);
+            opt.warmupBatchSize(2).measurementBatchSize(10);
         } else {
-            opt.warmupIterations(1).measurementIterations(5);
+            opt.warmupBatchSize(1).measurementBatchSize(5);
         }
         
-        String fileName = IN_FILES[RUN = i].getName();
+        String fileName = IN_FILES[i].getName();
         fileName = fileName.substring(0, fileName.length() - 4) + "tex";
         opt.result(BENCH_DIR + fileName);
         new Runner(opt.build()).run();
@@ -219,20 +231,21 @@ public class Benchmarking {
                 .shouldDoGC(true)
                 .resultFormat(ResultFormatType.LATEX)
                 // Warmup
-                .warmupTime(TimeValue.milliseconds(10_000))
-                .warmupMode(WarmupMode.BULK_INDI)
+                .warmupTime(TimeValue.milliseconds(5_000))
+                .warmupMode(WarmupMode.INDI)
                 .warmupBatchSize(1)
                 .warmupIterations(1)
                 // Measurement
-                .measurementTime(TimeValue.milliseconds(10_000))
+                .measurementTime(TimeValue.milliseconds(1_000))
                 .measurementBatchSize(1)
                 .measurementIterations(1)
                 ;
         
-        int amt = IN_FILES.length;
-        for (int i = 0; i < amt; i++) {
-            runFile(opt, i);
-        }
+//        int amt = IN_FILES.length;
+//        for (int i = 0; i < amt; i++) {
+//            runFile(opt, i);
+//        }
+        runFile(opt, 81);
     }
     
     /**
@@ -242,10 +255,9 @@ public class Benchmarking {
     public static void runAll() {
         Class<? extends Range2DSearch> searchClass = KDTree.class;
         for (int i = 0; i < IN_FILES.length; i++) {
-            Logger.setDefaultLogger(null);
+            Logger.setDefaultLogger(NullLogger.getInstance());
             Pair<Problem2, File> p = loadProblem(i);
             try {
-                System.out.println("Solving " + IN_FILES[i].getName());
                 Collection<OutputEdge> sol = new ConvexLayersOptimized(searchClass)
                         .solve(p.getFirst(), VIS);
                 ProblemIO.saveSolution(p.getSecond(), sol, p.getFirst());
@@ -253,7 +265,7 @@ public class Benchmarking {
             } catch (Exception e) {
                 Logger.setDefaultLogger(ERROR_LOGGER);
                 Logger.write(e);
-                Logger.setDefaultLogger(null);
+                Logger.setDefaultLogger(NullLogger.getInstance());
             }
         }
     }
