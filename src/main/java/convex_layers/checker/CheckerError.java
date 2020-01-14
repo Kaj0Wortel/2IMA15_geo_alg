@@ -118,8 +118,11 @@ public class CheckerError {
         StringBuilder sb = new StringBuilder(Var.LS);
         sb.append("==========  ERROR  REPORT  ==========");
         sb.append(Var.LS);
-        if (!hasErrors()) sb.append("No errors were found!");
-        else {
+        if (!hasErrors()) {
+            sb.append("No errors were found!");
+            sb.append(Var.LS);
+
+        } else {
             sb.append("----------  ERROR  EDGES  ---------");
             sb.append(Var.LS);
             if (edges.isEmpty()) {
@@ -139,14 +142,12 @@ public class CheckerError {
 
             if (points.isEmpty()) {
                 sb.append("No error points were found!");
-                sb.append(Var.LS);
-                
+
             } else {
                 for (BaseInputVertex biv : points) {
                     sb.append(biv.toShortString());
                     sb.append(Var.LS);
                 }
-                sb.append(Var.LS);
             }
         }
         return sb.toString();

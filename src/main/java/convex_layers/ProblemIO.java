@@ -30,7 +30,7 @@ public final class ProblemIO {
      * @return The problem set.
      */
     public static Problem2 readProblem(File file) {
-        Logger.write("Started reading " + file.getAbsolutePath());
+        Logger.write("Started reading " + file.getAbsolutePath(), Logger.Type.INFO);
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
             return readProblem(bis);
             
@@ -40,7 +40,7 @@ public final class ProblemIO {
             return null;
             
         } finally {
-            Logger.write("Finished reading " + file.getAbsolutePath());
+            Logger.write("Finished reading " + file.getAbsolutePath(), Logger.Type.INFO);
         }
     }
 
@@ -77,7 +77,7 @@ public final class ProblemIO {
      */
     public static void saveSolution(File file, Collection<OutputEdge> sol, Problem2 problem) {
         Logger.write("Saving solution of " + problem.getName() + " having " + sol.size()
-                + " edges to  the file " + file.getAbsolutePath());
+                + " edges to  the file " + file.getAbsolutePath(), Logger.Type.INFO);
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file, false))) {
             saveSolution(bos, sol, problem);
             
@@ -86,7 +86,7 @@ public final class ProblemIO {
             System.exit(-1);
             
         } finally {
-            Logger.write("Finished saving solution of " + problem.getName());
+            Logger.write("Finished saving solution of " + problem.getName(), Logger.Type.INFO);
         }
     }
     
