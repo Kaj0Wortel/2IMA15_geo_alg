@@ -59,16 +59,25 @@ public class Evaluator {
     }
     
     public static Pair<Problem2, File> getProblem(String type, String name) {
+
+
         String path = "data" + Var.FS + FOLDER + Var.FS + type + Var.FS + name;
+        String outPath = "data" + Var.FS + "sol" + Var.FS + name;
+        File outDirectory = new File("data" + Var.FS + "sol" + Var.FS);
+        if (!outDirectory.exists()) { // Create output directory if it does not exist
+            outDirectory.mkdirs();
+        }
 
         File inFile = new File(path + ".instance.json");
-        File outFile = new File(path + ".solution.json");
+        File outFile = new File(outPath + ".solution.json");
         Problem2 problem = ProblemIO.readProblem(inFile);
         return new Pair<>(problem, outFile);
     }
     
     @SuppressWarnings("unchecked")
     public void evaluate() {
+        // NB: This function is being used for testing and benchmarking purposes and it thus quite messy
+
         Logger.write("Evaluator started", Logger.Type.INFO);
 //        String type = "images";
 //        String name = "uniform-0000015-1";
@@ -87,7 +96,8 @@ public class Evaluator {
 //                "parix-0004000",
 //            "mona-lisa-1000000",
         };
-        String type = "uniform";
+//        String type = "uniform";
+        String type = "images";
         Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[] {
 //                IgnoreRangeSearch.class,
 //                PriorTreeSearch.class,
@@ -95,25 +105,32 @@ public class Evaluator {
                 KDTree.class,
         };
 
-        for (Pair<Problem2, File> prob : getProblemsInFolder(type)) {
-            for (Class<Range2DSearch<BaseInputVertex>> search : searches) {
+        for (Pair<Problem2, File> prob : getProblemsInFolder(type)) { // All problems to run
+            for (Class<Range2DSearch<BaseInputVertex>> search : searches) { // All search structures to run on
                 Logger.write("Running for search structure: " + search.getCanonicalName(),
                         Logger.Type.INFO);
 //                Pair<Problem2, File> prob = getProblem("uniform", name);
                 Problem2 problem = prob.getFirst();
                 File outFile = prob.getSecond();
-
-                for (int i = 0; i < 1; i ++) {
+                for (int i = 0; i < 1; i ++) { // Number of times to run this problem
                     Logger.write("Starting iteration: " + i, Logger.Type.INFO);
-                    
-                    RunProperties properties = evaluate(problem, search, outFile);
-                    Logger.write("Errors: " + properties.hasErrors(), Logger.Type.INFO);
-                    if (properties.hasErrors()) {
-                        Logger.setDefaultLogger(new StreamLogger(System.out));
-                        Logger.write(properties.exception);
-                        Logger.write("Seed of error: " + properties.seed, Logger.Type.ERROR);
-                        return;
-                    }
+
+                    boolean solved;
+                    do {
+                        try { // If crashed, try again
+                            RunProperties properties = evaluate(problem, search, outFile);
+                            Logger.write("Errors: " + properties.hasErrors(), Logger.Type.INFO);
+                            solved = !properties.hasErrors();
+                            if (properties.hasErrors()) { // If error, try again
+                                Logger.setDefaultLogger(new StreamLogger(System.out));
+                                Logger.write(properties.exception);
+                                Logger.write("Seed of error: " + properties.seed, Logger.Type.ERROR);
+                                return;
+                            }
+                        } catch (Exception e) {
+                            solved = false;
+                        }
+                    } while (!solved);
                 }
             }
         }
@@ -137,7 +154,7 @@ public class Evaluator {
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
         
         Solver solver = new ConvexLayersOptimized(search);
-        Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
+        Checker checker = new MultiChecker(new FastEdgeIntersectionChecker(), new ConvexChecker());
         
         Logger.write("========== Solving problem " + problem.getName() + " using "
                 + search.getName() +  " ==========", Logger.Type.INFO);
