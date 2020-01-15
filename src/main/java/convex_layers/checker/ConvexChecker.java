@@ -62,12 +62,12 @@ public class ConvexChecker
             edges.sort((e1, e2) -> {
                 BaseInputVertex other1 = (e1.getV1().equals(biv) ? e1.getV2() : e1.getV1());
                 BaseInputVertex other2 = (e2.getV1().equals(biv) ? e2.getV2() : e2.getV1());
-                if (other1.equals(other2)) return 0;
+                if (other1.getV().equals(other2.getV())) return 0;
                 
                 double ori1 = vertEdge.relOri(other1.getV());
                 double ori2 = vertEdge.relOri(other2.getV());
-                if (ori1 < 0 && ori2 > 0) return 1;
-                else if (ori2 < 0 && ori1 > 0) return -1;
+                if (ori1 < 0 && ori2 >= 0) return 1;
+                else if (ori2 < 0 && ori1 >= 0) return -1;
                 else if (ori1 == 0 && ori2 == 0) {
                     double diff = other1.getY() - other2.getY();
                     if (diff < 0) return -1;
@@ -75,8 +75,8 @@ public class ConvexChecker
                     else return 0;
                 } else {
                     Edge e = new Edge(biv.getV(), other2.getV());
-                    int o = e.relOriRounded(other1.getV());;
-                    return o;
+                    int ori = e.relOriRounded(other1.getV());
+                    return ori;
                 }
             });
             return edges.iterator();

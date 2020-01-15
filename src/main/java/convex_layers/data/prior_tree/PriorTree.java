@@ -15,7 +15,25 @@ import java.util.List;
 
 /**
  * Priority search tree data structure.
- * @param <T>
+ * 
+ * @apiNote
+ * Each internal node contains a data node, the median x, and the median y.
+ * These two median values correspond to the data x and y values of the
+ * sub-array of the children of this node, first sorted on y then x.
+ * This creates balanced tree. <br>
+ * Note that the split line of left/right for a node {@code x} with a
+ * node {@code y} which denotes the median of the subtrees of {@code x},
+ * sorted x-then-y, looks like:
+ * <pre>{@code
+ * ---+
+ *   y|
+ *    +---
+ * }</pre>
+ * This means that for nodes with the same y-coordinate as node {@code y},
+ * but with a strictly higher x-coordinate, lie in the right sub-tree of {@code x},
+ * while those with a lower or equal x-coordinate lie in the left sub-tree.
+ * 
+ * @param <T> The type of nodes used in the structure.
  */
 public class PriorTree<T extends Node2D<T>>
         implements Base2DTree<T> {
@@ -42,11 +60,10 @@ public class PriorTree<T extends Node2D<T>>
     @Getter
     @Setter
     @AllArgsConstructor
-    @RequiredArgsConstructor
     protected static class Node<T extends Node2D<T>>
             implements Node2D<Node<T>> {
         /** The data of the node */
-        final T data;
+        private T data;
         /** The parent of this node. */
         private Node<T> parent;
         /** The left child of the node. */
@@ -57,6 +74,16 @@ public class PriorTree<T extends Node2D<T>>
         private double ySplit;
         /** The x-coordinate this node splits on if the y-split is equal. */
         private double xSplit;
+        
+        
+        /**
+         * Constructor for creating a node with the given data.
+         * 
+         * @param data The data of the node.
+         */
+        protected Node(T data) {
+            this.data = data;
+        }
         
         
         @Override
@@ -144,9 +171,10 @@ public class PriorTree<T extends Node2D<T>>
      * ----------------------------------------------------------------------
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "ToArrayCallWithZeroLengthArrayArgument"})
     public void init(Collection<T> nodes) {
         clear();
+        size = nodes.size();
         
         // Convert data to nodes.
         if (nodes.isEmpty()) return;
@@ -169,11 +197,10 @@ public class PriorTree<T extends Node2D<T>>
         
         // Build the tree.
         List<Elem<T>> prevState = new ArrayList<>();
-        List<Elem<T>> nextState = null;
         prevState.add(new Elem<T>(null, xData, yData, null, null));
         
         while (!prevState.isEmpty()) {
-            nextState = new ArrayList<>();
+            List<Elem<T>> nextState = new ArrayList<>();
             for (Elem<T> elem : prevState) {
                 for (int side = 0; side < 2; side++) {
                     Node<T>[] xArr = (side == 0 ? elem.leftX : elem.rightX);
@@ -191,10 +218,6 @@ public class PriorTree<T extends Node2D<T>>
                     Node<T> median = yArr[medianIndex];
                     first.ySplit = median.getY();
                     first.xSplit = median.getX();
-//                    Logger.write("");
-//                    Logger.write("first: " + first);
-//                    Logger.write("median: " + median);
-//                    Logger.write("");
                     
                     // Split the y-array into the left and right arrays.
                     // The first value of the x-array is removed here.
@@ -221,9 +244,6 @@ public class PriorTree<T extends Node2D<T>>
                     }
                     Node<T>[] newLeftY = newLeftYList.toArray(new Node[newLeftYList.size()]);
                     Node<T>[] newRightY = newRightYList.toArray(new Node[newRightYList.size()]);
-                    
-//                    Logger.write(Var.LS + "left Y : " + Var.LS + Arrays.toString(newLeftY));
-//                    Logger.write(Var.LS + "right Y: " + Var.LS + Arrays.toString(newRightY));
                     
                     Node<T>[] newLeftX = new Node[newLeftY.length];
                     Node<T>[] newRightX = new Node[newRightY.length];
@@ -255,10 +275,12 @@ public class PriorTree<T extends Node2D<T>>
             }
             
             prevState = nextState;
-            nextState = null;
         }
     }
-    
+
+    /**
+     * @return A string representation of the internal state.
+     */
     protected String debug() {
         StringBuilder sb = new StringBuilder(getClass().getCanonicalName());
         sb.append("[");
@@ -361,6 +383,7 @@ public class PriorTree<T extends Node2D<T>>
      */
     private void reportHalf(Collection<T> toReport, Node<T> node,
                             double xMax, double yMin, double yMax, boolean left) {
+        if (node == null) return;
         Queue<Node<T>> toProcess = new LinkedList<>(List.of(node));
         while (!toProcess.isEmpty()) {
             Node<T> n = toProcess.remove();
@@ -418,24 +441,17 @@ public class PriorTree<T extends Node2D<T>>
      */
     @SuppressWarnings("unchecked")
     protected Node<T> getNode(Object obj) {
-        T elem;
-        if (obj instanceof Node) {
-            elem = ((Node<T>) obj).data;
-            
-        } else if (obj instanceof Node2D) {
-            elem = (T) obj;
-            
-        } else return null;
+        if (!(obj instanceof Node2D)) return null;
+        Node2D<T> elem = (Node2D<T>) obj;
         Node<T> node = root;
         while (node != null) {
-            if (node.getX() > elem.getX()) return null;
-            if (node.getX() == elem.getX() && node.getY() == elem.getY()) {
-                if (Objects.equals(node.data, node)) return node;
-            }
-            if (node.getY() <= node.ySplit) {
-                node = node.right;
-            } else {
+            if (elem.getX() < node.getX()) return null;
+            if (node.getX() == elem.getX() && node.getY() == elem.getY() &&
+                    Objects.equals(elem, node.data)) return node;
+            if (elem.getY() < node.ySplit || (elem.getY() == node.ySplit && elem.getX() <= node.xSplit)) {
                 node = node.left;
+            } else {
+                node = node.right;
             }
         }
         return null;
@@ -468,8 +484,46 @@ public class PriorTree<T extends Node2D<T>>
     }
     
     @Override
-    public boolean remove(Object o) {
-        throw new UnsupportedOperationException(); // TODO
+    public boolean remove(Object obj) {
+        Node<T> node = getNode(obj);
+        
+        // If the node is not in the tree, simply return {@code false}.
+        if (node == null) return false;
+        size--;
+        
+        // Remove node and shift one of it's children it's place recursively.
+        {
+            // Recursively fill the gap.
+            while (true) {
+                Node<T> target;
+                Node<T> left = node.getLeft();
+                Node<T> right = node.getRight();
+                if (left == null) target = right;
+                else if (right == null) target = left;
+                else {
+                    if (left.getX() < right.getX() ||
+                            (left.getX() == right.getX() && left.getY() <= right.getY())) {
+                        target = left;
+                    } else target = right;
+                }
+                
+                if (target == null) {
+                    if (node.getParent() != null) {
+                        if (node.getParent().getLeft() == node) {
+                            node.getParent().setLeft(null);
+                        } else {
+                            node.getParent().setRight(null);
+                        }
+                        node.setParent(null);
+                    }
+                    break;
+                }
+                node.setData(target.getData());
+                node = target;
+            }
+        }
+        
+        return true;
     }
     
     @Override
@@ -537,23 +591,23 @@ public class PriorTree<T extends Node2D<T>>
     // TMP
     public static void main(String[] args) {
         Logger.setDefaultLogger(new StreamLogger(System.out));
-        PriorTree<BaseInputVertex> t = new PriorTree<>();
-        Logger.write(t.iterator().hasNext());
         PriorTree<BaseInputVertex> tree = new PriorTree<>(List.of(
                 new BaseInputVertex(0L, 1, 1),
-                new BaseInputVertex(0L, 2, 1),
-                new BaseInputVertex(0L, 3, 1),
-                new BaseInputVertex(0L, 1, 2),
-                new BaseInputVertex(0L, 2, 2),
-                new BaseInputVertex(0L, 3, 2),
-                new BaseInputVertex(0L, 1, 3),
-                new BaseInputVertex(0L, 2, 3),
-                new BaseInputVertex(0L, 3, 3)
+                new BaseInputVertex(1L, 2, 1),
+                new BaseInputVertex(2L, 3, 1),
+                new BaseInputVertex(3L, 1, 2),
+                new BaseInputVertex(4L, 2, 2),
+                new BaseInputVertex(5L, 3, 2),
+                new BaseInputVertex(6L, 1, 3),
+                new BaseInputVertex(7L, 2, 3),
+                new BaseInputVertex(8L, 3, 3)
         ));
         Logger.write("ENDED");
         //Logger.write(tree.debug());
         Logger.write("-------------------------");
-        Logger.write(tree.getUnboundedRange(3, 2, 3).toString().replaceAll("], ", "]," + Var.LS));
+//        Logger.write(tree.getUnboundedRange(3, 2, 3).toString().replaceAll("], ", "]," + Var.LS));
+//        Logger.write(tree.debug());
+        Logger.write(tree.get(new BaseInputVertex(8L, 3, 3)));
     }
     
     

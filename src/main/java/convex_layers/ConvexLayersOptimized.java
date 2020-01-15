@@ -4,7 +4,11 @@ import convex_layers.checker.*;
 import convex_layers.data.IgnoreRangeSearch;
 import convex_layers.data.Node2D;
 import convex_layers.data.Range2DSearch;
+import convex_layers.data.kd_tree.KDTree;
+import convex_layers.data.prior_tree.PriorTree;
 import convex_layers.data.prior_tree.PriorTreeSearch;
+import convex_layers.data.quad_tree.QuadTree;
+import convex_layers.evaluate.ScoreCalculator;
 import convex_layers.hull.ConvexHull;
 import convex_layers.hull.NearIntersection;
 import convex_layers.hull.VectorYEdge;
@@ -13,18 +17,22 @@ import convex_layers.math.Edge;
 import convex_layers.math.Vector;
 import convex_layers.visual.NullVisualizer;
 import convex_layers.visual.Visual;
-
 import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
-import lombok.*;
-
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import tools.Var;
+import tools.font.FontLoader;
 import tools.log.Logger;
 import tools.log.StreamLogger;
 
-import java.io.*;
+import java.awt.*;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Optimized version of the convex partition problem.
@@ -73,7 +81,7 @@ public class ConvexLayersOptimized
          * @param v The vector to apply.
          */
         private void apply(Vector v) {
-            Logger.write("Applying: " + v);
+//            Logger.write("Applying: " + v);
             if (minX == null) {
                 minX = maxX = v.x();
                 minY = maxY = v.y();
@@ -129,7 +137,7 @@ public class ConvexLayersOptimized
      * @return The nodes in the specified range.
      */
     private static <T extends Node2D<T>> Collection<T> search(Range2DSearch<T> search, MinMax minMax) {
-        Logger.write(minMax);
+        //Logger.write(minMax);
         return search.getRange(minMax.minX, minMax.maxX, minMax.minY, minMax.maxY,
                 minMax.unboundedLeft, minMax.unboundedBottom);
     }
@@ -150,6 +158,25 @@ public class ConvexLayersOptimized
         vis.setEdges(List.of(Visual.toEdge(sol)));
         vis.addData(List.of(out.getLeftInput(), out.getRightInput(), in.getLeftInput(), in.getRightInput()));
         //vis.addData(List.of(out, in));
+    }
+
+    /**
+     * Draws a rectangle for the given range.
+     * 
+     * @param vis The visualizer to draw on.
+     * @param m   The range to draw.
+     */
+    private static void drawRect(Visual vis, MinMax m) {
+        Vector v1 = new Vector(m.minX, m.minY);
+        Vector v2 = new Vector(m.maxX, m.minY);
+        Vector v3 = new Vector(m.maxX, m.maxY);
+        Vector v4 = new Vector(m.minX, m.maxY);
+        vis.addEdge(List.of(
+                new Edge(v1, v2),
+                new Edge(v2, v3),
+                new Edge(v3, v4),
+                new Edge(v4, v1)
+        ), Color.ORANGE);
     }
     
 
@@ -194,7 +221,6 @@ public class ConvexLayersOptimized
         VectorYNode<BaseInputVertex> prev = null;
         VectorYNode<BaseInputVertex> outerNode = (first ? ni.getN1() : ni.getN4());
         VectorYNode<BaseInputVertex> innerNode = (first ? ni.getN2() : ni.getN3());
-        //minMax.apply(cur.getVec());
         
         Edge e;
         do {
@@ -224,9 +250,6 @@ public class ConvexLayersOptimized
 
     /**
      * Repairs the inner hull.
-     * TODO Improve algorithm speed.
-     *   Current average time : O(n)
-     *   Improved average time: O(log(n))
      *
      * @param innerHull The inner hull.
      * @param search    The 2D range search structure to use.
@@ -235,7 +258,10 @@ public class ConvexLayersOptimized
      */
     private void fixInnerHull(ConvexHull<BaseInputVertex> innerHull, Range2DSearch<BaseInputVertex> search,
                               MinMax minMax, Visual vis) {
+        drawRect(vis, minMax);
         Collection<BaseInputVertex> toConsider = search(search, minMax);
+        vis.addPoint(Visual.toVec(toConsider), List.of(), Color.ORANGE);
+        vis.redraw();
         Collection<BaseInputVertex> toRemove = new HashSet<>();
         for (BaseInputVertex iv : toConsider) {
             toRemove.add(iv);
@@ -258,7 +284,7 @@ public class ConvexLayersOptimized
         ConvexHull<BaseInputVertex> innerHull;
         Range2DSearch<BaseInputVertex> search = create2DSearch();
         {
-            Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices()); // TODO: move inwards.
+            Collection<BaseInputVertex> remaining = new HashSet<>(p.getVertices());
             outerHull = ConvexHull.createConvexHull(remaining);
             remaining.removeAll(outerHull);
             innerHull = ConvexHull.createConvexHull(remaining);
@@ -274,19 +300,14 @@ public class ConvexLayersOptimized
         vis.redraw();
         
         int i = 0; // TODO: remove.
-        int[] coords = new int[]{
+        int[] coords = new int[] {
+                0, 1,
+                6, 7,
                 5, 6,
-                7, 8,
+                5, 6,
+                5, 6,
                 0, 1,
-                7, 8,
-                2, 3,
-                9, 0,
-                0, 8,
-                1, 2,
-                3, 4,
-                0, 1,
-                1, 2,
-                0, 2
+                7, 8
         };
 
         // BEGIN ALGORITHM LOGIC
@@ -318,12 +339,13 @@ public class ConvexLayersOptimized
                         ni.getN4().getIv(),
                         ni.getN1().getIv()
                 );
-                vis.addData(List.of(intersect));
-                vis.addEdge(List.of(vye.toEdge()));
+                vis.addPoint(Visual.toVec(intersect), Visual.toLabel(intersect), null);
+                vis.addEdge(Visual.connectEdges(Visual.toVec(intersect)), null);
+                vis.addEdge(List.of(vye.toEdge()), null);
                 vis.redraw();
                 resetVis(vis, p, innerHull, outerHull, sol);
             }
-
+            
             // Generate the bounding box to search for during the inner hull repair phase.
             boolean unboundedLeft;
             boolean unboundedBottom;
@@ -376,44 +398,84 @@ public class ConvexLayersOptimized
      * @param args The runtime arguments.
      */
     public static void main(String[] args) {
-        //MultiTool.initLogger(Var.LOG_FILE);
+        FontLoader.syncLoad();
+//        MultiTool.initLogger(Var.LOG_FILE);
         Logger.setDefaultLogger(new StreamLogger(System.out));
 
         String folder = "challenge_1";
         String type = "uniform";
+//        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
-        String name = "uniform-0001000-1";
+        String name = "uniform-0000060-2";
+//        String name = "uniform-0000100-1";
+//        String name = "uniform-0001000-1";
+//        String name = "uniform-0010000-1";
+//        String name = "uniform-0100000-2";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
-        
+
         File inFile = new File(path + ".instance.json");
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
-        
+
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
-        Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
+        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Checker checker;
+        if (problem.getVertices().size() < 50_000) {
+            checker = new MultiChecker(new FastEdgeIntersectionChecker(), new ConvexChecker());
+        } else {
+            checker = new ConvexChecker();
+            Logger.write("~~~~~~~~~~  IGNORING EDGE COLLISIONS DURING CORRECTNESS!  ~~~~~~~~~~",
+                    Logger.Type.WARNING);
+        }
         
-        Collection<OutputEdge> sol = solver.solve(problem, vis);
+        // Generate solution.
+        Collection<OutputEdge> sol;
+        {
+            long t1 = System.currentTimeMillis();
+            sol = solver.solve(problem, vis);
+            long t2 = System.currentTimeMillis();
+            Logger.write("==========  SOLUTION  GENERATED  ==========", Logger.Type.INFO);
+            Logger.write("Generated the solution in " + (t2 - t1) / 1000.0 + " seconds",
+                    Logger.Type.INFO);
+            Logger.write("", Logger.Type.INFO);
+        }
         
-        // TODO: tmp
-//        Visual v = new Visualizer();
-//        v.setEdges(List.of(Visual.toEdge(sol)));
-//        v.setPoints(List.of(Visual.toVec(problem.getVertices())));
-//        v.setLabels(List.of(Visual.toLabel(problem.getVertices())));
-//        v.redraw();
+        // Check quality.
+        {
+            long t1 = System.currentTimeMillis();
+            double scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
+            double score = ScoreCalculator.calculateScore(problem, sol);
+            long t2 = System.currentTimeMillis();
+            Logger.write("==========  SCORE  REPORT  ==========", Logger.Type.INFO);
+            Logger.write("Calculated the score in  " + (t2 - t1) / 1000.0 + " seconds", Logger.Type.INFO);
+            Logger.write("Score lower bound: " + scoreLowerBound, Logger.Type.INFO);
+            Logger.write("Score: " + score, Logger.Type.INFO);
+            Logger.write("That's " + (score / scoreLowerBound) + " as much as the lower bound.", Logger.Type.INFO);
+            Logger.write("", Logger.Type.INFO);
+        }
         
-        //sol.remove(sol.iterator().next());
-        CheckerError err = checker.check(problem, sol);
-        Logger.write(err);
-        Visual errorVis = new VisualRender();
-        errorVis.addPoint(Visual.toVec(problem.getVertices()));
-        errorVis.addLabel(Visual.toLabel(problem.getVertices()));
-        errorVis.addEdge(Visual.toEdge(sol));
-        err.draw(errorVis);
+        // Check correctness.
+        {
+            long t1 = System.currentTimeMillis();
+            CheckerError err = checker.check(problem, sol);
+            long t2 = System.currentTimeMillis();
+            Logger.write("==========  SOLUTION  CHECKED  ==========", Logger.Type.INFO);
+            Logger.write("Checked the solution in " + (t2 - t1) / 1000.0 + " seconds",
+                    Logger.Type.INFO);
+            Logger.write(err, (err.hasErrors() ? Logger.Type.ERROR : Logger.Type.INFO));
+            Logger.write("", Logger.Type.INFO);
+            
+            Visual errorVis = new VisualRender();
+            errorVis.addPoint(Visual.toVec(problem.getVertices()));
+            errorVis.addLabel(Visual.toLabel(problem.getVertices()));
+            errorVis.addEdge(Visual.toEdge(sol));
+            err.draw(errorVis);
+        }
         
+        // Save solution.
         //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
     }
     

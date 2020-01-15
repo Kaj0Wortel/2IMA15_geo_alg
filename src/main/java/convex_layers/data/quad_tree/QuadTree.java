@@ -64,27 +64,24 @@ public class QuadTree<T extends Node2D<T>>
     @Override
     public void init(Collection<T> col) {
         clear();
-        System.out.println(col.toString());
         size = col.size();
         if (col.size() > 1) {
-            System.out.println("yeaaaaah");
             root = new QuadNode(0,null, col);
         } else {
-            System.out.println("it\'s rewind time");
-            root = new QuadLeaf(0,null, col);
+            root = new QuadLeaf(0,0,0,0,0,null, col);//TODO get rid of zeroes
         }
     }
     
     @Override
     public T get(Object obj) {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public boolean contains(Object obj) {
-        throw new UnsupportedOperationException(); // TODO
+        return root.getPoints().contains(obj);
     }
-    
+
     @Override
     public Iterator<T> iterator() {
         throw new UnsupportedOperationException(); // TODO
@@ -94,10 +91,20 @@ public class QuadTree<T extends Node2D<T>>
     public boolean add(T t) {
         throw new UnsupportedOperationException(); // TODO
     }
-    
+
+    //TODO finish method
     @Override
     public boolean remove(Object o) {
-        throw new UnsupportedOperationException(); // TODO
+        if (!(o instanceof Node2D)){
+            throw new IllegalArgumentException("Object provided should be of type Node2D");
+        } else {
+            if(!root.points.contains((T) o)){
+                return false;
+            }
+            size -= 1;
+            root = root.remove((Node2D) o);
+            return true;
+        }
     }
 
     @Override
@@ -113,22 +120,27 @@ public class QuadTree<T extends Node2D<T>>
     
     @Override
     public Collection<T> getRangeUpRight(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeDownRight(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeUpLeft(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
     }
     
     @Override
     public Collection<T> getRangeDownLeft(double xMin, double xMax, double yMin, double yMax) {
-        throw new UnsupportedOperationException(); // TODO
+        return getRange(xMin, xMax, yMin, yMax);
+    }
+
+    //TODO
+    public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax){
+        return root.getRange(xMax, yMax, xMin, yMin);
     }
 
     @SuppressWarnings("Duplicates")
@@ -136,14 +148,14 @@ public class QuadTree<T extends Node2D<T>>
         Logger.setDefaultLogger(new StreamLogger(System.out));
         ArrayList<BaseInputVertex> pts = new ArrayList<>(List.of(
                 new BaseInputVertex(0, 1, 1),
-                new BaseInputVertex(0, 2, 1),
-                new BaseInputVertex(0, 3, 1),
-                new BaseInputVertex(0, 1, 2),
                 new BaseInputVertex(0, 2, 2),
-                new BaseInputVertex(0, 3, 2),
-                new BaseInputVertex(0, 1, 3),
-                new BaseInputVertex(0, 2, 3),
-                new BaseInputVertex(0, 3, 3)
+                new BaseInputVertex(0, 3, 3),
+                new BaseInputVertex(0, 4, 4),
+                new BaseInputVertex(0, 5, 5),
+                new BaseInputVertex(0, 6, 6),
+                new BaseInputVertex(0, 7, 7),
+                new BaseInputVertex(0, 8, 8),
+                new BaseInputVertex(0, 9, 9)
         ));
         QuadTree<BaseInputVertex> quad = new QuadTree<>(pts);
     }

@@ -3,7 +3,12 @@ out/*
 target/*
 *.iml
 *.jar
+!resources/*
 *.class
 log/*
 *.log
-data/benchmark/
+*.fuse
+.idea/workspace.xml
+.idea/compiler.xml
+data/benchmark/*
+data/sol/*
