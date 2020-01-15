@@ -28,29 +28,33 @@ public class Evaluator {
     private static final String FOLDER = "challenge_1";
     
     private Visual errorVis = new VisualRender();
-    private Logger logger = new StreamLogger(System.out);
-//    Logger logger = NullLogger.getInstance();
     boolean checkValidity = false;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
     boolean visualizeOutput = false;
-    boolean saveSolution = false;
+    boolean saveSolution = true;
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss.SSS");
-    
-    // Put Seeds that give an error in here so we have a list of them for fixing
-    private static final long[] ERROR_SEEDS = {
-            7930711523825690689L
-    };
     
     public List<Pair<Problem2, File>> getProblemsInFolder(String type) {
         String[] names = {
                 "uniform-0010000-1"
         };
+
+        String path = "data" + Var.FS + FOLDER + Var.FS + type + Var.FS;
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+
         List<Pair<Problem2, File>> pairs = new ArrayList<>();
-        for (String name : names) {
-            pairs.add(getProblem(type, name));
+        assert files != null;
+        for (File file : files) {
+            System.out.println(file.getName());
+            String[] name = file.getName().split("\\.");
+            if (name[1].equals("instance")) {
+                pairs.add(getProblem(type, name[0]));
+            }
         }
+
         return pairs;
     }
     
@@ -76,25 +80,26 @@ public class Evaluator {
 
         String[] names = {
 //            "uniform-0000010-1",
-            "uniform-0000100-1",
+//            "uniform-0000100-1",
 //            "uniform-0001000-1",
-//            "uniform-0010000-1",
+            "uniform-0010000-1",
 //            "uniform-0100000-1",0004000",
 //                "parix-0004000",
 //            "mona-lisa-1000000",
         };
+        String type = "uniform";
         Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[] {
 //                IgnoreRangeSearch.class,
 //                PriorTreeSearch.class,
 //                QuadTree.class,
                 KDTree.class,
         };
-        
-        for (String name : names) {
+
+        for (Pair<Problem2, File> prob : getProblemsInFolder(type)) {
             for (Class<Range2DSearch<BaseInputVertex>> search : searches) {
                 Logger.write("Running for search structure: " + search.getCanonicalName(),
                         Logger.Type.INFO);
-                Pair<Problem2, File> prob = getProblem("uniform", name);
+//                Pair<Problem2, File> prob = getProblem("uniform", name);
                 Problem2 problem = prob.getFirst();
                 File outFile = prob.getSecond();
 

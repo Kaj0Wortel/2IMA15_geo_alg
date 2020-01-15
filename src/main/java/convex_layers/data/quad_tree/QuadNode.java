@@ -24,6 +24,7 @@ class QuadNode<T extends Node2D<T>> extends AbstractQuadNode<T>{
             for(T p : col){
                 points.add(p);
             }
+
         }
 
         this.parent = parent;
