@@ -27,8 +27,9 @@ public class Evaluator {
     
     private static final String FOLDER = "challenge_1";
     
-//    private Visual errorVis = new VisualRender();
-    private Visual errorVis = new NullVisualizer();
+    private Visual errorVis = new VisualRender();
+    private Logger logger = new StreamLogger(System.out);
+//    Logger logger = NullLogger.getInstance();
     boolean checkValidity = false;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
@@ -74,14 +75,19 @@ public class Evaluator {
 //        String name = "euro-night-0010000";
 
         String[] names = {
-//            "uniform-0100000-1"
-            "uniform-0000060-2"
+//            "uniform-0000010-1",
+            "uniform-0000100-1",
+//            "uniform-0001000-1",
+//            "uniform-0010000-1",
+//            "uniform-0100000-1",0004000",
+//                "parix-0004000",
+//            "mona-lisa-1000000",
         };
         Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[] {
-//                KDTree.class,
-//                QuadTree.class,
-                PriorTreeSearch.class,
 //                IgnoreRangeSearch.class,
+//                PriorTreeSearch.class,
+//                QuadTree.class,
+                KDTree.class,
         };
         
         for (String name : names) {
@@ -91,8 +97,8 @@ public class Evaluator {
                 Pair<Problem2, File> prob = getProblem("uniform", name);
                 Problem2 problem = prob.getFirst();
                 File outFile = prob.getSecond();
-                
-                for (int i = 0; i < 5000; i ++) {
+
+                for (int i = 0; i < 1; i ++) {
                     Logger.write("Starting iteration: " + i, Logger.Type.INFO);
                     
                     RunProperties properties = evaluate(problem, search, outFile);
@@ -123,7 +129,6 @@ public class Evaluator {
         properties.problem = problem;
         properties.searchClass = search;
         properties.seed = ConvexHull.getSeed();
-        
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
         
         Solver solver = new ConvexLayersOptimized(search);
@@ -140,11 +145,13 @@ public class Evaluator {
             Logger.setDefaultLogger(NullLogger.getInstance());
             properties.solution = solver.solve(problem, vis);
             Logger.setDefaultLogger(logger);
-            
+
             properties.endTime = System.currentTimeMillis();
             Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)),
                     Logger.Type.INFO);
-            
+
+            double runSeconds = properties.getRunSeconds();
+            Logger.write("Running time (s): " + runSeconds);
         } catch (Exception e) {
             properties.exception = e;
             Logger.write(e);
@@ -167,7 +174,7 @@ public class Evaluator {
             Logger.write("Score lower bound: " + properties.scoreLowerBound, Logger.Type.INFO);
             properties.score = ScoreCalculator.calculateScore(problem, properties.solution);
             Logger.write("Score: " + properties.score, Logger.Type.INFO);
-            Logger.write("That's " + properties.getScoreRation() + " as much as the lower bound.",
+            Logger.write("That's " + properties.getScoreRation() + " times as much as the lower bound.",
                     Logger.Type.INFO);
             
             double runSeconds = properties.getRunSeconds();
@@ -188,7 +195,7 @@ public class Evaluator {
                 ProblemIO.saveSolution(outFile, properties.solution, problem);
             }
         }
-        
+
         Logger.write("========== ========== ==========", Logger.Type.INFO);
         
         return properties;
