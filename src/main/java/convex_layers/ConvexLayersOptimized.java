@@ -407,19 +407,19 @@ public class ConvexLayersOptimized
 //        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
-//        String name = "uniform-0000060-1";
+        String name = "uniform-0000060-2";
 //        String name = "uniform-0000100-1";
 //        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
-        String name = "uniform-0100000-2";
+//        String name = "uniform-0100000-2";
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
 
         File inFile = new File(path + ".instance.json");
 //        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
 
-//        Visual vis = new Visualizer();
-        Visual vis = new NullVisualizer();
+        Visual vis = new Visualizer();
+//        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
         Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
         Checker checker;
@@ -438,27 +438,9 @@ public class ConvexLayersOptimized
             sol = solver.solve(problem, vis);
             long t2 = System.currentTimeMillis();
             Logger.write("==========  SOLUTION  GENERATED  ==========", Logger.Type.INFO);
-            Logger.write("The solution generation took " + (t2 - t1) / 1000.0 + " seconds",
+            Logger.write("Generated the solution in " + (t2 - t1) / 1000.0 + " seconds",
                     Logger.Type.INFO);
             Logger.write("", Logger.Type.INFO);
-        }
-        
-        // Check correctness.
-        {
-            long t1 = System.currentTimeMillis();
-            CheckerError err = checker.check(problem, sol);
-            long t2 = System.currentTimeMillis();
-            Logger.write("==========  SOLUTION  CHECKED  ==========", Logger.Type.INFO);
-            Logger.write("The solution checking took: " + (t2 - t1) / 1000.0 + " seconds",
-                    Logger.Type.INFO);
-            Logger.write(err, (err.hasErrors() ? Logger.Type.ERROR : Logger.Type.INFO));
-            Logger.write("", Logger.Type.INFO);
-            
-            Visual errorVis = new VisualRender();
-            errorVis.addPoint(Visual.toVec(problem.getVertices()));
-            errorVis.addLabel(Visual.toLabel(problem.getVertices()));
-            errorVis.addEdge(Visual.toEdge(sol));
-            err.draw(errorVis);
         }
         
         // Check quality.
@@ -468,10 +450,29 @@ public class ConvexLayersOptimized
             double score = ScoreCalculator.calculateScore(problem, sol);
             long t2 = System.currentTimeMillis();
             Logger.write("==========  SCORE  REPORT  ==========", Logger.Type.INFO);
-            Logger.write("The score calculation took: " + (t2 - t1) / 1000.0 + " seconds", Logger.Type.INFO);
+            Logger.write("Calculated the score in  " + (t2 - t1) / 1000.0 + " seconds", Logger.Type.INFO);
             Logger.write("Score lower bound: " + scoreLowerBound, Logger.Type.INFO);
             Logger.write("Score: " + score, Logger.Type.INFO);
             Logger.write("That's " + (score / scoreLowerBound) + " as much as the lower bound.", Logger.Type.INFO);
+            Logger.write("", Logger.Type.INFO);
+        }
+        
+        // Check correctness.
+        {
+            long t1 = System.currentTimeMillis();
+            CheckerError err = checker.check(problem, sol);
+            long t2 = System.currentTimeMillis();
+            Logger.write("==========  SOLUTION  CHECKED  ==========", Logger.Type.INFO);
+            Logger.write("Checked the solution in " + (t2 - t1) / 1000.0 + " seconds",
+                    Logger.Type.INFO);
+            Logger.write(err, (err.hasErrors() ? Logger.Type.ERROR : Logger.Type.INFO));
+            Logger.write("", Logger.Type.INFO);
+            
+            Visual errorVis = new VisualRender();
+            errorVis.addPoint(Visual.toVec(problem.getVertices()));
+            errorVis.addLabel(Visual.toLabel(problem.getVertices()));
+            errorVis.addEdge(Visual.toEdge(sol));
+            err.draw(errorVis);
         }
         
         // Save solution.

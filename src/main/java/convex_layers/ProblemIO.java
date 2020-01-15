@@ -64,7 +64,7 @@ public final class ProblemIO {
 //            Logger.write("id: " + id + ", x: " + x + ", y : " + y);
             vertices.add(new BaseInputVertex(id, x, y));
         }
-
+        
         return new Problem2(name, vertices);
     }
     

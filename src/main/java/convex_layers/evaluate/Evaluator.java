@@ -14,7 +14,9 @@ import convex_layers.visual.VisualRender;
 import convex_layers.visual.Visualizer;
 import tools.Pair;
 import tools.Var;
+import tools.font.FontLoader;
 import tools.log.Logger;
+import tools.log.NullLogger;
 import tools.log.StreamLogger;
 
 import java.io.File;
@@ -25,9 +27,8 @@ public class Evaluator {
     
     private static final String FOLDER = "challenge_1";
     
-    private Visual errorVis = new VisualRender();
-    private Logger logger = new StreamLogger(System.out);
-//    Logger logger = NullLogger.getInstance();
+//    private Visual errorVis = new VisualRender();
+    private Visual errorVis = new NullVisualizer();
     boolean checkValidity = false;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
@@ -63,8 +64,7 @@ public class Evaluator {
     
     @SuppressWarnings("unchecked")
     public void evaluate() {
-        Logger.setDefaultLogger(logger);
-        System.out.println("Evaluator started");
+        Logger.write("Evaluator started", Logger.Type.INFO);
 //        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
@@ -74,36 +74,40 @@ public class Evaluator {
 //        String name = "euro-night-0010000";
 
         String[] names = {
-            "uniform-0100000-1"
+//            "uniform-0100000-1"
+            "uniform-0000060-2"
         };
         Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[] {
-                KDTree.class,
-                QuadTree.class,
+//                KDTree.class,
+//                QuadTree.class,
                 PriorTreeSearch.class,
-                IgnoreRangeSearch.class,
+//                IgnoreRangeSearch.class,
         };
         
         for (String name : names) {
             for (Class<Range2DSearch<BaseInputVertex>> search : searches) {
-                for (int i = 0; i < 1; i ++) {
-                    System.out.println("Hi!");
-                    
-                    Pair<Problem2, File> prob = getProblem("uniform", name);
-                    Problem2 problem = prob.getFirst();
-                    File outFile = prob.getSecond();
-                    
-                    System.out.println("Running");
+                Logger.write("Running for search structure: " + search.getCanonicalName(),
+                        Logger.Type.INFO);
+                Pair<Problem2, File> prob = getProblem("uniform", name);
+                Problem2 problem = prob.getFirst();
+                File outFile = prob.getSecond();
+                
+                for (int i = 0; i < 5000; i ++) {
+                    Logger.write("Starting iteration: " + i, Logger.Type.INFO);
                     
                     RunProperties properties = evaluate(problem, search, outFile);
-                    System.out.println("Errors: " + properties.hasErrors());
+                    Logger.write("Errors: " + properties.hasErrors(), Logger.Type.INFO);
                     if (properties.hasErrors()) {
-                        System.out.println("Seed of error: " + properties.seed);
+                        Logger.setDefaultLogger(new StreamLogger(System.out));
+                        Logger.write(properties.exception);
+                        Logger.write("Seed of error: " + properties.seed, Logger.Type.ERROR);
                         return;
                     }
                 }
             }
         }
-        System.out.println("********** Evaluation finished **********");
+        Logger.setDefaultLogger(new StreamLogger(System.out));
+        Logger.write("********** Evaluation finished **********", Logger.Type.INFO);
     }
     
     public RunProperties evaluate(Problem2 problem, Class<Range2DSearch<BaseInputVertex>> search, File outFile) {
@@ -120,24 +124,26 @@ public class Evaluator {
         properties.searchClass = search;
         properties.seed = ConvexHull.SEED;
         
-        Logger.setDefaultLogger(logger);
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
         
         Solver solver = new ConvexLayersOptimized(search);
         Checker checker = new MultiChecker(new EdgeIntersectionChecker(), new ConvexChecker());
         
         Logger.write("========== Solving problem " + problem.getName() + " using "
-                + search.getName() +  " ==========");
+                + search.getName() +  " ==========", Logger.Type.INFO);
         try {
             properties.startTime = System.currentTimeMillis();
-            Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)));
-            Logger.setDefaultLogger(null);
+            Logger.write("Started at time " + DATE_FORMAT.format(new Date(properties.startTime)),
+                    Logger.Type.INFO);
             
+            Logger logger = Logger.getLog();
+            Logger.setDefaultLogger(NullLogger.getInstance());
             properties.solution = solver.solve(problem, vis);
+            Logger.setDefaultLogger(logger);
             
-            Logger.setDefaultLogger(new StreamLogger(System.out));
             properties.endTime = System.currentTimeMillis();
-            Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)));
+            Logger.write("End time: " + DATE_FORMAT.format(new Date(properties.endTime)),
+                    Logger.Type.INFO);
             
         } catch (Exception e) {
             properties.exception = e;
@@ -147,40 +153,43 @@ public class Evaluator {
         
         properties.error = new CheckerError();
         if (checkValidity) {
-            Logger.write("==========  Checking validity  ==========");
+            Logger.write("==========  Checking validity  ==========", Logger.Type.INFO);
             properties.error = checker.check(problem, properties.solution);
-            Logger.write("Errors: " + properties.hasErrors());
+            Logger.write("Errors: " + properties.hasErrors(), Logger.Type.INFO);
             if (properties.hasErrors()) {
-                Logger.write("NB: Warning! Solution has errors!");
+                Logger.write("NB: Warning! Solution has errors!", Logger.Type.WARNING);
             }
         }
         
         if (calculateProperties) {
-            Logger.write("========== Score / properties ==========");
+            Logger.write("========== Score / properties ==========", Logger.Type.INFO);
             properties.scoreLowerBound = ScoreCalculator.calculateLowerBoundScore(problem);
-            Logger.write("Score lower bound: " + properties.scoreLowerBound);
+            Logger.write("Score lower bound: " + properties.scoreLowerBound, Logger.Type.INFO);
             properties.score = ScoreCalculator.calculateScore(problem, properties.solution);
-            Logger.write("Score: " + properties.score);
-            Logger.write("That's " + properties.getScoreRation() + " as much as the lower bound.");
+            Logger.write("Score: " + properties.score, Logger.Type.INFO);
+            Logger.write("That's " + properties.getScoreRation() + " as much as the lower bound.",
+                    Logger.Type.INFO);
             
             double runSeconds = properties.getRunSeconds();
-            Logger.write("Running time (s): " + runSeconds);
+            Logger.write("Running time (s): " + runSeconds, Logger.Type.INFO);
         }
         
         if (visualizeOutput) {
-            Logger.write("========== Drawing picture ==========");
+            Logger.write("========== Drawing picture ==========", Logger.Type.INFO);
             drawPicture(properties.problem, properties.solution, properties.error);
         }
         
         if (saveSolution) {
-            Logger.write("========== Saving solution ==========");
+            Logger.write("========== Saving solution ==========", Logger.Type.INFO);
             if (properties.hasErrors()) {
-                Logger.write("Not writing solution to file since there are errors in the solution!");
+                Logger.write("Not writing solution to file since there are errors in the solution!",
+                        Logger.Type.INFO);
             } else {
                 ProblemIO.saveSolution(outFile, properties.solution, problem);
             }
         }
-        Logger.write("========== ========== ==========");
+        
+        Logger.write("========== ========== ==========", Logger.Type.INFO);
         
         return properties;
     }
@@ -194,6 +203,8 @@ public class Evaluator {
     }
     
     public static void main(String[] args) {
+        FontLoader.syncLoad();
+//        Logger.setDefaultLogger(new StreamLogger(System.out));
         new Evaluator().evaluate();
     }
     

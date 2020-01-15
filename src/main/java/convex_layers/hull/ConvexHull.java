@@ -27,8 +27,8 @@ public class ConvexHull<IV extends BaseInputVertex>
      * ----------------------------------------------------------------------
      */
     /** The seed used to randomly select an edge */
-    public static long SEED = new Random().nextLong();
-//    public static long SEED = -9148243359782670445L;
+//    public static long SEED = new Random().nextLong();
+    public static long SEED = -1779677723346919706L;
     /** The random generator used to randomly select an edge. */
     private static Random RAN = new Random(SEED);
     static {

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import tools.data.collection.rb_tree.LinkedRBKey;
+import tools.data.collection.rb_tree.LinkedRBTree;
 import tools.log.Logger;
 
 import java.util.Objects;
@@ -66,6 +67,11 @@ public class VectorYNode<IV extends BaseInputVertex>
     
     @Override
     public int compareTo(VectorYNode vyn) {
+        if (!isLeft) {
+            Logger.write("THIS: " + this.getIv() + ", other: " + vyn.getIv());
+            LinkedRBTree<VectorYNode<IV>> right = (LinkedRBTree<VectorYNode<IV>>) hull.getRight();
+            if (right != null) Logger.write("    bot: " + right.getMin() + ", top: " + right.getMax());
+        }
         double yDiff = getVec().y() - vyn.getVec().y();
         if (yDiff < 0) return Math.min(-1, (int) yDiff);
         else if (yDiff > 0) return Math.max(1, (int) yDiff);
@@ -74,24 +80,21 @@ public class VectorYNode<IV extends BaseInputVertex>
             Vector split = (isLeft ? hull.getMinX() : hull.getMaxX()).getV();
             double xDiff = getVec().x() - vyn.getVec().x();
             if (xDiff == 0) return 0;
-            int rtn = (xDiff < 0
-                    ? Math.min(-1, (int) xDiff)
-                    : Math.max(1, (int) xDiff)
-            );
-
+            int rtn = Double.compare(getVec().x(), vyn.getVec().x());
+            
             if (getVec().y() < split.y() == isLeft || vyn.getVec().y() < split.y() == isLeft) {
                 return -rtn;
-
+                
             } else if (getVec().y() > split.y() == isLeft || vyn.getVec().y() > split.y() == isLeft) {
                 return rtn;
-
+                
             } else {
                 if (getVec().y() == hull.getBottom().getY()) {
                     return (isLeft ? -rtn : rtn);
-
+                    
                 } else if (getVec().y() == hull.getTop().getY()) {
                     return (isLeft ? -rtn : rtn);
-
+                    
                 } else {
                     return 0;
                 }
