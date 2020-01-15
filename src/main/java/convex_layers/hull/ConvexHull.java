@@ -32,7 +32,7 @@ public class ConvexHull<IV extends BaseInputVertex>
     @Getter
     @Setter
 //    public static long SEED = new Random().nextLong();
-    private static long seed = 8303692066271999703L;
+    private static long seed = 1613006196268281086L;
     static {
         System.out.println("Seed: " + seed + "L");
     }
@@ -276,33 +276,13 @@ public class ConvexHull<IV extends BaseInputVertex>
                 (relOriTop == 0 && relOriBot != 0 && !bottom.isLeft()) ||
                 (relOriBot == 0 && relOriTop != 0 && !top.isLeft()) ||
                 (relOriTop == 0 && relOriBot == 0 && !top.isLeft());
-        /*
-        if (relOriTop == 0 && relOriBot == 0) {
-            
-            
-        } else if (relOriTop == 0) {
-            // Top vertex lies on the line
-            // Note: should not occur since no 3 points on one line.
-            // TODO: edge case: edge goes through top.
-            Logger.write("through top", Logger.Type.ERROR);
-            Logger.write(vye, Logger.Type.ERROR);
-            Logger.write(getBottom() + ", " + getTop());
-            throw new IllegalArgumentException("Edge goes through top!");
-            
-        } else if (relOriBot == 0) {
-            // Bottom vertex lies on the line
-            // Note: should not occur since no 3 points on one line.
-            // TODO: edge case: edge goes through bottom.
-            Logger.write("through bottom", Logger.Type.ERROR);
-            throw new IllegalArgumentException("Edge goes through bottom.");
-            */
-        //} else if (relOriTop * relOriBot < 0) {
+        
+        Edge bt = getBottomTopEdge();
         if (isLeft && isRight) {
 //            Logger.write("BOTH");
             // Line goes through both the left and right side of the hull.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
-            Edge bt = getBottomTopEdge();
-            
+
             if (bt.relOriRounded(e.v1()) * bt.distance(e.v1()) > bt.relOriRounded(e.v2()) * bt.distance(e.v2())) {
                 // When both points of line lie:
                 // - in separate sides, ensure v1 is in the left part (line points to the 'right')
@@ -334,8 +314,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             // The edge goes twice though either the left side or the right side.
             // Therefore must the two points defining the edge lie on the same side
             // of the line.
-            Edge bottomTopEdge = getBottomTopEdge();
-            if (bottomTopEdge.relOri(e.v1()) < 0) {
+            if (bt.relOri(e.v1()) < 0) {
 //                Logger.write("LEFT");
                 // Edge goes through on the left side.
                 // Set direction of e to upwards, if needed.
@@ -1006,17 +985,25 @@ public class ConvexHull<IV extends BaseInputVertex>
         if (isEmpty()) return false;
         if (vyn.getHull() != this) throw new IllegalStateException();
         
+        VectorYNode<IV> cw = clockwise(vyn);
+        VectorYNode<IV> ccw = counterClockwise(vyn);
+        
         boolean rem;
         if (vyn.isLeft()) {
             rem = left.remove(vyn);
             if (!rem) {
                 vyn.setLeft(false);
                 rem = right.remove(vyn);
+                if (!rem) throw new IllegalStateException(); // TODO: remove
             }
             
         } else {
             rem = right.remove(vyn);
-            if (!rem) throw new IllegalStateException();
+            if (!rem) throw new IllegalStateException(); // TODO: remove
+//            if (!rem) {
+//                vyn.setLeft(true);
+//                rem = left.remove(vyn);
+//            }
         }
         
         // Exit if not removed.
@@ -1049,22 +1036,19 @@ public class ConvexHull<IV extends BaseInputVertex>
         }
         
         // Update minX and maxX
-        if (vyn.equals(minX)) {
-            VectorYNode<IV> next = clockwise(vyn);
-            VectorYNode<IV> prev = counterClockwise(vyn);
-            minX = (next.getVec().x() < prev.getVec().x()
-                    ? next
-                    : prev
+        if (vyn.getVec().equals(minX.getVec())) {
+            minX = (cw.getVec().x() < ccw.getVec().x()
+                    ? cw
+                    : ccw
             );
         }
         if (vyn.equals(maxX)) {
-            VectorYNode<IV> next = clockwise(vyn);
-            VectorYNode<IV> prev = counterClockwise(vyn);
-            maxX = (next.getVec().x() > prev.getVec().x()
-                    ? next
-                    : prev
+            maxX = (cw.getVec().x() > ccw.getVec().x()
+                    ? cw
+                    : ccw
             );
         }
+//        updateMinMaxX();
         
         vyn.setHull(null);
         return true;
@@ -1075,7 +1059,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         return left.size() + right.size();
     }
 
-    
     /**
      * {@inheritDoc}
      *
@@ -1218,7 +1201,7 @@ public class ConvexHull<IV extends BaseInputVertex>
     public IV getMaxX() {
         return (maxX == null ? null : maxX.getIv());
     }
-
+    
     /**
      * @apiNote Runs in {@code O(1)}.
      * 
@@ -1227,7 +1210,7 @@ public class ConvexHull<IV extends BaseInputVertex>
     public Edge getBottomTopEdge() {
         return new Edge(bottom.getVec(), top.getVec());
     }
-
+    
     /**
      * Determines the two/three edges needed to connect a single node inside this hull
      * such that angles are convex. <br>
@@ -1293,64 +1276,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         }
         sb.append("]");
         return sb.toString();
-    }
-    
-    /**
-     * Testing purposes
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {/*
-        Logger.setDefaultLogger(new StreamLogger(System.out));
-        List<BaseInputVertex> left = new ArrayList<>();
-        List<BaseInputVertex> right = new ArrayList<>();
-        int amt = 20;
-        left.add(new BaseInputVertex(0, 0, 0));
-        for (int i = 1; i < amt; i++) {
-            double a = 0.5*amt;
-            double x = 4.0/amt*(-Math.pow(i - a, 2) + a*a);
-            left.add(new BaseInputVertex(i, -x, 2*i));
-            right.add(new BaseInputVertex(i + amt - 1, x, 2*i));
-        }
-        right.add(new BaseInputVertex(2*amt - 1, 0, 2*amt));
-        
-        
-        left.add(new BaseInputVertex(98, -5, 45));
-        right.add(new BaseInputVertex(99, 20, 10));
-        
-        List<BaseInputVertex> combi = new ArrayList<>(left);
-        combi.addAll(right);
-        ConvexHull<BaseInputVertex> ch = ConvexHull.createConvexHull(combi);
-        Visualizer vis = new Visualizer();
-        
-        vis.setData(List.of(left, right));
-        vis.redraw();
-        vis.addData(List.of(ch));
-        vis.redraw();
-        vis.addData(List.of(ch.getLeftInput(), ch.getRightInput()));
-        vis.redraw();
-        Edge e = new Edge(new Vector(1, 5), new Vector(-1, 30));
-        vis.addPoint(List.of(e.v1(), e.v2()));
-        vis.addEdge(List.of(e));
-        
-        NearIntersection<BaseInputVertex> ni = ch.getPointsNearLine(e, true);
-        Logger.write(ni);
-        vis.addEdge(List.of(
-                new Edge(ni.n1.getVec(), ni.n2.getVec()),
-                new Edge(ni.n2.getVec(), ni.n4.getVec()),
-                new Edge(ni.n4.getVec(), ni.n3.getVec()),
-                new Edge(ni.n3.getVec(), ni.n1.getVec())
-        ));
-        vis.redraw();
-        
-        vis.setData(List.of(ch));
-        vis.redraw();
-        vis.addData(List.of(ch.getLeftInput(), ch.getRightInput()));
-        vis.redraw();
-        Logger.write(ch.addAndUpdate(new BaseInputVertex(50, -21, 60)));
-        vis.redraw();
-        vis.addData(List.of(ch));
-        vis.redraw();*/
     }
     
     

@@ -409,8 +409,8 @@ public class ConvexLayersOptimized
 //        String type = "images";
 //        String name = "uniform-0000015-1";
 //        String name = "uniform-0000040-1";
-        String name = "uniform-0000060-2";
-//        String name = "uniform-0000100-1";
+//        String name = "uniform-0000060-2";
+        String name = "uniform-0000100-1";
 //        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
 //        String name = "uniform-0100000-2";
@@ -423,7 +423,7 @@ public class ConvexLayersOptimized
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        Solver solver = new ConvexLayersOptimized(QuadTree.class);
         Checker checker;
         if (problem.getVertices().size() < 50_000) {
             checker = new MultiChecker(new FastEdgeIntersectionChecker(), new ConvexChecker());
