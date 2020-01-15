@@ -237,7 +237,9 @@ public class ConvexLayersOptimized
                     : new Edge(outerNode.getVec(), prev.getVec())
             );
             
-            innerHull.remove(prev.getIv());
+            if (!innerHull.remove(prev.getIv())) {
+                Logger.write("NOT REMOVED: " + prev.getIv(), Logger.Type.WARNING);
+            }
             outerHull.add(prev.getIv());
             sol.add(new OutputEdge(prev.getIv(), innerNode.getIv()));
             minMax.apply(cur.getVec());
@@ -339,9 +341,9 @@ public class ConvexLayersOptimized
                         ni.getN4().getIv(),
                         ni.getN1().getIv()
                 );
-                vis.addPoint(Visual.toVec(intersect), Visual.toLabel(intersect), null);
-                vis.addEdge(Visual.connectEdges(Visual.toVec(intersect)), null);
-                vis.addEdge(List.of(vye.toEdge()), null);
+                vis.addPoint(Visual.toVec(intersect), Visual.toLabel(intersect));
+                vis.addEdge(Visual.connectEdges(Visual.toVec(intersect)));
+                vis.addEdge(List.of(vye.toEdge()));
                 vis.redraw();
                 resetVis(vis, p, innerHull, outerHull, sol);
             }

@@ -115,7 +115,7 @@ public class Benchmarking {
     @Setup(value = Level.Invocation)
     public void runSetup() {
 //        System.out.println("HERE==========================================");
-        ConvexHull.SEED = Var.RAN.nextLong();
+        ConvexHull.setSeed(Var.RAN.nextLong());
     }
     
     /**

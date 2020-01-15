@@ -3,6 +3,8 @@ package convex_layers.hull;
 import convex_layers.OutputEdge;
 import convex_layers.BaseInputVertex;
 import convex_layers.math.Edge;
+import lombok.Getter;
+import lombok.Setter;
 import tools.Pair;
 import tools.Var;
 import tools.data.collection.rb_tree.LinkedRBTree;
@@ -27,13 +29,15 @@ public class ConvexHull<IV extends BaseInputVertex>
      * ----------------------------------------------------------------------
      */
     /** The seed used to randomly select an edge */
+    @Getter
+    @Setter
 //    public static long SEED = new Random().nextLong();
-    public static long SEED = -1779677723346919706L;
-    /** The random generator used to randomly select an edge. */
-    private static Random RAN = new Random(SEED);
+    private static long seed = 8303692066271999703L;
     static {
-        System.out.println("Seed: " + SEED + "L");
+        System.out.println("Seed: " + seed + "L");
     }
+    /** The random generator used to randomly select an edge. */
+    private Random ran = new Random(seed);
     
     
     /* ----------------------------------------------------------------------
@@ -260,11 +264,28 @@ public class ConvexHull<IV extends BaseInputVertex>
         //  - edge goes through vertex (done?).
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
-        if (relOriTop == 0) {
+        
+        boolean isLeft = relOriTop < 0 ||
+                relOriBot < 0 ||
+                (relOriTop == 0 && relOriBot != 0 && bottom.isLeft()) ||
+                (relOriBot == 0 && relOriTop != 0 && top.isLeft()) ||
+                (relOriTop == 0 && relOriBot == 0 && top.isLeft());
+        boolean isRight = relOriTop > 0 ||
+                relOriBot > 0 ||
+                (relOriTop == 0 && relOriBot != 0 && !bottom.isLeft()) ||
+                (relOriBot == 0 && relOriTop != 0 && !top.isLeft()) ||
+                (relOriTop == 0 && relOriBot == 0 && !top.isLeft());
+        /*
+        if (relOriTop == 0 && relOriBot == 0) {
+            
+            
+        } else if (relOriTop == 0) {
             // Top vertex lies on the line
             // Note: should not occur since no 3 points on one line.
             // TODO: edge case: edge goes through top.
             Logger.write("through top", Logger.Type.ERROR);
+            Logger.write(vye, Logger.Type.ERROR);
+            Logger.write(getBottom() + ", " + getTop());
             throw new IllegalArgumentException("Edge goes through top!");
             
         } else if (relOriBot == 0) {
@@ -273,8 +294,9 @@ public class ConvexHull<IV extends BaseInputVertex>
             // TODO: edge case: edge goes through bottom.
             Logger.write("through bottom", Logger.Type.ERROR);
             throw new IllegalArgumentException("Edge goes through bottom.");
-            
-        } else if (relOriTop * relOriBot < 0) {
+            */
+        //} else if (relOriTop * relOriBot < 0) {
+        if (isLeft && isRight) {
 //            Logger.write("BOTH");
             // Line goes through both the left and right side of the hull.
             // Set direction of e to the right relative to the edge (bottom, top), if needed.
@@ -657,7 +679,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @return A random edge from the hull.
      */
     public VectorYEdge<IV> getRandomEdge() {
-        VectorYNode<IV> node = getNode(RAN.nextInt(size()));
+        VectorYNode<IV> node = getNode(ran.nextInt(size()));
         return new VectorYEdge<>(node, clockwise(node));
     }
     
@@ -729,7 +751,7 @@ public class ConvexHull<IV extends BaseInputVertex>
             return rem;
         }
         
-        // If there are only three or less nodes, then always a convex hull.
+        // If there are only three or less nodes, then the hull is always a convex.
         if (size() <= 3) return rem;
         
         // Check if the node lies inside the hull.
@@ -1039,11 +1061,14 @@ public class ConvexHull<IV extends BaseInputVertex>
         boolean rem;
         if (vyn.isLeft()) {
             rem = left.remove(vyn);
-            if (!rem) rem = right.remove(vyn);
+            if (!rem) {
+                vyn.setLeft(false);
+                rem = right.remove(vyn);
+            }
             
         } else {
             rem = right.remove(vyn);
-            if (!rem) rem = left.remove(vyn);
+            if (!rem) throw new IllegalStateException();
         }
         
         // Exit if not removed.

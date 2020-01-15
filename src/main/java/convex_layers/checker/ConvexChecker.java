@@ -69,14 +69,10 @@ public class ConvexChecker
                 if (ori1 < 0 && ori2 >= 0) return 1;
                 else if (ori2 < 0 && ori1 >= 0) return -1;
                 else if (ori1 == 0 && ori2 == 0) {
-                    double diff = other1.getY() - other2.getY();
-                    if (diff < 0) return -1;
-                    else if (diff > 0) return 1;
-                    else return 0;
+                    return Double.compare(other2.getY(), other1.getY());
                 } else {
                     Edge e = new Edge(biv.getV(), other2.getV());
-                    int ori = e.relOriRounded(other1.getV());
-                    return ori;
+                    return e.relOriRounded(other1.getV());
                 }
             });
             return edges.iterator();
@@ -242,6 +238,8 @@ public class ConvexChecker
         Edge e = new Edge(target.getV(), other1.getV());
         double ori = e.relOri(other2.getV());
         if (ori < 0) {
+            System.out.println(ori);
+            System.out.println("e1: " + e1 + ", e2: " + e2);
             err.addEdges(List.of(e1, e2));
             err.addPoint(target);
         }

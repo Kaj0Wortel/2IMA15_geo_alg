@@ -117,12 +117,12 @@ public class Evaluator {
     
     public RunProperties evaluate(Problem2 problem, Class<Range2DSearch<BaseInputVertex>> search,
                                   File outFile, long seed) {
-        ConvexHull.SEED = seed;
+        ConvexHull.setSeed(seed);
         
         RunProperties properties = new RunProperties();
         properties.problem = problem;
         properties.searchClass = search;
-        properties.seed = ConvexHull.SEED;
+        properties.seed = ConvexHull.getSeed();
         
         Visual vis = visualizeRun ? new Visualizer() : new NullVisualizer();
         
@@ -204,7 +204,7 @@ public class Evaluator {
     
     public static void main(String[] args) {
         FontLoader.syncLoad();
-//        Logger.setDefaultLogger(new StreamLogger(System.out));
+        Logger.setDefaultLogger(new StreamLogger(System.out));
         new Evaluator().evaluate();
     }
     
