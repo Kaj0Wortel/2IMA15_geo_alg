@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Warmup(iterations = 2, time = 1_000, timeUnit = TimeUnit.MILLISECONDS)
-@Measurement(iterations = 2, time = 1_000, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 10, time = 1_000, timeUnit = TimeUnit.MILLISECONDS)
 @Threads(value = 2)
 @Fork(value = 1)
 public class Benchmarking {
@@ -62,7 +62,7 @@ public class Benchmarking {
     private static final Visual VIS = new NullVisualizer();
     
     /** The current run. */
-    private static int RUN = 81; // A value between 0 and 81.
+    private static int RUN = 26; // A value between 0 and 81.
     
     /** The logger used to log errors. */
     private static final Logger ERROR_LOGGER;
@@ -200,17 +200,17 @@ public class Benchmarking {
     @SuppressWarnings("ConstantConditions")
     private static void runFile(ChainedOptionsBuilder opt, int i)
             throws RunnerException {
-        if (i <= 28) { // 100-2
-            opt.warmupBatchSize(20).measurementBatchSize(50);
-        } else if (i <= 46) { // 1000-2
-            opt.warmupBatchSize(10).measurementBatchSize(25);
-        } else if (i <= 54) { // 5000-2
-            opt.warmupBatchSize(5).measurementBatchSize(20);
-        } else if (i == 64) { // 10000-2
-            opt.warmupBatchSize(2).measurementBatchSize(10);
-        } else {
-            opt.warmupBatchSize(1).measurementBatchSize(5);
-        }
+//        if (i <= 28) { // 100-2
+//            opt.warmupBatchSize(20).measurementBatchSize(50);
+//        } else if (i <= 46) { // 1000-2
+//            opt.warmupBatchSize(10).measurementBatchSize(25);
+//        } else if (i <= 54) { // 5000-2
+//            opt.warmupBatchSize(5).measurementBatchSize(20);
+//        } else if (i == 64) { // 10000-2
+//            opt.warmupBatchSize(2).measurementBatchSize(10);
+//        } else {
+//            opt.warmupBatchSize(1).measurementBatchSize(5);
+//        }
         
         String fileName = IN_FILES[i].getName();
         fileName = fileName.substring(0, fileName.length() - 4) + "tex";
@@ -227,25 +227,25 @@ public class Benchmarking {
     public static void benchmark()
             throws RunnerException {
         ChainedOptionsBuilder opt = new OptionsBuilder()
-                .include(Benchmarking.class.getSimpleName())
-                .shouldDoGC(true)
+//                .include(Benchmarking.class.getSimpleName())
+//                .shouldDoGC(true)
                 .resultFormat(ResultFormatType.LATEX)
                 // Warmup
-                .warmupTime(TimeValue.milliseconds(5_000))
-                .warmupMode(WarmupMode.INDI)
-                .warmupBatchSize(1)
-                .warmupIterations(1)
-                // Measurement
-                .measurementTime(TimeValue.milliseconds(1_000))
-                .measurementBatchSize(1)
-                .measurementIterations(1)
+//                .warmupTime(TimeValue.milliseconds(5_000))
+//                .warmupMode(WarmupMode.INDI)
+//                .warmupBatchSize(1)
+//                .warmupIterations(1)
+//                // Measurement
+//                .measurementTime(TimeValue.milliseconds(1_000))
+//                .measurementBatchSize(1)
+//                .measurementIterations(1)
                 ;
         
 //        int amt = IN_FILES.length;
 //        for (int i = 0; i < amt; i++) {
 //            runFile(opt, i);
 //        }
-        runFile(opt, 81);
+        runFile(opt, RUN);
     }
     
     /**
