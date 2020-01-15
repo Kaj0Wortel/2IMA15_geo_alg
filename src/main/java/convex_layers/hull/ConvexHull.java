@@ -21,7 +21,7 @@ import java.util.*;
  * and performing fast search queries on the hull. 
  */
 public class ConvexHull<IV extends BaseInputVertex>
-            implements Collection<IV> {
+            implements HullInterface<IV> {
     
     /* ----------------------------------------------------------------------
      * Variables.
@@ -233,6 +233,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @throws IllegalArgumentException If the line created from the given edge
      *     intersects the top/bottom of the hull.
      */
+    @Override
     public NearIntersection<IV> getPointsNearLine(VectorYEdge<IV> vye, boolean hullOnLeftSide) {
         if (isEmpty()) throw new IllegalStateException("This function cannot be called on an empty hull.");
         
@@ -540,6 +541,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @return The next node in the chain.
      */
+    @Override
     public VectorYNode<IV> next(VectorYNode<IV> node) {
         if (node.next() != null) return node.next();
         else if (left.getMax() == node) {
@@ -562,6 +564,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      *
      * @return The previous node in the chain.
      */
+    @Override
     public VectorYNode<IV> prev(VectorYNode<IV> node) {
         if (node.prev() != null) return node.prev();
         else if (left.getMin() == node) {
@@ -597,6 +600,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @throws IllegalArgumentException If the given node is not part of this hull.
      */
+    @Override
     public VectorYNode<IV> clockwise(VectorYNode<IV> node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
         
@@ -666,6 +670,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      *
      * @throws IllegalArgumentException If the given node is not part of this hull.
      */
+    @Override
     public VectorYNode<IV> counterClockwise(VectorYNode<IV> node) {
         if (size() == 0) throwNotPartOfThisHullException(node);
         
@@ -731,6 +736,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @return A random edge from the hull.
      */
+    @Override
     public VectorYEdge<IV> getRandomEdge() {
         VectorYNode<IV> node = getNode(Var.RAN.nextInt(size()));
         return new VectorYEdge<IV>(node, clockwise(node));
@@ -747,6 +753,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      *
      * @return The input vertex at the given index.
      */
+    @Override
     public IV get(int i) {
         return getNode(i).getIv();
     }
@@ -762,6 +769,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      *
      * @return The node at the given index.
      */
+    @Override
     public VectorYNode<IV> getNode(int i) {
         if (i < 0 || i >= size()) throw new IndexOutOfBoundsException(i);
         if (i < left.size()) return left.get(i);
@@ -794,6 +802,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @return A list containing all removed vertices.
      */
+    @Override
     public List<IV> addAndUpdate(IV iv) {
         VectorYNode<IV> vyn = new VectorYNode<>(iv, this, true);
         List<IV> rem = new ArrayList<>();
@@ -948,50 +957,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         if (obj instanceof VectorYNode) return remove((VectorYNode<IV>) obj);
         return false;
     }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * @apiNote Runs in {@code O(k*log(n))}.
-     *
-     * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
-     */
-    @Override
-    public boolean containsAll(Collection<?> col) {
-        for (Object obj : col) {
-            if (!contains(obj)) return false;
-        }
-        return true;
-    }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * @apiNote Runs in {@code O(k*log(n))}.
-     *
-     * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public boolean addAll(Collection<? extends IV> col) {
-        return addAll((Iterable<IV>) col);
-    }
-    
-    /**
-     * {@inheritDoc}
-     * 
-     * @apiNote Runs in {@code O(k*log(n))}.
-     *
-     * @apiNote This function runs in {@code O(log(n) + k)}, where {@code k} denotes the size of the collection.
-     */
-    @Override
-    public boolean removeAll(Collection<?> col) {
-        boolean mod = false;
-        for (Object obj : col) {
-            if (remove(obj)) mod = true;
-        }
-        return mod;
-    }
 
     /**
      * {@inheritDoc}
@@ -1060,23 +1025,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         right.clear();
         top = null;
         bottom = null;
-    }
-    
-    /**
-     * Adds all vertices from the list.
-     *
-     * @apiNote Runs in {@code O(k*log(n))}.
-     * 
-     * @param ivs The vertices to add.
-     * 
-     * @return {@code true} if the data structure was modified. {@code false} otherwise.
-     */
-    public boolean addAll(Iterable<IV> ivs) {
-        boolean mod = false;
-        for (IV iv : ivs) {
-            if (add(iv)) mod = true;
-        }
-        return mod;
     }
     
     /**
@@ -1214,49 +1162,11 @@ public class ConvexHull<IV extends BaseInputVertex>
         return true;*/
     }
     
-    /**
-     * Removes all vertices from the list.
-     * 
-     * @apiNote Runs in {@code O(k*log(n))}.
-     *
-     * @param ivs The vertices to remove.
-     *
-     * @return {@code true} if the data structure was modified. {@code false} otherwise.
-     */
-    public boolean removeAll(Iterable<IV> ivs) {
-        boolean mod = false;
-        for (IV iv : ivs) {
-            if (remove(iv)) mod = true;
-        }
-        return mod;
-    }
-    
-    /**
-     * Removes all nodes from the list.
-     *
-     * @apiNote Runs in {@code O(k*log(n))}.
-     *
-     * @param vyns The nodes to remove.
-     *
-     * @return {@code true} if the data structure was modified. {@code false} otherwise.
-     */
-    public boolean removeAllNodes(Iterable<IV> vyns) {
-        boolean mod = false;
-        for (IV vyn : vyns) {
-            if (remove(vyn)) mod = true;
-        }
-        return mod;
-    }
-    
     @Override
     public int size() {
         return left.size() + right.size();
     }
-    
-    @Override
-    public boolean isEmpty() {
-        return size() == 0;
-    }
+
     
     /**
      * {@inheritDoc}
@@ -1364,22 +1274,6 @@ public class ConvexHull<IV extends BaseInputVertex>
     public Iterable<IV> getRightInput() {
         return () -> convert(right.iterator());
     }
-    
-    @Override
-    public Object[] toArray() {
-        return toArray(new BaseInputVertex[size()]);
-    }
-    
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] arr) {
-        int i = 0;
-        for (IV iv : this) {
-            if (i >= arr.length) break;
-            arr[i++] = (T) iv;
-        }
-        return arr;
-    }
 
     /**
      * @apiNote Runs in {@code O(1)}.
@@ -1438,6 +1332,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * @return A collection of all edges  
      */
+    @Override
     public Collection<OutputEdge> getInnerPointConnections(IV center) {
         if (isEmpty()) {
             throw new IllegalStateException();
