@@ -39,10 +39,11 @@ public class ConvexChecker
             implements Iterable<OutputEdge> {
         
         /** The vertex the edges connect to. */
-        @NonNull
         @Getter
+        @NonNull
         private final BaseInputVertex biv;
         /** The edges containing to {@link #biv} */
+        @Getter
         @NonNull
         private final List<OutputEdge> edges = new ArrayList<>();
         
@@ -185,6 +186,12 @@ public class ConvexChecker
      * @param err  The checker error to update.
      */
     private void checkHull(Node prev, Node cur, Node next, CheckerError err) {
+        if (cur.getEdges().size() < 2) {
+            err.addPoint(cur.getBiv());
+            err.addEdges(cur.getEdges());
+            return;
+        }
+        
         Iterator<OutputEdge> it = cur.iterator();
         if (!it.hasNext()) err.addPoint(cur.getBiv());
         OutputEdge out1 = it.next();
