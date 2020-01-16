@@ -28,7 +28,7 @@ public class Evaluator {
     private static final String FOLDER = "challenge_1";
 
     private Visual errorVis = new VisualRender();
-    boolean checkValidity = false;
+    boolean checkValidity = true;
     boolean calculateProperties = true;
     boolean visualizeRun = false;
     boolean visualizeOutput = false;
@@ -96,6 +96,8 @@ public class Evaluator {
 //                "parix-0004000",
 //            "mona-lisa-1000000",
         };
+
+        // Change here to run other batch of files
 //        String type = "uniform";
         String type = "images";
         Class<Range2DSearch<BaseInputVertex>>[] searches = new Class[]{
@@ -106,6 +108,7 @@ public class Evaluator {
         };
 
         for (Pair<Problem2, File> prob : getProblemsInFolder(type)) { // All problems to run
+//            prob = getProblem("images", "euro-night-0008000");
             for (Class<Range2DSearch<BaseInputVertex>> search : searches) { // All search structures to run on
                 Logger.write("Running for search structure: " + search.getCanonicalName(),
                         Logger.Type.INFO);
@@ -122,7 +125,9 @@ public class Evaluator {
                         solved = !properties.hasErrors();
                         if (properties.hasErrors()) { // If error, try again
                             Logger.setDefaultLogger(new StreamLogger(System.out));
-                            Logger.write(properties.exception);
+                            if (properties.exception != null) {
+                                Logger.write(properties.exception);
+                            }
                             Logger.write("Seed of error: " + properties.seed, Logger.Type.ERROR);
                         }
                     } while (!solved);
