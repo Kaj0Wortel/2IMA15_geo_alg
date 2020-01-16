@@ -1,12 +1,6 @@
 package convex_layers.data;
 
-import convex_layers.BaseInputVertex;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-
+import java.util.*;
 
 /**
  * Implementation of the {@link Range2DSearch} interface which doesn't respect the given contract.
@@ -21,7 +15,7 @@ public class IgnoreRangeSearch<T extends Node2D<T>>
     
     @Override
     public void init(Collection<T> col) {
-        this.col = new HashSet<>(col);
+        this.col = new LinkedHashSet<>(col);
     }
     
     @Override
