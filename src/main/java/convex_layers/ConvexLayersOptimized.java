@@ -385,7 +385,7 @@ public class ConvexLayersOptimized
      */
     public static void main(String[] args) {
         FontLoader.syncLoad();
-//        MultiTool.initLogger(Var.LOG_FILE);
+//        MultiTool.initLogger(Var.LOG_FILE); 
         Logger.setDefaultLogger(new StreamLogger(System.out));
 
         String folder = "challenge_1";
@@ -411,7 +411,10 @@ public class ConvexLayersOptimized
         // ---- END SETUP VISUALIZER ----
         
         // ---- BEGIN SETUP SOLVER ----
-        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+//        Solver solver = new ConvexLayersOptimized(IgnoreRangeSearch.class);
+        Solver solver = new ConvexLayersOptimized(KDTree.class);
+//        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+//        Solver solver = new ConvexLayersOptimized(QuadTree.class);
         // ---- END SETUP SOLVER ----
         
         // Read problem.
