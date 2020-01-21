@@ -31,8 +31,8 @@ public class ConvexHull<IV extends BaseInputVertex>
     /** The seed used to randomly select an edge */
     @Getter
     @Setter
-//    public static long SEED = new Random().nextLong();
-    private static long seed = 1613006196268281086L;
+    private static long seed = new Random().nextLong();
+//    private static long seed = 1613006196268281086L;
     static {
         System.out.println("Seed: " + seed + "L");
     }
@@ -261,8 +261,6 @@ public class ConvexHull<IV extends BaseInputVertex>
         boolean clockwise;
         boolean flipped = false;
         
-        // TODO: edge cases:
-        //  - edge goes through vertex (done?).
         double relOriTop = e.relOri(top.getVec());
         double relOriBot = e.relOri(bottom.getVec());
         
@@ -370,15 +368,6 @@ public class ConvexHull<IV extends BaseInputVertex>
             }
         }
         
-//        Logger.write("VYEdge   : " + vye);
-//        Logger.write("hasLeft  : " + hullOnLeftSide);
-//        Logger.write("clockwise: " + clockwise);
-//        Logger.write(new Object[] {
-//                "  vyn1: " + vyn1,
-//                "  vyn2: " + vyn2,
-//                "  vyn3: " + vyn3,
-//                "  vyn4: " + vyn4
-//        });
         VectorYNode<IV> v1, v2;
         if (!flipped) {
             v1 = vye.getIv1();
@@ -494,6 +483,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * 
      * Initialises the {@link #minX} and {@link #maxX} fields.
      */
+    @SuppressWarnings("SuspiciousNameCombination")
     private void updateMinMaxX() {
         minX = maxX = null;
         if (isEmpty()) return;
@@ -546,14 +536,9 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Gets the next node of the chain. If no next node exists, takes the maximum node of the
-     * other chain. If this node also doesn't exist, then the same node is returned.
-     *
+     * {@inheritDoc}
+     * 
      * @apiNote Runs in {@code O(1)}.
-     * 
-     * @param node The node to get the next node of.
-     * 
-     * @return The next node in the chain.
      */
     @Override
     public VectorYNode<IV> next(VectorYNode<IV> node) {
@@ -567,16 +552,11 @@ public class ConvexHull<IV extends BaseInputVertex>
             else return left.getMax();
         }
     }
-    
+
     /**
-     * Gets the previous node of the chain. If no previous node exists, takes the minimum node
-     * of the other chain. If this node also doesn't exist, then the same node is returned.
+     * {@inheritDoc}
      *
      * @apiNote Runs in {@code O(1)}.
-     * 
-     * @param node The node to get the previous node of.
-     *
-     * @return The previous node in the chain.
      */
     @Override
     public VectorYNode<IV> prev(VectorYNode<IV> node) {
@@ -604,18 +584,15 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Traverses the hull in clockwise order.
-     *
+     * {@inheritDoc}
+     * 
      * @apiNote Runs in {@code O(1)}.
-     * 
-     * @param node The node to get the next node for.
-     * 
-     * @return The next node in clockwise order.
      * 
      * @throws IllegalArgumentException If the given node is not part of this hull.
      */
     @Override
-    public VectorYNode<IV> clockwise(VectorYNode<IV> node) {
+    public VectorYNode<IV> clockwise(VectorYNode<IV> node)
+            throws IllegalArgumentException {
         if (isEmpty()) throwNotPartOfThisHullException(node);
         
         if (node.isLeft()) {
@@ -631,18 +608,15 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Traverses the hull in counter clockwise order.
-     * 
+     * {@inheritDoc}
+     *
      * @apiNote Runs in {@code O(1)}.
-     * 
-     * @param node The node to get the next node for.
-     * 
-     * @return The next node in counter clockwise order.
-     * 
+     *
      * @throws IllegalArgumentException If the given node is not part of this hull.
      */
     @Override
-    public VectorYNode<IV> counterClockwise(VectorYNode<IV> node) {
+    public VectorYNode<IV> counterClockwise(VectorYNode<IV> node)
+            throws IllegalArgumentException {
         if (isEmpty()) throwNotPartOfThisHullException(node);
         
         if (node.isLeft()) {
@@ -658,9 +632,9 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * @apiNote Runs in {@code O(log(n))}.
+     * {@inheritDoc}
      * 
-     * @return A random edge from the hull.
+     * @apiNote Runs in {@code O(log(n))}.
      */
     @Override
     public VectorYEdge<IV> getRandomEdge() {
@@ -669,15 +643,12 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Returns the input vertex at the given index. The indices are order from the minimal
+     * {@inheritDoc}
+     * The indices are order from the minimal
      * to the maximal vertex of the left tree, an then from the maximal to the minimal
      * vertex of the right tree.
      * 
      * @apiNote This function runs in {@code O(log(n))}.
-     * 
-     * @param i The input vertex to get.
-     * 
-     * @return The input vertex at the given index.
      */
     @Override
     public IV get(int i) {
@@ -685,15 +656,12 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Returns the node at the given index. The indices are order from the minimal
+     * {@inheritDoc}
+     * The indices are order from the minimal
      * to the maximal node of the left tree, an then from the maximal to the minimal
      * node of the right tree.
      * 
      * @apiNote This function runs in {@code O(log(n))}.
-     * 
-     * @param i The node to get.
-     *
-     * @return The node at the given index.
      */
     @Override
     public VectorYNode<IV> getNode(int i) {
@@ -717,18 +685,12 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Adds an input vertex and updates the hull accordingly by removing vertices from the hull. <br>
-     * If the just added point was inside the hull, then it will be removed directly and returned in
-     * the returned list. This is the only way for the given vertex to be removed. <br>
-     * Moreover, if the given vertex is removed, then no other vertices will be removed.
-     *
+     * {@inheritDoc}
+     * 
      * @apiNote Runs in {@code O(log(n) + k)}, where {@code k} denotes the number of removed elements.
-     * 
-     * @param iv The input vertex to add.
-     * 
-     * @return A list containing all removed vertices.
      */
     @Override
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public List<IV> addAndUpdate(IV iv) {
         VectorYNode<IV> vyn = new VectorYNode<>(iv, this, true);
         List<IV> rem = new ArrayList<>();
@@ -880,8 +842,6 @@ public class ConvexHull<IV extends BaseInputVertex>
     /**
      * {@inheritDoc}
      * 
-     * @apiNote Runs in {@code O(log(n))}.
-     * 
      * @apiNote This function runs in {@code O(log(n))}.
      */
     @Override
@@ -979,6 +939,7 @@ public class ConvexHull<IV extends BaseInputVertex>
      * @apiNote Runs in {@code O(log(n))}.
      *
      * @param vyn The node to be removed.
+     * 
      * @return {@code true} if the vertex was removed. {@code false} otherwise.
      */
     public boolean remove(VectorYNode<IV> vyn) {
@@ -994,16 +955,15 @@ public class ConvexHull<IV extends BaseInputVertex>
             if (!rem) {
                 vyn.setLeft(false);
                 rem = right.remove(vyn);
-                if (!rem) throw new IllegalStateException(); // TODO: remove
             }
             
         } else {
             rem = right.remove(vyn);
-            if (!rem) throw new IllegalStateException(); // TODO: remove
-//            if (!rem) {
-//                vyn.setLeft(true);
-//                rem = left.remove(vyn);
-//            }
+            if (!rem) {
+                Logger.write("CASE WHICH SHOULD NOT OCCUR HAS OCCURRED!", Logger.Type.WARNING);
+                vyn.setLeft(true);
+                rem = left.remove(vyn);
+            }
         }
         
         // Exit if not removed.
@@ -1212,16 +1172,10 @@ public class ConvexHull<IV extends BaseInputVertex>
     }
     
     /**
-     * Determines the two/three edges needed to connect a single node inside this hull
-     * such that angles are convex. <br>
-     * The given vertex should be strictly inside this hull, i.e. it should not lie on the hull.
+     * {@inheritDoc}
      * 
      * @apiNote Runs in {@code O(n} time. Expected running time is {@code O(size())}.
      *     This is a 2-approximation algorithm.
-     * 
-     * @param center The center vertex to find the connecting edges for.
-     * 
-     * @return A collection of all edges  
      */
     @Override
     public Collection<OutputEdge> getInnerPointConnections(IV center) {

@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * This class can visualize different sets of points and edges with different colors, auto-scaling and
  * auto adjusted grid. <br>
  * Function keys:
- * <table>
+ * <table border="1">
  *   <tr><th>Key</th><th>Function</th></tr>
  *   <tr><td>RIGHT</td><td>Next image</td></tr>
  *   <tr><td>CTRL+RIGHT</td><td>10 next images</td></tr>
@@ -37,7 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *   <tr><td>HOME</td><td>First image</td></tr>
  *   <tr><td>END</td><td>Last image</td></tr>
  *   <tr><td>CTRL+S</td><td>Save images</td></tr>
- *   <tr><td>CTRL+D</td><td>Delete images</td></tr>
+ *   <tr><td>CTRL+D</td><td>Delete all images generated so far images</td></tr>
  * </table>
  */
 public class Visualizer

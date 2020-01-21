@@ -75,9 +75,11 @@ public final class ProblemIO {
      * @param sol     The solution of the problem.
      * @param problem The initial problem.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void saveSolution(File file, Collection<OutputEdge> sol, Problem2 problem) {
         Logger.write("Saving solution of " + problem.getName() + " having " + sol.size()
                 + " edges to  the file " + file.getAbsolutePath(), Logger.Type.INFO);
+        file.getParentFile().mkdirs();
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file, false))) {
             saveSolution(bos, sol, problem);
             

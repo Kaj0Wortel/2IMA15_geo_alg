@@ -4,11 +4,23 @@ import tools.MultiTool;
 import tools.PublicCloneable;
 import tools.Var;
 
+/**
+ * Mathematical matrix representation class with tool functions.
+ */
 public class Mat2
             implements PublicCloneable {
     
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
     private double [][] mat;
     
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
     public Mat2(double m00, double m01, double m10, double m11) {
         mat = new double[][] {
                 new double[] {m00, m01},
@@ -16,8 +28,13 @@ public class Mat2
         };
     }
     
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     /**
-     * Shorthand for {@code #get(0, 0)}.
+     * Shorthand for {@code get(0, 0)}.
      * @return The value at (0, 0).
      * @see #get(int, int)
      */
@@ -26,7 +43,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #get(1, 0)}.
+     * Shorthand for {@code get(1, 0)}.
      * @return The value at (1, 0).
      * @see #get(int, int)
      */
@@ -35,7 +52,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #get(0, 1)}.
+     * Shorthand for {@code get(0, 1)}.
      * @return The value at (0, 1).
      * @see #get(int, int)
      */
@@ -44,7 +61,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #get(1, 1)}.
+     * Shorthand for {@code get(1, 1)}.
      * @return The value at (1, 1).
      * @see #get(int, int)
      */
@@ -53,7 +70,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #set(0, 0, m)}.
+     * Shorthand for {@code set(0, 0, m)}.
      * @see #set(int, int, double)
      */
     public void m00(double m) {
@@ -61,7 +78,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #set(1, 0, m)}.
+     * Shorthand for {@code set(1, 0, m)}.
      * @see #set(int, int, double)
      */
     public void m01(double m) {
@@ -69,7 +86,7 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #set(0, 1, m)}.
+     * Shorthand for {@code set(0, 1, m)}.
      * @see #set(int, int, double)
      */
     public void m10(double m) {
@@ -77,17 +94,30 @@ public class Mat2
     }
     
     /**
-     * Shorthand for {@code #set(1, 1, m)}.
+     * Shorthand for {@code set(1, 1, m)}.
      * @see #set(int, int, double)
      */
     public void m11(double m) {
         mat[1][1] = m;
     }
     
+    /**
+     * @param x The x-coordinate of the value to return.
+     * @param y The y-coordinate of the value to return.
+     * 
+     * @return The value at {@code m<y><x>}
+     */
     public double get(int x, int y) {
         return mat[y][x];
     }
     
+    /**
+     * Sets the value at {@code m<y><x>} to {@code m}.
+     * 
+     * @param x The x-coordinate of the value to set.
+     * @param y The y-coordinate of the value to set.
+     * @param m The new value to set.
+     */
     public void set(int x, int y, double m) {
         mat[y][x] = m;
     }
@@ -216,6 +246,7 @@ public class Mat2
     }
     
     @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Mat2 clone() {
         return new Mat2(m00(), m01(), m10(), m00());
     }

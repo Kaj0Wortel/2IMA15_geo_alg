@@ -21,7 +21,7 @@ import java.util.*;
  * @param <T> The type of the elements.
  */
 public class KDTree<T extends Node2D<T>>
-        implements Range2DSearch<T> {// TODO: Change to Base2DTree if the range search cannot be performed directly.
+        implements Range2DSearch<T> {
     
     /* ----------------------------------------------------------------------
      * Variables
@@ -224,24 +224,17 @@ public class KDTree<T extends Node2D<T>>
     
     @Override
     public boolean contains(Object obj) {
-        if (!(obj instanceof Node2D)) return false;
-        T t = (T) obj;
-        T answer = get(t);
-        if (answer == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return get(obj) != null;
     }
     
     @Override
     public Iterator<T> iterator() {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
     
     @Override
     public boolean add(T t) {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override

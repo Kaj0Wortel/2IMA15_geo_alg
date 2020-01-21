@@ -9,6 +9,9 @@ import tools.PublicCloneable;
 
 import java.util.Objects;
 
+/**
+ * Mathematical edge representation with tool functions.
+ */
 @Setter
 @Getter
 @AllArgsConstructor
@@ -236,6 +239,7 @@ public class Edge
     }
     
     @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Edge clone() {
         return new Edge(v1.clone(), v2.clone());
     }

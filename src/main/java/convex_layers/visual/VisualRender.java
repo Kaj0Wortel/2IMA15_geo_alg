@@ -12,16 +12,40 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Renders the points, lines and labels dynamically. Also supports scaling
+ * and translations. <br>
+ *  * Function keys:
+ * <table border="1">
+ *   <tr><th>Key</th><th>Function</th></tr>
+ *   <tr><td>LEFT/A</td><td>Pan left</td></tr>
+ *   <tr><td>RIGHT/D</td><td>Pan right</td></tr>
+ *   <tr><td>UP/W</td><td>Pan up</td></tr>
+ *   <tr><td>DOWN/S</td><td>Pan down</td></tr>
+ *   <tr><td>-/SCROLL DOWN</td><td>Zoom out</td></tr>
+ *   <tr><td>=/SCROLL UP</td><td>Zoom in</td></tr>
+ *   <tr><td>SPACE</td><td>Reset zoom and translation</td></tr>
+ * </table>
+ */
 public class VisualRender
         extends AbstractVisual {
     
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    /** The frame of the renderer. */
     private final JFrame frame;
+    /** The zoom panel used to scale and translate the rendering. */
     private final ZoomPanel zp;
 
 
     /* ----------------------------------------------------------------------
      * Inner classes.
      * ----------------------------------------------------------------------
+     */
+    /**
+     * A panel which can scale and translate it's contents.
      */
     public class ZoomPanel
             extends JPanel {
@@ -72,7 +96,7 @@ public class VisualRender
                 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
                     scroll = e.getUnitsToScroll();
                 } else {
-                    scroll = e.getPreciseWheelRotation() * e.getScrollAmount(); // TODO: test
+                    scroll = e.getPreciseWheelRotation() * e.getScrollAmount();
                 }
                 
                 if (scroll == 0) return;
@@ -107,7 +131,18 @@ public class VisualRender
                 super.setBounds(x, y, width, height);
             }
         }
-        
+
+        /**
+         * Zooms the rendering with the given amount, assuming the given width
+         * and height of the image. <br>
+         * Additionally allows zooming with a given anchor point. {@code (0, 0)}
+         * means that the anchor point lies in the upper left corner of the panel,
+         * while {@code (1, 1)} denotes the lower right corner.
+         * 
+         * @param amt The amount to zoom with.
+         * @param dw  The relative y-anchor point on the panel.
+         * @param dh  The relative x-anchor point on the panel.
+         */
         private void zoom(double amt, double dw, double dh) {
             double oldZoom = zoom;
             zoom *= amt;
@@ -115,10 +150,20 @@ public class VisualRender
             y += ((1 / zoom - 1 / oldZoom) * getHeight() * dh);
         }
         
+        /**
+         * Pans the panel horizontally.
+         * 
+         * @param amt The amount to zoom with. Will be divided by the current scaling
+         */
         private void panHorizontal(double amt) {
             x -= amt / zoom;
         }
         
+        /**
+         * Pans the panel vertically.
+         *
+         * @param amt The amount to zoom with. Will be divided by the current scaling
+         */
         private void panVertical(double amt) {
             y -= amt / zoom;
         }
@@ -146,6 +191,9 @@ public class VisualRender
      * Constructors.
      * ----------------------------------------------------------------------
      */
+    /**
+     * Creates a new visual renderer.
+     */
     public VisualRender() {
         openCounter.incrementAndGet();
         frame = new JFrame("Visual render");
@@ -159,7 +207,6 @@ public class VisualRender
                         frame.getWidth() - in.left - in.right,
                         frame.getHeight() - in.top - in.bottom
                 );
-//                zp.setSize(frame.getWidth(), frame.getHeight());
             }
         });
         

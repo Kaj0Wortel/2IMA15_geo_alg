@@ -103,7 +103,7 @@ public class PriorTree<T extends Node2D<T>>
         
         @Override
         @SuppressWarnings("rawtypes")
-        public boolean equals(Object obj) { // TODO
+        public boolean equals(Object obj) {
             if (!(obj instanceof Node)) return false;
             else return Objects.equals(data, ((Node) obj).data);
         }
@@ -480,7 +480,7 @@ public class PriorTree<T extends Node2D<T>>
     
     @Override
     public boolean add(T t) {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
     
     @Override

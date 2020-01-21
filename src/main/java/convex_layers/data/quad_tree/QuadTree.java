@@ -18,22 +18,17 @@ import java.util.List;
  * @param <T> The type of the elements.
  */
 public class QuadTree<T extends Node2D<T>>
-        implements Range2DSearch<T> { // TODO: Change to Base2DTree if the range search cannot be performed directly.
+        implements Range2DSearch<T> {
     
     /* ----------------------------------------------------------------------
      * Variables
      * ----------------------------------------------------------------------
      */
+    /** The size of the tree. */
     private int size;
 
     //The quads defined by the current quad
     private AbstractQuadNode<T> root;
-
-    
-    /* ----------------------------------------------------------------------
-     * Inner classes.
-     * ----------------------------------------------------------------------
-     */
     
     
     /* ----------------------------------------------------------------------
@@ -66,9 +61,9 @@ public class QuadTree<T extends Node2D<T>>
         clear();
         size = col.size();
         if (col.size() > 1) {
-            root = new QuadNode(0,null, col);
+            root = new QuadNode<>(0, null, col);
         } else {
-            root = new QuadLeaf(0,0,0,0,0,null, col);//TODO get rid of zeroes
+            root = new QuadLeaf<>(0, 0, 0, 0, 0, null, col);
         }
     }
     
@@ -84,27 +79,24 @@ public class QuadTree<T extends Node2D<T>>
 
     @Override
     public Iterator<T> iterator() {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
     
     @Override
     public boolean add(T t) {
-        throw new UnsupportedOperationException(); // TODO
+        throw new UnsupportedOperationException();
     }
-
-    //TODO finish method
+    
     @Override
-    public boolean remove(Object o) {
-        if (!(o instanceof Node2D)){
-            throw new IllegalArgumentException("Object provided should be of type Node2D");
-        } else {
-            if(!root.points.contains((T) o)){
-                return false;
-            }
-            size -= 1;
-            root = root.remove((Node2D) o);
-            return true;
+    @SuppressWarnings({"SuspiciousMethodCalls", "unchecked"})
+    public boolean remove(Object obj) {
+        if (!(obj instanceof Node2D)) return false;
+        if (!root.points.contains(obj)) {
+            return false;
         }
+        size -= 1;
+        root = root.remove((Node2D<T>) obj);
+        return true;
     }
 
     @Override
@@ -138,13 +130,22 @@ public class QuadTree<T extends Node2D<T>>
         return getRange(xMin, xMax, yMin, yMax);
     }
 
-    //TODO
-    public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax){
+    /**
+     * Determines the collection of point inside the range.
+     *
+     * @param xMin The minimum x-coordinate of the range.
+     * @param xMax The maximum x-coordinate of the range.
+     * @param yMin The minimum y-coordinate of the range.
+     * @param yMax The maximum y-coordinate of the range.
+     * 
+     * @return The points in the given range.
+     */
+    public Collection<T> getRange(double xMin, double xMax, double yMin, double yMax) {
         return root.getRange(xMax, yMax, xMin, yMin);
     }
 
     @SuppressWarnings("Duplicates")
-    public static void main(String args[]){
+    public static void main(String[] args){
         Logger.setDefaultLogger(new StreamLogger(System.out));
         ArrayList<BaseInputVertex> pts = new ArrayList<>(List.of(
                 new BaseInputVertex(0, 1, 1),
@@ -159,5 +160,6 @@ public class QuadTree<T extends Node2D<T>>
         ));
         QuadTree<BaseInputVertex> quad = new QuadTree<>(pts);
     }
+    
     
 }

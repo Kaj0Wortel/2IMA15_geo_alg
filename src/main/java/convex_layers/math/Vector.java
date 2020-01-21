@@ -6,16 +6,29 @@ import lombok.Setter;
 import tools.MultiTool;
 import tools.PublicCloneable;
 
+/**
+ * Mathematical vector representation class with tool functions.
+ */
 @AllArgsConstructor
 @Getter
 @Setter
 public class Vector
         implements PublicCloneable {
+    
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
     /** The x-coordinate of the vertex. */
     private double x;
     /** The x-coordinate of the vertex. */
     private double y;
     
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
     /**
      * Shorthand for {@link #getX()}.
      * 
@@ -106,6 +119,7 @@ public class Vector
     }
     
     @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Vector clone() {
         return new Vector(x, y);
     }

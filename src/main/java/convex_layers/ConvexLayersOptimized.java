@@ -301,17 +301,6 @@ public class ConvexLayersOptimized
         addHullToSol(sol, outerHull);
         vis.redraw();
         
-        int i = 0; // TODO: remove.
-        int[] coords = new int[] {
-                0, 1,
-                6, 7,
-                5, 6,
-                5, 6,
-                5, 6,
-                0, 1,
-                7, 8
-        };
-
         // BEGIN ALGORITHM LOGIC
         while (!innerHull.isEmpty()) {
             if (innerHull.size() == 1) {
@@ -322,12 +311,7 @@ public class ConvexLayersOptimized
             }
             
             // Select random edge and compute intersection with outer hull.
-//            int x = coords[i++];
-//            int y = coords[i++];
-//            Logger.write("x: " + x + ", y: " + y);
-//            VectorYEdge<BaseInputVertex> vye = new VectorYEdge<>(innerHull.getNode(x), innerHull.getNode(y));
-            
-            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge(); // TODO: place back.
+            VectorYEdge<BaseInputVertex> vye = innerHull.getRandomEdge();
             NearIntersection<BaseInputVertex> ni;
             { // Find the intersections with the outer hull
                 boolean hullOnLeftSide = innerHull.counterClockwise(vye.getIv1()).equals(vye.getIv2());
@@ -378,7 +362,7 @@ public class ConvexLayersOptimized
             
             // Fix the inner hull.
             if (!search.isEmpty()) {
-                fixInnerHull(innerHull, search, minMax, vis); // TODO
+                fixInnerHull(innerHull, search, minMax, vis);
             }
             // Reset Visual.
             vis.redraw();
@@ -406,24 +390,34 @@ public class ConvexLayersOptimized
 
         String folder = "challenge_1";
         String type = "uniform";
-//        String type = "images";
+        // ---- BEGIN SELECT INPUT FILE ----
 //        String name = "uniform-0000015-1";
-//        String name = "uniform-0000040-1";
+        String name = "uniform-0000040-1";
 //        String name = "uniform-0000060-2";
-        String name = "uniform-0000100-1";
+//        String name = "uniform-0000100-1";
 //        String name = "uniform-0001000-1";
 //        String name = "uniform-0010000-1";
 //        String name = "uniform-0100000-2";
+//        String name = ".." + Var.FS + "images" + Var.FS + "mona-lisa-1000000";
+        // ---- END SELECT INPUT FILE ----
         String path = "data" + Var.FS + folder + Var.FS + type + Var.FS + name;
-
+        
         File inFile = new File(path + ".instance.json");
-//        File inFile = new File(GEN_DATA + "0000_0017.json");
         File outFile = new File(path + ".solution.json");
-
+        
+        // ---- BEGIN SETUP VISUALIZER ----
         Visual vis = new Visualizer();
 //        Visual vis = new NullVisualizer();
+        // ---- END SETUP VISUALIZER ----
+        
+        // ---- BEGIN SETUP SOLVER ----
+        Solver solver = new ConvexLayersOptimized(PriorTreeSearch.class);
+        // ---- END SETUP SOLVER ----
+        
+        // Read problem.
         Problem2 problem = ProblemIO.readProblem(inFile);
-        Solver solver = new ConvexLayersOptimized(QuadTree.class);
+        
+        // ---- BEGIN SETUP CHECKER ----
         Checker checker;
         if (problem.getVertices().size() < 50_000) {
             checker = new MultiChecker(new FastEdgeIntersectionChecker(), new ConvexChecker());
@@ -432,6 +426,7 @@ public class ConvexLayersOptimized
             Logger.write("~~~~~~~~~~  IGNORING EDGE COLLISIONS DURING CORRECTNESS!  ~~~~~~~~~~",
                     Logger.Type.WARNING);
         }
+        // ---- END SETUP CHECKER ----
         
         // Generate solution.
         Collection<OutputEdge> sol;
@@ -477,8 +472,8 @@ public class ConvexLayersOptimized
             err.draw(errorVis);
         }
         
-        // Save solution.
-        //ProblemIO.saveSolution(outFile, sol, problem); // TODO: place back to save solution.
+        // ---- SAVE SOLUTION ----
+        ProblemIO.saveSolution(outFile, sol, problem);
     }
     
     

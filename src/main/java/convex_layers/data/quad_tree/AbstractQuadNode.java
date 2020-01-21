@@ -10,32 +10,40 @@ import java.util.Set;
 
 
 /**
- * abstract class of nodes in a quadTree
- * @param <T> type used for the nodes in the quad tree
+ * Abstract class of nodes in a quadTree
+ * @param <T> Type used for the nodes in the quad tree
  */
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 abstract class AbstractQuadNode<T extends Node2D<T>> {
-    //variables used to maintain QuadTree structure
 
-    //doubles that keep track of the maxima and minima of this QuadNode
+    /* ----------------------------------------------------------------------
+     * Variables.
+     * ----------------------------------------------------------------------
+     */
+    // Values that keep track of the maxima and minima of this QuadNode
     protected double maxX = Double.NEGATIVE_INFINITY;
     protected double maxY = Double.NEGATIVE_INFINITY;
     protected double minX = Double.POSITIVE_INFINITY;
     protected double minY = Double.POSITIVE_INFINITY;
-
-
-    //parent of this QuadNode
+    
+    
+    // Parent of this QuadNode
     protected AbstractQuadNode<T> parent;
-    //points which are contained within the range defined by the maxima and minima
+    // Points which are contained within the range defined by the maxima and minima
     protected Set<T> points = new HashSet<>();
-    //depth of this QuadNode
+    // Depth of this QuadNode
     protected int depth;
-    //middle values of the X and Y maxima and minima
+    // Middle values of the X and Y maxima and minima
     protected double middleX;
     protected double middleY;
-
-    AbstractQuadNode(double maxX, double maxY, double minX, double minY, int depth){
+    
+    
+    /* ----------------------------------------------------------------------
+     * Constructors.
+     * ----------------------------------------------------------------------
+     */
+    public AbstractQuadNode(double maxX, double maxY, double minX, double minY, int depth){
         this.maxX = maxX;
         this.maxY = maxY;
         this.minX = minX;
@@ -44,28 +52,51 @@ abstract class AbstractQuadNode<T extends Node2D<T>> {
         middleX = ((maxX-minX)/2.0)+minX;
         middleY = ((maxY-minY)/2.0)+minY;
     }
-
-    Set<T> getPoints(){
+    
+    
+    /* ----------------------------------------------------------------------
+     * Functions.
+     * ----------------------------------------------------------------------
+     */
+    /**
+     * @return The which lie in this node.
+     */
+    protected Set<T> getPoints() {
         return points;
     }
-
-    AbstractQuadNode<T> getParent(){
+    
+    /**
+     * @return The parent of this node.
+     */
+    protected AbstractQuadNode<T> getParent() {
         return parent;
     }
-
+    
     /**
-     * @return depth of this Node
+     * @return The depth of this node.
      */
-    int getDepth(){
+    protected int getDepth() {
         return depth;
     }
 
-    abstract Collection<T> getRange(double maxX, double maxY, double minX, double minY);
+    /**
+     * The points of this node which lie inside the given range.
+     * 
+     * @param maxX The maximum x-coordinate of the range.
+     * @param maxY The maximum y-coordinate of the range.
+     * @param minX The minimum x-coordinate of the range.
+     * @param minY The minimum y-coordinate of the range.
+     * 
+     * @return The points in the given range inside this node.
+     */
+    public abstract Collection<T> getRange(double maxX, double maxY, double minX, double minY);
 
     /**
      *
      * @param node item to be removed from the tree
      * @return a QuadNode with the {@code node} removed from its structure
      */
-    abstract AbstractQuadNode remove(Node2D node);
+    public abstract AbstractQuadNode<T> remove(Node2D<T> node);
+    
+    
 }
