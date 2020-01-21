@@ -1,8 +1,12 @@
 # Convex partition generator
 
+This package can generate a 3-approximation for the minimum convex partitioning problem in expected `O(n log(n))`, and worst case `O(n^2)`.
+
+
+
 ## Usage
 
-Run the file `convex_layers.ConvexLayersOptimized` to execute the program. One can externally replicate the setup and modify what to run. An example has been given in the `main(String[] args)` function in the same main class.
+Run the file `convex_layers.ConvexLayersOptimized` to execute the program.  One can externally replicate the setup and modify what to run. An example has been given in the `main(String[] args)` function in the same main class.
 
 There are a some markers in this function indicating what each part does. We'll explain this here in more detail.
 
